@@ -1129,7 +1129,7 @@ function openPop(kind, anchor) {
   const title = anchor.closest('.prow')?.querySelector('.pl')?.textContent.trim() || '';
   const left = Math.min(r.left, innerWidth - Math.min(380, innerWidth - 32) - 16);
   const below = r.bottom + 6; const top = below + 300 > innerHeight ? Math.max(16, r.top - 6 - 320) : below;
-  document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="pop ${isChoice ? 'choice' : ''} ${hasField ? 'has-q' : ''}" role="dialog" tabindex="-1" aria-label="${esc(title)}" style="left:${Math.max(16, isChoice ? r.right - 300 : left)}px;top:${top}px">${isChoice ? `<div class="pop-t">${esc(title)}</div>` : ''}${hasField ? `<div class="pop-h"><span>${esc(title)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div><input class="q" id="pop-q" enterkeyhint="done" ${form ? 'inputmode="numeric" pattern="[0-9]*"' : ''} placeholder="${esc(ph)}" aria-label="${esc(ph)}" autocomplete="off">${dir || form ? `<div class="pop-hint"><span id="pop-hint" role="status"></span>${kind === 'g-from' || kind === 'g-to' ? `<button class="hint-btn" data-act="places">${T.myPlaces}</button>` : ''}</div>` : ''}` : ''}<div class="opts" id="pop-opts" role="listbox"></div></div>`;
+  document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="pop ${isChoice ? 'choice' : ''} ${hasField ? 'has-q' : ''}" role="dialog" tabindex="-1" aria-label="${esc(title)}" style="left:${Math.max(16, isChoice ? r.right - 300 : left)}px;top:${top}px">${isChoice ? `<div class="pop-t">${esc(title)}</div>` : ''}${hasField ? `<div class="pop-h"><span>${esc(title)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div><input class="q" id="pop-q" enterkeyhint="done" autocorrect="off" spellcheck="false" ${form ? 'inputmode="numeric" pattern="[0-9]*"' : ''} placeholder="${esc(ph)}" aria-label="${esc(ph)}" autocomplete="off">${dir || form ? `<div class="pop-hint"><span id="pop-hint" role="status"></span>${kind === 'g-from' || kind === 'g-to' ? `<button class="hint-btn" data-act="places">${T.myPlaces}</button>` : ''}</div>` : ''}` : ''}<div class="opts" id="pop-opts" role="listbox"></div></div>`;
   renderPopList();
   const pe = document.querySelector('#pop-root .pop');
   // The window keeps the height it opened with, so neither it nor the field moves while typing.
@@ -1190,8 +1190,8 @@ function renderPlaces() {
   }
   const a = p.addr; const used = a && addrInTrips(a); const pl = a && placeOf(a); const cur = pl ? placeName(pl) : ''; const typed = a || p.text || '';
   pe.innerHTML = `${head}<div class="place-form">
-    <div class="pf"><label${used ? '' : ' for="pf-addr"'}>${T.placeAddr}</label>${used ? `<div class="pf-static">${esc(a)}</div><p class="pf-note">${T.placeUsed}</p>` : `<input id="pf-addr" value="${esc(typed)}" placeholder="${esc(T.findAddr)}" autocomplete="off" maxlength="120"><p class="pf-note" id="pf-addr-n" hidden></p><div id="pf-sug"></div>`}</div>
-    <div class="pf"><label for="pf-label">${T.placeName}</label><input id="pf-label" value="${esc(cur)}" placeholder="${esc(T.placeNamePh)}" autocomplete="off" maxlength="40"><p class="pf-note warn" id="pf-label-n" hidden></p></div>
+    <div class="pf"><label${used ? '' : ' for="pf-addr"'}>${T.placeAddr}</label>${used ? `<div class="pf-static">${esc(a)}</div><p class="pf-note">${T.placeUsed}</p>` : `<input id="pf-addr" autocorrect="off" spellcheck="false" value="${esc(typed)}" placeholder="${esc(T.findAddr)}" autocomplete="off" maxlength="120"><p class="pf-note" id="pf-addr-n" hidden></p><div id="pf-sug"></div>`}</div>
+    <div class="pf"><label for="pf-label">${T.placeName}</label><input id="pf-label" autocorrect="off" spellcheck="false" value="${esc(cur)}" placeholder="${esc(T.placeNamePh)}" autocomplete="off" maxlength="40"><p class="pf-note warn" id="pf-label-n" hidden></p></div>
     <div class="pf-actions">${a && !used ? `<button class="btn text danger" data-act="place-del">${T.del}</button>` : ''}<button class="btn" data-act="place-save">${T.save}</button></div>
   </div>`;
   // what was typed in the picker is searched straight away
@@ -1400,7 +1400,13 @@ async function saveMapPdf(c, m) {
   const filename = `mapa-km-${c.plate}-${m}.pdf`;
   // inside a claude.ai artifact the frame cannot download by itself: the viewer's own save goes first
   const downloads = window.claude?.use ? await window.claude.use('downloads') : null;
-  if (downloads) await downloads.save({ filename, data: doc.output('arraybuffer') }); else doc.save(filename);
+  if (downloads) { await downloads.save({ filename, data: doc.output('arraybuffer') }); return true; }
+  // a phone browser would open the PDF in place of the app: the system share sheet saves it and stays here
+  const file = new File([doc.output('blob')], filename, { type: 'application/pdf' });
+  if (TOUCH && navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return true; } catch (e) { if (e.name === 'AbortError') return false; }
+  }
+  doc.save(filename); return true;
 }
 function sheetTrip() {
   const T = L(); const d = ui.sheet.draft; const car = carById(ui.carId); const f = effect(car);
@@ -1666,7 +1672,7 @@ document.addEventListener('click', ev => {
     case 'do-remove': { const id = ui.sheet.id; D.cars = D.cars.filter(c => c.id !== id); D.trips = D.trips.filter(t => t.carId !== id); delete D.odo[id]; persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedCar); break; }
     case 'do-remove-trip': { D.trips = D.trips.filter(t => t.id !== ui.sheet.draft.id); persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedTrip); break; }
     case 'include': case 'unlink': { const key = ui.entityId + '|' + ui.period; if (ds.act === 'include') { const r = vatFor(ent(ui.entityId), periodsFor(ent(ui.entityId)).find(x => x.id === ui.period)); D.included[key] = { base: r.base, vat: r.vat }; } else delete D.included[key]; persist(); render(); break; }
-    case 'pdf': { if (ui.pdfBusy) break; ui.pdfBusy = true; const c = carById(ui.sheet.id); const m = ui.mapMonth; saveMapPdf(c, m).then(() => { D.mapPdf[c.id + '|' + m] = mapSig(c, mapStats(c, m)); persist(); render(); toast(T.pdfDone); }).catch(() => toast(T.pdfFail)).finally(() => { ui.pdfBusy = false; }); break; }
+    case 'pdf': { if (ui.pdfBusy) break; ui.pdfBusy = true; const c = carById(ui.sheet.id); const m = ui.mapMonth; saveMapPdf(c, m).then(done => { if (!done) return; D.mapPdf[c.id + '|' + m] = mapSig(c, mapStats(c, m)); persist(); render(); toast(T.pdfDone); }).catch(() => toast(T.pdfFail)).finally(() => { ui.pdfBusy = false; }); break; }
   }
 });
 document.addEventListener('input', ev => {
