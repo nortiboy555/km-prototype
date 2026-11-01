@@ -192,6 +192,14 @@ button.item:hover { background: var(--fill); }
 .sum-g label, .sum-g .cap { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sum-g .cap.r, .sum-v { text-align: right; }
 .sum-v { font-size: 22px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sum-tot { font-size: 16px; line-height: 44px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.km-bar { height: 6px; display: flex; gap: 2px; margin-top: 4px; }
+.km-bar i { display: block; height: 100%; min-width: 3px; border-radius: 3px; }
+.km-bar .biz { background: var(--ink); }
+.km-bar .pers { flex: 1; background: var(--brand); }
+.km-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; font-size: 12px; line-height: 20px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.km-line b { color: var(--ink); font-weight: 700; font-size: 16px; }
+@media (max-width: 359px) { .km-pct { display: none; } }
 .sum-calc { margin: 0; font-size: 12px; line-height: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .sum-g.pay .sum-calc { grid-column: 1 / -1; }
 .sum-g.pay .cap { font-size: 13px; color: var(--ink); font-weight: 600; }
@@ -481,7 +489,7 @@ const S = {
     errPlate: 'Formato AA-00-AA, 00-AA-00, 00-00-AA ou AA-00-00', errDup: 'Esta matrícula já existe', errReq: 'Obrigatório', errNum: 'Valor, p. ex. 12.027,15', fixErrors: 'Verifique os campos marcados', errName: 'Indique o nome',
     odoGap: (k, m) => `Fim de ${m}: ${k}`, odoLess: 'Menor do que no início do mês', odoS: (d) => `Conta-km ${d}`, odoE: (d) => `Conta-km ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', tripsKm: (b) => `viagens ${b}`, overBy: (d) => `Mais ${d} do que o conta-km. Verifique os dados`, rate: 'Valor por km', 
+    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', bizU: 'Serviço, km', totU: 'Total, km', overBy: (d) => `Mais ${d} do que o conta-km. Verifique os dados`, rate: 'Valor por km', 
     noTrips: 'Sem deslocações neste mês.', 
     newTrip: 'Nova deslocação', editTrip: 'Deslocação', date: 'Data', from: 'De', to: 'Para', purpose: 'Motivo', kmOne: 'Km num sentido', stay: 'Tempo no local', stayU: 'h', errStay: 'Escreva h:mm, por exemplo 1:30', stayIn: d => `${d} no local`, stayHint: 'Quanto tempo ficou no local. A AT pede-o no mapa de km',
     rt: 'Ida e volta', home: 'De casa para o trabalho', notPaid: 'não compensado', 
@@ -489,7 +497,7 @@ const S = {
     places: { office: 'Escritório', warehouse: 'Armazém', home: 'Casa' }, pickAdd: 'Escolher', newAddr: 'Escreva uma nova morada', findAddr: 'Procurar ou adicionar morada', addrNone: 'Morada não encontrada', newPurpose: 'Procurar ou adicionar motivo', purposeNone: 'Motivo não encontrado', nifNone: 'NIF não encontrado', addX: (x) => `Adicionar «${x}»`, placeName: 'Etiqueta', myPlaces: 'As minhas moradas', addPlace: 'Adicionar morada', newPlace: 'Nova morada', placeAddr: 'Morada', placeUsed: 'Esta morada já está em viagens: não pode ser alterada nem apagada. A etiqueta pode.', labelDup: 'Já existe esta etiqueta.', addrDup: 'Esta morada já existe.', back: 'Voltar', placeNamePh: 'opcional', needCity: 'Junte a localidade depois da vírgula, por exemplo: Avenida de Roma, Lisboa', kmPrev: 'como na última deslocação', errSame: 'A origem e o destino são iguais.', errBefore: (m) => `Antes do início de uso: ${m}`, errFuture: 'A data ainda não chegou.',
     qLabel: (q, y) => `${q}.º trimestre ${y}`, due: (d) => `Prazo de entrega: ${d}`,
     ready: 'Pronto', missing: 'Faltam dados', running: 'Trimestre em curso', runningM: 'Mês em curso', sofar: (m) => `Por agora só ${m}`, included: 'Na declaração', changed: 'Alterado depois', incWas: 'Na declaração estava', update: 'Atualizar na declaração', incFrom: d => `Pode incluir a partir de ${d}`,
-    persKm: 'Km pessoais', persKmCalc: (t, b) => `total ${t} − viagens ${b}`, costP: 'Depreciação do período', costL: 'Locação do período', costR: 'Aluguer do período', persUse: 'Sujeito a IVA', persUseAll: 'Total sujeito a IVA', vatRate: (r) => `IVA ${r}`, 
+    persKm: 'Km pessoais', persKmCalc: (t, b) => `total ${t} − serviço ${b}`, costP: 'Depreciação do período', costL: 'Locação do período', costR: 'Aluguer do período', persUse: 'Sujeito a IVA', persUseAll: 'Total sujeito a IVA', vatRate: (r) => `IVA ${r}`, 
     region: 'Taxa de IVA', regC: '23% · Continente', regMA: '22% · Madeira', regAC: '16% · Açores', homeVat: 'conta como pessoal', ta: 'Tributação autónoma 5%', taCond: 'se não faturado a clientes',
     wd: ['Se', 'Te', 'Qa', 'Qi', 'Sx', 'Sá', 'Do'], noKmNeed: 'Esta viatura não precisa de km: não há IVA dos km pessoais.', noStay: 'Falta o tempo no local', noStayMap: 'Indique o tempo no local nas deslocações marcadas', signLabel: 'Assinatura do colaborador', noOdoFor: (m) => `sem conta-km de ${m}`, fill: 'Indicar', kmOff: 'Km não batem certo', kmOffIn: (m) => `${m}: km acima do conta-km`, check: 'Verificar',
     include: 'Incluir na declaração', undo: 'Retirar da declaração', noVatCars: 'Neste período não há IVA dos km pessoais.',
@@ -533,7 +541,7 @@ const S = {
     errPlate: 'Format AA-00-AA, 00-AA-00, 00-00-AA or AA-00-00', errDup: 'This plate already exists', errReq: 'Required', errNum: 'Amount, e.g. 12.027,15', fixErrors: 'Check the marked fields', errName: 'Enter the name',
     odoGap: (k, m) => `End of ${m}: ${k}`, odoLess: 'Less than at the start of the month', odoS: (d) => `Odometer ${d}`, odoE: (d) => `Odometer ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', tripsKm: (b) => `trips ${b}`, overBy: (d) => `${d} above the odometer. Check the data`, rate: 'Rate per km', 
+    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', bizU: 'Business, km', totU: 'Total, km', overBy: (d) => `${d} above the odometer. Check the data`, rate: 'Rate per km', 
     noTrips: 'No trips this month.', 
     newTrip: 'New trip', editTrip: 'Trip', date: 'Date', from: 'From', to: 'To', purpose: 'Purpose', kmOne: 'Km one way', stay: 'Time on site', stayU: 'h', errStay: 'Use h:mm, e.g. 1:30', stayIn: d => `${d} on site`, stayHint: 'How long you stayed there. AT asks for it on the mileage log',
     rt: 'Round trip', home: 'Home to work', notPaid: 'not reimbursed', 
@@ -541,7 +549,7 @@ const S = {
     places: { office: 'Office', warehouse: 'Warehouse', home: 'Home' }, pickAdd: 'Choose', newAddr: 'Type a new address', findAddr: 'Find or add address', addrNone: 'Address not found', newPurpose: 'Find or add purpose', purposeNone: 'Purpose not found', nifNone: 'NIF not found', addX: (x) => `Add “${x}”`, placeName: 'Label', myPlaces: 'My addresses', addPlace: 'Add address', newPlace: 'New address', placeAddr: 'Address', placeUsed: 'This address is already in trips: it cannot be changed or deleted. The label can.', labelDup: 'This label already exists.', addrDup: 'This address already exists.', back: 'Back', placeNamePh: 'optional', needCity: 'Add the town after a comma, e.g. Avenida de Roma, Lisboa', kmPrev: 'same as the last trip', errSame: 'From and to are the same place.', errBefore: (m) => `Before the car was in use: ${m}`, errFuture: 'That date is in the future.',
     qLabel: (q, y) => `Q${q} ${y}`, due: (d) => `Due by ${d}`,
     ready: 'Ready', missing: 'Data missing', running: 'Quarter in progress', runningM: 'Month in progress', sofar: (m) => `So far ${m} only`, included: 'In the return', changed: 'Changed since', incWas: 'In the return now', update: 'Update the return', incFrom: d => `Can be included from ${d}`,
-    persKm: 'Personal km', persKmCalc: (t, b) => `total ${t} − trips ${b}`, costP: 'Depreciation for the period', costL: 'Lease for the period', costR: 'Rent for the period', persUse: 'Subject to VAT', persUseAll: 'Total subject to VAT', vatRate: (r) => `VAT ${r}`, 
+    persKm: 'Personal km', persKmCalc: (t, b) => `total ${t} − business ${b}`, costP: 'Depreciation for the period', costL: 'Lease for the period', costR: 'Rent for the period', persUse: 'Subject to VAT', persUseAll: 'Total subject to VAT', vatRate: (r) => `VAT ${r}`, 
     region: 'VAT rate', regC: '23% · Mainland', regMA: '22% · Madeira', regAC: '16% · Azores', homeVat: 'counts as personal', ta: 'Company tax 5%', taCond: 'if not billed to clients',
     wd: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'], noKmNeed: 'This car needs no km: there is no VAT on personal km.', noStay: 'Time on site missing', noStayMap: 'Enter the time on site in the marked trips', signLabel: 'Employee’s signature', noOdoFor: (m) => `no odometer for ${m}`, fill: 'Enter', kmOff: 'Km do not add up', kmOffIn: (m) => `${m}: km above the odometer`, check: 'Check',
     include: 'Add to the return', undo: 'Remove from the return', noVatCars: 'No VAT on personal km in this period.',
@@ -585,7 +593,7 @@ const S = {
     errPlate: 'Формат AA-00-AA, 00-AA-00, 00-00-AA или AA-00-00', errDup: 'Такой номер уже есть', errReq: 'Обязательно', errNum: 'Сумма, например 12.027,15', fixErrors: 'Проверьте отмеченные поля', errName: 'Укажите имя',
     odoGap: (k, m) => `Конец ${m}: ${k}`, odoLess: 'Меньше, чем в начале месяца', odoS: (d) => `Одометр ${d}`, odoE: (d) => `Одометр ${d}`, km: 'км',
     
-    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', tripsKm: (b) => `поездки ${b}`, overBy: (d) => `На ${d} больше пробега. Проверьте данные`, rate: 'Ставка за км', 
+    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', bizU: 'Бизнес, км', totU: 'Пробег, км', overBy: (d) => `На ${d} больше пробега. Проверьте данные`, rate: 'Ставка за км', 
     noTrips: 'В этом месяце поездок нет.', 
     newTrip: 'Новая поездка', editTrip: 'Поездка', date: 'Дата', from: 'Откуда', to: 'Куда', purpose: 'Цель', kmOne: 'Км в одну сторону', stay: 'Время на месте', stayU: 'ч', errStay: 'Формат ч:мм, например 1:30', stayIn: d => `${d} на месте`, stayHint: 'Сколько пробыли на месте. AT требует это в ведомости',
     rt: 'Туда и обратно', home: 'Из дома на работу', notPaid: 'не компенсируется', 
@@ -593,7 +601,7 @@ const S = {
     places: { office: 'Офис', warehouse: 'Склад', home: 'Дом' }, pickAdd: 'Выбрать', newAddr: 'Введите новый адрес', findAddr: 'Найти или добавить адрес', addrNone: 'Адрес не найден', newPurpose: 'Найти или добавить цель', purposeNone: 'Цель не найдена', nifNone: 'NIF не найден', addX: (x) => `Добавить «${x}»`, placeName: 'Метка', myPlaces: 'Мои адреса', addPlace: 'Добавить адрес', newPlace: 'Новый адрес', placeAddr: 'Адрес', placeUsed: 'Этот адрес уже есть в поездках: его нельзя изменить или удалить. Метку можно.', labelDup: 'Такая метка уже есть.', addrDup: 'Такой адрес уже есть.', back: 'Назад', placeNamePh: 'необязательно', needCity: 'Добавьте город через запятую, например: Avenida de Roma, Lisboa', kmPrev: 'как в прошлой поездке', errSame: 'Откуда и куда совпадают.', errBefore: (m) => `Раньше начала использования: ${m}`, errFuture: 'Эта дата ещё не наступила.',
     qLabel: (q, y) => `${q}-й квартал ${y}`, due: (d) => `Подать до ${d}`,
     ready: 'Готово', missing: 'Не хватает данных', running: 'Квартал идёт', runningM: 'Месяц идёт', sofar: (m) => `Пока только за ${m}`, included: 'В декларации', changed: 'Изменилось', incWas: 'В декларации сейчас', update: 'Обновить в декларации', incFrom: d => `Включить можно с ${d}`,
-    persKm: 'Личные км', persKmCalc: (t, b) => `пробег ${t} − поездки ${b}`, costP: 'Амортизация за период', costL: 'Лизинг за период', costR: 'Аренда за период', persUse: 'Облагается IVA', persUseAll: 'Всего облагается IVA', vatRate: (r) => `IVA ${r}`, 
+    persKm: 'Личные км', persKmCalc: (t, b) => `пробег ${t} − бизнес ${b}`, costP: 'Амортизация за период', costL: 'Лизинг за период', costR: 'Аренда за период', persUse: 'Облагается IVA', persUseAll: 'Всего облагается IVA', vatRate: (r) => `IVA ${r}`, 
     region: 'Ставка IVA', regC: '23% · Континент', regMA: '22% · Мадейра', regAC: '16% · Азорские острова', homeVat: 'считается личной', ta: 'Налог 5% для компании', taCond: 'если не перевыставлено клиентам',
     wd: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'], noKmNeed: 'Для этой машины км не нужны: IVA с личных км не начисляется.', noStay: 'Нет времени на месте', noStayMap: 'Укажите время на месте в отмеченных поездках', signLabel: 'Подпись сотрудника', noOdoFor: (m) => `нет одометра за ${m}`, fill: 'Указать', kmOff: 'Км не сходятся', kmOffIn: (m) => `${m}: км больше пробега`, check: 'Проверить',
     include: 'Включить в декларацию', undo: 'Убрать из декларации', noVatCars: 'В этом периоде IVA с личных км нет.',
@@ -957,11 +965,13 @@ function viewTrips() {
     const msg = [gap, o[0] != null && o[1] != null && o[1] < o[0] ? T.odoLess : '', s.over ? T.overBy(km(s.biz - s.total)) : ''].filter(Boolean);
     const odoIn = (id, v, day) => `<input class="odo-in" id="${id}" value="${v != null ? fmt(v, 0) : ''}" inputmode="numeric" placeholder="—" aria-label="${esc(T[id === 'odo-s' ? 'odoS' : 'odoE'](dayOfMonth(ui.month, day)))}">`;
     const lastDay = lastDayOf(ui.month);
-    const calc = s.ok ? T.persKmCalc(fmt(s.total, 0), fmt(s.biz, 0)) : s.biz ? T.tripsKm(fmt(s.biz, 0)) : '';
+    // the odometer gives the total, the bar splits it: logged business km and the rest, personal, which carries the VAT
+    const split = s.ok && !s.over && s.total > 0;
+    const line = split || s.biz ? `<div class="km-line"><span>${T.bizU} <b>${fmt(s.biz, 0)}</b></span>${split ? `<span>${T.persKmU} <b>${fmt(s.personal, 0)}</b><span class="km-pct"> · ${pct(s.share)}</span></span>` : ''}</div>` : '';
     card = `<div class="card sum"><div class="sum-g">
-      <label for="odo-s">${T.odoRange(lastDay, MON[lang][ymParts(ui.month)[1] - 1])}</label><span class="cap r">${T.persKmU}</span>
-      <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span><b class="sum-v">${s.ok && !s.over ? fmt(s.personal, 0) : '—'}</b>
-    </div>${calc ? `<p class="sum-calc">${esc(calc)}</p>` : ''}${msg.map(x => `<p class="odo-msg">${esc(x)}</p>`).join('')}</div>`;
+      <label for="odo-s">${T.odoRange(lastDay, MON[lang][ymParts(ui.month)[1] - 1])}</label><span class="cap r">${T.totU}</span>
+      <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span><span class="sum-tot">${s.ok ? fmt(s.total, 0) : '—'}</span>
+    </div>${split ? `<div class="km-bar" aria-hidden="true">${s.biz ? `<i class="biz" style="width:${(s.biz / s.total * 100).toFixed(2)}%"></i>` : ''}${s.personal ? '<i class="pers"></i>' : ''}</div>` : ''}${line}${msg.map(x => `<p class="odo-msg">${esc(x)}</p>`).join('')}</div>`;
   }
   const ts = tripsOf(car.id, ui.month);
   const list = !ts.length ? '' : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
