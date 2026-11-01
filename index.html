@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0;font:14px system-ui}</style></head><body><title>Модуль Quilómetros</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="data:,"><style>body{margin:0;font:14px system-ui}</style></head><body><title>Модуль Quilómetros</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Layout: compact header, section tabs (bottom bar on phones), one column per section.
@@ -1563,7 +1563,7 @@ function sheetTrip() {
     rows += prow(T[f], pickBtn('g-' + f, nm || st), { for: 'g-' + f, sub: nm ? esc(d[f]) : esc(loc), err: (ui.sheet.errors || {})[f] });
   }
   // the route itself: a map as soon as both ends are known
-  if (d.from && d.to && !geoOff) rows += `<div class="route-map" id="route-map" role="img" aria-label="${esc(d.from)} → ${esc(d.to)}"></div>`;
+  if (d.from && d.to && !geoOff && !routeBad.has(routeKey(d.from, d.to))) rows += `<div class="route-map" id="route-map" role="img" aria-label="${esc(d.from)} → ${esc(d.to)}"></div>`;
   rows += prow(T.kmOne, unitIn('g-km', d.km, 'data-draft="km" inputmode="numeric" placeholder="0"'), { for: 'g-km', sub: d.kmAuto === 'wait' ? T.kmWait : '', err: (ui.sheet.errors || {}).km });
   rows += prow(T.rt, `<input type="checkbox" role="switch" class="sw" id="g-rt" data-draft="rt" ${d.rt ? 'checked' : ''}>`, { for: 'g-rt' });
   rows += prow(T.purpose, pickBtn('g-purpose', d.purpose), { for: 'g-purpose', err: (ui.sheet.errors || {}).purpose, sub: d.pk === 'commute' ? (f === 'MAP' ? T.notPaid : T.homeVat) : '' });
@@ -1579,8 +1579,7 @@ function sheetTrip() {
 let lastFocus = null;
 function renderSheet(focusId) {
   const root = document.getElementById('sheet-root');
-  if (!ui.sheet) { routeMap?.remove(); routeMap = null; root.innerHTML = ''; document.body.classList.remove('locked'); if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus(); lastFocus = null; return; }
-  routeMap?.remove(); routeMap = null;
+  if (!ui.sheet) { dropRoute(); root.innerHTML = ''; document.body.classList.remove('locked'); if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus(); lastFocus = null; return; }
   const scroll = document.getElementById('sheet-b')?.scrollTop || 0;
   const active = document.activeElement?.id;
   root.innerHTML = ui.sheet.type === 'car' ? sheetCar(carById(ui.sheet.id)) : ui.sheet.type === 'car-form' ? sheetCarForm() : ui.sheet.type === 'map' ? sheetMap(carById(ui.sheet.id)) : sheetTrip();
@@ -1612,7 +1611,7 @@ function closeSheet() { ui.sheet = null; renderSheet(); }
 let tapDown = false, tapWait = 0;
 addEventListener('pointerdown', () => { tapDown = true; }, true);
 for (const e of ['pointerup', 'pointercancel']) addEventListener(e, () => { tapDown = false; }, true);
-function afterTap(fn) { clearTimeout(tapWait); const go = () => { if (tapDown) tapWait = setTimeout(go, 50); else fn(); }; tapWait = setTimeout(go, 150); }
+function afterTap(fn) { clearTimeout(tapWait); let left = 60; const go = () => { if (tapDown && left--) tapWait = setTimeout(go, 50); else fn(); }; tapWait = setTimeout(go, 150); }
 const sheetSoon = () => afterTap(() => { if (ui.pop && ui.sheet) ui.sheet.redraw = true; else if (ui.sheet) renderSheet(); });
 const setRate = (id, n) => { D.rateFrom[id] = { ...D.rateFrom[id], [ui.mapMonth]: n }; persist(); };
 // The figures around the odometer change, the fields stay: the next one keeps the focus and a phone keeps its keyboard
@@ -1714,30 +1713,35 @@ async function routeKm(a, b) {
 // A new trip starts where trips usually start
 const usualStart = () => { const top = list => { const n = new Map(); for (const t of list) if (!t.home) n.set(t.from, (n.get(t.from) || 0) + 1); return [...n].sort((a, b) => b[1] - a[1])[0]?.[0] || ''; }; return top(entTrips().filter(t => t.carId === ui.carId)) || top(entTrips()); };
 // The route on a small map in the trip form: the road line from the same service that gives the km
-const routeLines = new Map(); let routeMap = null, routeReq = 0;
+const routeLines = new Map(), routeBad = new Set(); let routeMap = null, routeMapKey = '', routeReq = 0;
+const dropRoute = () => { routeMap?.remove(); routeMap = null; routeMapKey = ''; routeReq++; };
 async function mountRoute() {
-  const el = document.getElementById('route-map'); const d = ui.sheet?.draft; if (!el || !d?.from || !d?.to) return;
-  const req = ++routeReq;
+  const el = document.getElementById('route-map'); const d = ui.sheet?.draft; if (!el || !d?.from || !d?.to) { dropRoute(); return; }
+  const route = routeKey(d.from, d.to); const key = `${route}|${lang}`;
+  // every new map is a billed load and a flash: the form redraws on each field, the drawn map stays
+  if (routeMap && routeMapKey === key) { el.replaceWith(routeMap.getContainer()); routeMap.resize(); return; }
+  dropRoute(); const req = routeReq;
+  const fail = () => { if (req !== routeReq) return; routeBad.add(route); dropRoute(); document.getElementById('route-map')?.remove(); };
   try {
-    const gl = await loadMapGl();
-    const key = routeKey(d.from, d.to); let line = routeLines.get(key);
+    let line = routeLines.get(route);
     if (!line) {
       const [x, y] = await Promise.all([ensureGeo(d.from), ensureGeo(d.to)]); if (!x || !y) throw new Error('no point');
       const j = await fetchJson(routeUrl(x, y, { overview: 'simplified', geometries: 'geojson' }));
       if (!j.routes?.length || !onRoad(j)) throw new Error('no road');
-      line = j.routes[0].geometry.coordinates; routeLines.set(key, line);
+      line = j.routes[0].geometry.coordinates; routeLines.set(route, line);
     }
+    const gl = await loadMapGl();
     const box = document.getElementById('route-map'); if (req !== routeReq || !box) return;
-    routeMap?.remove();
     const bounds = line.reduce((b, c) => b.extend(c), new gl.LngLatBounds(line[0], line[0]));
-    const map = routeMap = newMap(gl, { container: box, interactive: false, bounds, fitBoundsOptions: { padding: 26 } });
+    const map = routeMap = newMap(gl, { container: box, interactive: false, bounds, fitBoundsOptions: { padding: 26 } }); routeMapKey = key;
+    onStyleFail(map, fail);
     map.on('load', () => {
       map.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: line } } });
       map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#2a6df4', 'line-width': 4 } }, map.getStyle().layers.find(l => l.type === 'symbol')?.id);
       map.addSource('ends', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'MultiPoint', coordinates: [line[0], line[line.length - 1]] } } });
       map.addLayer({ id: 'ends', type: 'circle', source: 'ends', paint: { 'circle-radius': 6, 'circle-color': '#ffc852', 'circle-stroke-color': '#111', 'circle-stroke-width': 2 } });
     });
-  } catch (e) { if (req === routeReq) document.getElementById('route-map')?.remove(); }
+  } catch (e) { fail(); }
 }
 let kmReq = 0;
 function autoKm(d) {
@@ -1765,6 +1769,8 @@ const loadMapGl = () => glReady || (glReady = new Promise((ok, no) => {
   const s = document.createElement('script'); s.src = base + '.js'; s.integrity = 'sha384-jdGuG3GDIph+ONsjITkxWmlUE2RR0At6jtOVirn6L/6dYy3WcAVDaBNI3X96rUT0'; s.crossOrigin = 'anonymous';
   s.onload = () => { window.mapboxgl.accessToken = MAPBOX_TOKEN; ok(window.mapboxgl); }; s.onerror = () => { glReady = null; no(new Error('mapbox-gl')); }; document.head.append(s);
 }));
+// a refused token or a style that does not load leaves an empty box: the caller says so instead
+const onStyleFail = (map, fn) => { let up = false; map.on('load', () => { up = true; }); map.on('error', e => { if (!up && !e.sourceId) fn(); }); };
 const newMap = (gl, opts) => new gl.Map({ style: 'mapbox://styles/mapbox/streets-v12', language: lang, ...opts });
 function backToForm(mapPop, text) {
   mapPop.map?.remove(); const prev = mapPop.prev;
@@ -1777,12 +1783,14 @@ async function openMap(field, anchor, prev) {
   if (ui.pop !== p) return;
   const near = field && (d[field.slice(2)] || d[field === 'g-from' ? 'to' : 'from']); const known = near && D.geo[near];
   let map; try { map = p.map = newMap(gl, { container: 'map', center: known || [-9.1393, 38.7223], zoom: known ? 14 : 11, dragRotate: false, pitchWithRotate: false }); } catch (e) { document.getElementById('map-addr').textContent = T.mapFail; return; }
+  onStyleFail(map, () => { if (ui.pop !== p) return; p.noMap = true; p.picked = null; document.getElementById('map-ok').disabled = true; document.getElementById('map-addr').textContent = T.mapFail; });
   map.touchZoomRotate.disableRotation(); map.addControl(new gl.NavigationControl({ showCompass: false }));
   const lookup = async () => {
+    if (p.noMap) return;
     const req = p.req = (p.req || 0) + 1; const say = document.getElementById('map-addr'), ok = document.getElementById('map-ok'); const c = map.getCenter();
     p.picked = null; ok.disabled = true; say.textContent = L().mapLoad; let x = null;
     try { const j = await fetchJson(geoUrl('reverse', { longitude: c.lng, latitude: c.lat, limit: 1, types: 'address,street,place,locality' })); const f = j.features?.[0]; x = f && featureAddr(f); if (x) x.geo = [c.lng, c.lat]; } catch (e) {}
-    if (ui.pop !== p || p.req !== req) return;
+    if (ui.pop !== p || p.req !== req || p.noMap) return;
     p.picked = x; ok.disabled = !x; say.textContent = x ? x.addr : L().mapNone;
   };
   map.on('moveend', lookup); lookup();
