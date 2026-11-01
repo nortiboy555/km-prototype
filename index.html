@@ -37,13 +37,14 @@ p { margin: 0; }
 h1, h2, h3 { margin: 0; font-weight: 600; }
 
 /* header */
-/* phone: section title + language on top, taxpayer under them; desktop (tabs on top): taxpayer + language in one row */
+/* phone: section title + language on top, taxpayer under them, menu at the bottom; desktop: menu on top, then taxpayer + language in one row */
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 16px; align-items: start; }
 .top h1 { grid-row: 1; grid-column: 1; }
 #topact { grid-row: 1; grid-column: 2; }
 .entbar { min-width: 0; grid-row: 2; grid-column: 1 / -1; }
 .entbar:empty { display: none; }
-@media (min-width: 641px) { .top h1 { display: none; } .entbar { grid-row: 1; grid-column: 1; } }
+/* desktop: the menu comes first, the taxpayer under it */
+@media (min-width: 641px) { .top h1 { display: none; } .entbar { grid-row: 1; grid-column: 1; } .app { display: flex; flex-direction: column; } .app > .tabs { order: -1; } }
 .ent-switch { border: 0; background: transparent; padding: 4px 0; min-height: 44px; display: grid; grid-template-columns: auto 18px; column-gap: 8px; align-items: start; text-align: left; max-width: 100%; }
 .ent-switch .v { font-size: 17px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ent-switch { grid-template-columns: max-content 18px; }
