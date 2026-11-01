@@ -853,7 +853,11 @@ const inUse = (car, m) => monthsBetween(car.start, m) >= 0 && (!car.end || month
 const carMonths = car => { const out = []; for (let m = listFrom(car.start); monthsBetween(m, lastMonth(car)) >= 0; m = addMonths(m, 1)) out.push(m); return out; };
 // IVA periods from the first month a car with IVA was in use up to the current one
 function periodsFor(e) {
-  const from = listFrom(D.cars.filter(c => c.own === 'BIZ' && c.entityId === e.id && effect(c) === 'VAT').map(c => c.start).sort()[0] || CURRENT);
+  // periods begin where the log begins: a car bought years ago does not list years of empty months; older ones appear once they get a reading
+  const vc = D.cars.filter(c => c.own === 'BIZ' && c.entityId === e.id && effect(c) === 'VAT');
+  const logged = vc.flatMap(c => [...Object.keys(D.odo[c.id] || {}).filter(m => (D.odo[c.id][m] || []).some(x => x != null)), ...D.trips.filter(x => x.carId === c.id).map(x => ymOf(x.date))]).sort()[0];
+  const lastClosed = addMonths(CURRENT, e.regime === 'M' ? -1 : -3); const first = vc.map(c => c.start).sort()[0] || CURRENT;
+  const from = listFrom(logged && logged < lastClosed ? logged : first > lastClosed ? first : lastClosed);
   const out = [];
   if (e.regime === 'M') { for (let m = from; monthsBetween(m, CURRENT) >= 0; m = addMonths(m, 1)) out.push({ id: 'M-' + m, months: [m], label: monthName(m), due: dueOf(m) }); return out; }
   const qOf = m => { const [y, mm] = ymParts(m); return [y, Math.ceil(mm / 3)]; };
