@@ -44,6 +44,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 @media (min-width: 641px) { .top { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); } .app { display: flex; flex-direction: column; } .app > .tabs { order: -1; } }
 /* the add action is the last row of the list it adds to */
 .add-btn { width: 100%; }
+.trip-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 8px; }
 .route-map { height: 170px; border-radius: 12px; overflow: hidden; margin: 10px 0 4px; background: var(--fill); isolation: isolate; }
 .add-row { width: 100%; border: 0; background: transparent; display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; min-height: 52px; font-weight: 600; color: var(--ink); text-align: left; }
 .add-row:hover { background: var(--fill); }
@@ -503,7 +504,7 @@ const S = {
     newTrip: 'Nova deslocação', editTrip: 'Deslocação', date: 'Data', from: 'De', to: 'Para', purpose: 'Motivo', kmOne: 'Km num sentido', stay: 'Tempo no local', stayU: 'h', errStay: 'Escreva h:mm, por exemplo 1:30', stayIn: d => `${d} no local`, stayHint: 'Quanto tempo ficou no local. A AT pede-o no mapa de km',
     rt: 'Ida e volta', home: 'De casa para o trabalho', notPaid: 'não compensado', 
     
-    places: { office: 'Escritório', warehouse: 'Armazém', home: 'Casa' }, pickAdd: 'Escolher', newAddr: 'Escreva uma nova morada', findAddr: 'Procurar ou adicionar morada', addrNone: 'Morada não encontrada', newPurpose: 'Procurar ou adicionar motivo', purposeNone: 'Motivo não encontrado', nifNone: 'NIF não encontrado', addX: (x) => `Adicionar «${x}»`, placeName: 'Etiqueta', myPlaces: 'As minhas moradas', addPlace: 'Adicionar morada', myPlace: 'A minha morada', newPlace: 'Nova morada', placeAddr: 'Morada', placeUsed: 'Esta morada já está em viagens: não pode ser alterada nem apagada. A etiqueta pode.', labelDup: 'Já existe esta etiqueta.', addrDup: 'Esta morada já existe.', back: 'Voltar', placeNamePh: 'opcional', needCity: 'Junte a localidade depois da vírgula, por exemplo: Avenida de Roma, Lisboa', errSame: 'A origem e o destino são iguais.', errBefore: (m) => `Antes do início de uso: ${m}`, errFuture: 'A data ainda não chegou.',
+    places: { office: 'Escritório', warehouse: 'Armazém', home: 'Casa' }, pickAdd: 'Escolher', newAddr: 'Escreva uma nova morada', findAddr: 'Procurar ou adicionar morada', addrNone: 'Morada não encontrada', newPurpose: 'Procurar ou adicionar motivo', purposeNone: 'Motivo não encontrado', nifNone: 'NIF não encontrado', addX: (x) => `Adicionar «${x}»`, placeName: 'Etiqueta', myGoals: 'Os meus motivos', myGoal: 'Motivo', newGoal: 'Novo motivo', addGoal: 'Adicionar motivo', goalName: 'Nome', goalPh: 'Por exemplo, reunião com cliente', goalEmpty: 'Indique o nome', goalDup: 'Este motivo já existe', goalKeep: 'As deslocações já guardadas mantêm o motivo.', goalSystem: 'Esta deslocação não conta como serviço, por isso este motivo não pode ser alterado.', myPlaces: 'As minhas moradas', addPlace: 'Adicionar morada', myPlace: 'A minha morada', newPlace: 'Nova morada', placeAddr: 'Morada', placeUsed: 'Esta morada já está em viagens: não pode ser alterada nem apagada. A etiqueta pode.', labelDup: 'Já existe esta etiqueta.', addrDup: 'Esta morada já existe.', back: 'Voltar', placeNamePh: 'opcional', needCity: 'Junte a localidade depois da vírgula, por exemplo: Avenida de Roma, Lisboa', errSame: 'A origem e o destino são iguais.', errBefore: (m) => `Antes do início de uso: ${m}`, errFuture: 'A data ainda não chegou.',
     qLabel: (q, y) => `${q}.º trimestre ${y}`, due: (d) => `Prazo de entrega: ${d}`,
     ready: 'Pronto', missing: 'Sem conta-km', running: 'Trimestre em curso', runningM: 'Mês em curso', sofar: (m) => `Por agora só ${m}`, included: 'Na declaração', changed: 'Alterado depois', incWas: 'Na declaração estava', update: 'Atualizar na declaração', incFrom: d => `Pode incluir a partir de ${d}`,
     persKm: 'Pessoais', persKmCalc: (t, b) => `total ${t} km − serviço ${b} km`, costP: 'Depreciação do período', costL: 'Locação do período', costR: 'Aluguer do período', persUse: 'Sujeito a IVA', persUseAll: 'Total sujeito a IVA', vatRate: (r) => `IVA ${r}`, 
@@ -555,7 +556,7 @@ const S = {
     newTrip: 'New trip', editTrip: 'Trip', date: 'Date', from: 'From', to: 'To', purpose: 'Purpose', kmOne: 'Km one way', stay: 'Time on site', stayU: 'h', errStay: 'Use h:mm, e.g. 1:30', stayIn: d => `${d} on site`, stayHint: 'How long you stayed there. AT asks for it on the mileage log',
     rt: 'Round trip', home: 'Home to work', notPaid: 'not reimbursed', 
     
-    places: { office: 'Office', warehouse: 'Warehouse', home: 'Home' }, pickAdd: 'Choose', newAddr: 'Type a new address', findAddr: 'Find or add address', addrNone: 'Address not found', newPurpose: 'Find or add purpose', purposeNone: 'Purpose not found', nifNone: 'NIF not found', addX: (x) => `Add “${x}”`, placeName: 'Label', myPlaces: 'My addresses', addPlace: 'Add address', myPlace: 'My address', newPlace: 'New address', placeAddr: 'Address', placeUsed: 'This address is already in trips: it cannot be changed or deleted. The label can.', labelDup: 'This label already exists.', addrDup: 'This address already exists.', back: 'Back', placeNamePh: 'optional', needCity: 'Add the town after a comma, e.g. Avenida de Roma, Lisboa', errSame: 'From and to are the same place.', errBefore: (m) => `Before the car was in use: ${m}`, errFuture: 'That date is in the future.',
+    places: { office: 'Office', warehouse: 'Warehouse', home: 'Home' }, pickAdd: 'Choose', newAddr: 'Type a new address', findAddr: 'Find or add address', addrNone: 'Address not found', newPurpose: 'Find or add purpose', purposeNone: 'Purpose not found', nifNone: 'NIF not found', addX: (x) => `Add “${x}”`, placeName: 'Label', myGoals: 'My purposes', myGoal: 'Purpose', newGoal: 'New purpose', addGoal: 'Add purpose', goalName: 'Name', goalPh: 'For example, client meeting', goalEmpty: 'Enter a name', goalDup: 'This purpose already exists', goalKeep: 'Trips already saved keep their purpose.', goalSystem: 'This trip does not count as business, so this purpose cannot be changed.', myPlaces: 'My addresses', addPlace: 'Add address', myPlace: 'My address', newPlace: 'New address', placeAddr: 'Address', placeUsed: 'This address is already in trips: it cannot be changed or deleted. The label can.', labelDup: 'This label already exists.', addrDup: 'This address already exists.', back: 'Back', placeNamePh: 'optional', needCity: 'Add the town after a comma, e.g. Avenida de Roma, Lisboa', errSame: 'From and to are the same place.', errBefore: (m) => `Before the car was in use: ${m}`, errFuture: 'That date is in the future.',
     qLabel: (q, y) => `Q${q} ${y}`, due: (d) => `Due by ${d}`,
     ready: 'Ready', missing: 'No odometer', running: 'Quarter in progress', runningM: 'Month in progress', sofar: (m) => `So far ${m} only`, included: 'In the return', changed: 'Changed since', incWas: 'In the return now', update: 'Update the return', incFrom: d => `Can be included from ${d}`,
     persKm: 'Personal', persKmCalc: (t, b) => `total ${t} km − business ${b} km`, costP: 'Depreciation for the period', costL: 'Lease for the period', costR: 'Rent for the period', persUse: 'Subject to VAT', persUseAll: 'Total subject to VAT', vatRate: (r) => `VAT ${r}`, 
@@ -607,7 +608,7 @@ const S = {
     newTrip: 'Новая поездка', editTrip: 'Поездка', date: 'Дата', from: 'Откуда', to: 'Куда', purpose: 'Цель', kmOne: 'Км в одну сторону', stay: 'Время на месте', stayU: 'ч', errStay: 'Формат ч:мм, например 1:30', stayIn: d => `${d} на месте`, stayHint: 'Сколько пробыли на месте. AT требует это в ведомости',
     rt: 'Туда и обратно', home: 'Из дома на работу', notPaid: 'не компенсируется', 
     
-    places: { office: 'Офис', warehouse: 'Склад', home: 'Дом' }, pickAdd: 'Выбрать', newAddr: 'Введите новый адрес', findAddr: 'Найти или добавить адрес', addrNone: 'Адрес не найден', newPurpose: 'Найти или добавить цель', purposeNone: 'Цель не найдена', nifNone: 'NIF не найден', addX: (x) => `Добавить «${x}»`, placeName: 'Метка', myPlaces: 'Мои адреса', addPlace: 'Добавить адрес', myPlace: 'Мой адрес', newPlace: 'Новый адрес', placeAddr: 'Адрес', placeUsed: 'Этот адрес уже есть в поездках: его нельзя изменить или удалить. Метку можно.', labelDup: 'Такая метка уже есть.', addrDup: 'Такой адрес уже есть.', back: 'Назад', placeNamePh: 'необязательно', needCity: 'Добавьте город через запятую, например: Avenida de Roma, Lisboa', errSame: 'Откуда и куда совпадают.', errBefore: (m) => `Раньше начала использования: ${m}`, errFuture: 'Эта дата ещё не наступила.',
+    places: { office: 'Офис', warehouse: 'Склад', home: 'Дом' }, pickAdd: 'Выбрать', newAddr: 'Введите новый адрес', findAddr: 'Найти или добавить адрес', addrNone: 'Адрес не найден', newPurpose: 'Найти или добавить цель', purposeNone: 'Цель не найдена', nifNone: 'NIF не найден', addX: (x) => `Добавить «${x}»`, placeName: 'Метка', myGoals: 'Мои цели', myGoal: 'Цель', newGoal: 'Новая цель', addGoal: 'Добавить цель', goalName: 'Название', goalPh: 'Например, встреча с клиентом', goalEmpty: 'Укажите название', goalDup: 'Такая цель уже есть', goalKeep: 'В записанных поездках цель останется прежней.', goalSystem: 'Такая поездка не считается рабочей, поэтому эту цель нельзя изменить.', myPlaces: 'Мои адреса', addPlace: 'Добавить адрес', myPlace: 'Мой адрес', newPlace: 'Новый адрес', placeAddr: 'Адрес', placeUsed: 'Этот адрес уже есть в поездках: его нельзя изменить или удалить. Метку можно.', labelDup: 'Такая метка уже есть.', addrDup: 'Такой адрес уже есть.', back: 'Назад', placeNamePh: 'необязательно', needCity: 'Добавьте город через запятую, например: Avenida de Roma, Lisboa', errSame: 'Откуда и куда совпадают.', errBefore: (m) => `Раньше начала использования: ${m}`, errFuture: 'Эта дата ещё не наступила.',
     qLabel: (q, y) => `${q}-й квартал ${y}`, due: (d) => `Подать до ${d}`,
     ready: 'Готово', missing: 'Нет одометра', running: 'Квартал идёт', runningM: 'Месяц идёт', sofar: (m) => `Пока только за ${m}`, included: 'В декларации', changed: 'Изменилось', incWas: 'В декларации сейчас', update: 'Обновить в декларации', incFrom: d => `Включить можно с ${d}`,
     persKm: 'Личные', persKmCalc: (t, b) => `пробег ${t} км − бизнес ${b} км`, costP: 'Амортизация за период', costL: 'Лизинг за период', costR: 'Аренда за период', persUse: 'Облагается IVA', persUseAll: 'Всего облагается IVA', vatRate: (r) => `IVA ${r}`, 
@@ -990,7 +991,7 @@ function viewTrips() {
   const ts = tripsOf(car.id, ui.month);
   const list = !ts.length ? '' : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
   // Adding a trip comes after the month's trips, as a real button under the list
-  return `${ctx}${card}${list}<button class="btn add-btn add-main" data-act="add-trip">${ico('plus')}${T.addTrip}</button><button class="btn text add-btn" id="trips-places" data-act="places">${T.myPlaces}</button>`;
+  return `${ctx}${card}${list}<button class="btn add-btn add-main" data-act="add-trip">${ico('plus')}${T.addTrip}</button><div class="trip-links"><button class="btn text" id="trips-places" data-act="places">${T.myPlaces}</button><button class="btn text" id="trips-goals" data-act="goals">${T.myGoals}</button></div>`;
 }
 
 // ---------------- section: VAT ----------------
@@ -1076,10 +1077,7 @@ function pickerItems(kind, q) {
     base = addrsRanked().filter(a => a !== other).map(a => { const pl = placeOf(a); const nm = pl && placeName(pl); const [st, loc] = splitAddr(a); return { id: a, t: nm || st, s: nm ? a : loc, on: cur === a }; });
   }
   if (kind === 'g-purpose') {
-    const use = new Map(); for (const t of entTrips()) { const k = t.pk ? 'k:' + t.pk : 'c:' + t.purpose; if (t.pk || t.purpose) use.set(k, (use.get(k) || 0) + 1); }
-    const custom = [...new Set(entTrips().filter(t => !t.pk && t.purpose).map(t => t.purpose))];
-    base = [...Object.entries(T.purposes).map(([k, v]) => ({ id: 'k:' + k, t: v, s: '', pk: k })), ...custom.map(v => ({ id: 'c:' + v, t: v, s: '' }))]
-      .map((x, i) => ({ ...x, i, on: d?.purpose === x.t })).sort((a, b) => (use.get(b.id) || 0) - (use.get(a.id) || 0) || a.i - b.i);
+    base = goalList().map(x => ({ ...x, on: d?.purpose === x.t }));
   }
   if (kind === 'f-owner') base = D.entities.map(e => ({ id: e.id, t: taxId(e.nif), s: e.name, nif: e.nif, name: e.name, on: d?.owner?.id === e.id }));
   if (kind === 'f-person') base = D.people.map(p => ({ id: p.id, t: taxId(p.nif), s: p.name, nif: p.nif, name: p.name, on: d?.person?.id === p.id }));
@@ -1114,7 +1112,8 @@ function renderPopList() {
   const box = document.getElementById('pop-opts'); if (!box) return;
   const { items: all, msg, warn } = pickerItems(ui.pop.kind, ui.pop.q);
   let items = all;
-  if (document.getElementById('pop-q')) {
+  // addresses can be many and are found by typing; purposes are a short list of your own, all of it shown
+  if (document.getElementById('pop-q') && ui.pop.kind !== 'g-purpose') {
     const known = all.filter(x => !x.isNew); const top = known.slice(0, 5 - (all.length - known.length));
     const cur = known.find(x => x.on); if (cur && !top.includes(cur)) top[top.length - 1] = cur;
     items = all.filter(x => x.isNew || top.includes(x));
@@ -1167,7 +1166,7 @@ function openPop(kind, anchor) {
   const title = anchor.closest('.prow')?.querySelector('.pl')?.textContent.trim() || '';
   const left = Math.min(r.left, innerWidth - Math.min(380, innerWidth - 32) - 16);
   const below = r.bottom + 6; const top = below + 300 > innerHeight ? Math.max(16, r.top - 6 - 320) : below;
-  document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="pop ${isChoice ? 'choice' : ''} ${hasField ? 'has-q' : ''}" role="dialog" tabindex="-1" aria-label="${esc(title)}" style="left:${Math.max(16, isChoice ? r.right - 300 : left)}px;top:${top}px">${isChoice ? `<div class="pop-t">${esc(title)}</div>` : ''}${hasField ? `<div class="pop-h"><span>${esc(title)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div><input class="q" id="pop-q" enterkeyhint="done" autocorrect="off" spellcheck="false" ${form ? 'inputmode="numeric" pattern="[0-9]*"' : ''} placeholder="${esc(ph)}" aria-label="${esc(ph)}" autocomplete="off">${dir || form ? `<div class="pop-hint"><span id="pop-hint" role="status"></span>${kind === 'g-from' || kind === 'g-to' ? `<button class="hint-btn" data-act="places">${T.myPlaces}</button>` : ''}</div>` : ''}` : ''}<div class="opts" id="pop-opts" role="listbox"></div></div>`;
+  document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="pop ${isChoice ? 'choice' : ''} ${hasField ? 'has-q' : ''}" role="dialog" tabindex="-1" aria-label="${esc(title)}" style="left:${Math.max(16, isChoice ? r.right - 300 : left)}px;top:${top}px">${isChoice ? `<div class="pop-t">${esc(title)}</div>` : ''}${hasField ? `<div class="pop-h"><span>${esc(title)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div><input class="q" id="pop-q" enterkeyhint="done" autocorrect="off" spellcheck="false" ${form ? 'inputmode="numeric" pattern="[0-9]*"' : ''} placeholder="${esc(ph)}" aria-label="${esc(ph)}" autocomplete="off">${dir || form ? `<div class="pop-hint"><span id="pop-hint" role="status"></span>${kind === 'g-from' || kind === 'g-to' ? `<button class="hint-btn" data-act="places">${T.myPlaces}</button>` : kind === 'g-purpose' ? `<button class="hint-btn" data-act="goals">${T.myGoals}</button>` : ''}</div>` : ''}` : ''}<div class="opts" id="pop-opts" role="listbox"></div></div>`;
   renderPopList();
   const pe = document.querySelector('#pop-root .pop');
   // The window keeps the height it opened with, so neither it nor the field moves while typing.
@@ -1247,6 +1246,68 @@ function renderPfSug() {
   const status = geoOff ? T.geoOff : q.length >= 3 && p.loading && !rows.length ? T.searching : q.length >= 3 && !p.loading && !rows.length ? (p.busy ? T.geoBusy : T.addrNone) : '';
   box.innerHTML = (status ? `<p class="pf-note">${esc(status)}</p>` : '') + rows.map((x, i) => `<button class="opt" data-sug="${i}"><span class="t">${esc(x.t)}</span><span class="s">${esc(x.s)}</span></button>`).join('') + (geoOff ? '' : `<button class="opt add" data-act="map-pick">${ico('pin')}<span class="t">${esc(T.mapPick)}</span></button>`);
 }
+// Purposes of this taxpayer: the samples, what was added here and what trips already used, minus what was removed
+function goalList() {
+  const T = L(); const off = D.goalsOff?.[ui.entityId] || []; const trips = entTrips();
+  const use = new Map(); for (const t of trips) { const k = t.pk ? 'k:' + t.pk : 'c:' + t.purpose; if (t.pk || t.purpose) use.set(k, (use.get(k) || 0) + 1); }
+  const custom = [...new Set([...(D.goalsAdd?.[ui.entityId] || []), ...trips.filter(t => !t.pk && t.purpose).map(t => t.purpose)])];
+  return [...Object.entries(T.purposes).map(([k, v]) => ({ id: 'k:' + k, t: v, s: '', pk: k })), ...custom.map(v => ({ id: 'c:' + v, t: v, s: '' }))]
+    .filter(x => !off.includes(x.id)).map((x, i) => ({ ...x, i })).sort((a, b) => (use.get(b.id) || 0) - (use.get(a.id) || 0) || a.i - b.i);
+}
+const goalInTrips = g => entTrips().some(t => (g.pk ? t.pk === g.pk : !t.pk && t.purpose === g.t));
+function openGoals(anchor, back) {
+  const r = anchor.getBoundingClientRect(); const was = back && document.querySelector('#pop-root .pop')?.getBoundingClientRect();
+  ui.pop = { kind: 'goals', anchor, back, q: back ? ui.pop?.q : '', view: 'list', goal: null };
+  anchor.setAttribute('aria-expanded', 'true');
+  document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="pop has-q places" role="dialog" tabindex="-1" aria-label="${esc(L().myGoals)}"></div>`;
+  const pe = document.querySelector('#pop-root .pop'); const h = was ? Math.max(was.height, 360) : Math.min(420, innerHeight * .7); const below = r.bottom + 6;
+  pe.style.setProperty('--pop-h', h + 'px');
+  pe.style.left = Math.max(16, Math.min(r.left, innerWidth - Math.min(380, innerWidth - 32) - 16)) + 'px';
+  pe.style.top = (was ? Math.max(8, Math.min(was.top, innerHeight - 8 - h)) : below + h > innerHeight - 8 ? Math.max(8, r.top - 6 - h) : below) + 'px';
+  renderGoals();
+}
+function renderGoals() {
+  const T = L(); const p = ui.pop; const pe = document.querySelector('#pop-root .pop'); const edit = p.view === 'edit'; const g = p.goal;
+  const head = `<div class="pop-h">${p.back || edit ? `<button class="iconbtn back" data-act="goals-back" aria-label="${T.back}">${ico('chev')}</button>` : ''}<span>${esc(edit ? (g ? T.myGoal : T.newGoal) : T.myGoals)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div>`;
+  if (!edit) {
+    p.rows = goalList();
+    pe.innerHTML = `${head}<div class="opts"><button class="opt add" data-act="goal-new">${ico('plus')}<span class="t">${T.addGoal}</span></button>${p.rows.map((x, i) => `<button class="opt" data-goal="${i}"><span class="t">${esc(x.t)}</span></button>`).join('')}</div>`;
+    pe.focus({ preventScroll: true }); return;
+  }
+  // the home trip decides how km are counted, so it stays as it is
+  if (g?.pk === 'commute') { pe.innerHTML = `${head}<div class="place-form"><div class="pf"><label>${T.goalName}</label><div class="pf-static">${esc(g.t)}</div><p class="pf-note">${T.goalSystem}</p></div></div>`; pe.focus({ preventScroll: true }); return; }
+  pe.innerHTML = `${head}<div class="place-form"><div class="pf"><label for="pf-goal">${T.goalName}</label><input id="pf-goal" value="${esc(g?.t || '')}" placeholder="${esc(T.goalPh)}" autocomplete="off" maxlength="60"><p class="pf-note warn" id="pf-goal-n" hidden></p>${g && goalInTrips(g) ? `<p class="pf-note">${T.goalKeep}</p>` : ''}</div><div class="pf-actions">${g ? `<button class="btn text danger" data-act="goal-del">${T.del}</button>` : ''}<button class="btn" data-act="goal-save">${T.save}</button></div></div>`;
+  (TOUCH && g ? pe : document.getElementById('pf-goal')).focus({ preventScroll: true });
+}
+function goalsBack() {
+  const p = ui.pop;
+  if (p.view === 'edit') { p.view = 'list'; p.goal = null; renderGoals(); return; }
+  if (!p.back) { closePop(); return; }
+  const id = p.anchor.id; const changed = p.changed; ui.pop = null; document.getElementById('pop-root').innerHTML = '';
+  if (changed) render();
+  openPop(p.back, document.getElementById(id));
+  const q = document.getElementById('pop-q'); if (q && p.q) { q.value = p.q; ui.pop.q = p.q; renderPopList(); }
+}
+const normName = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function goalDrop(g) {
+  const id = ui.entityId; D.goalsOff = D.goalsOff || {}; D.goalsAdd = D.goalsAdd || {};
+  D.goalsOff[id] = [...new Set([...(D.goalsOff[id] || []), g.id])]; D.goalsAdd[id] = (D.goalsAdd[id] || []).filter(x => x !== g.t);
+}
+function saveGoal() {
+  const T = L(); const p = ui.pop; const g = p.goal; const name = document.getElementById('pf-goal').value.trim(); const id = ui.entityId;
+  const say = msg => { const n = document.getElementById('pf-goal-n'); n.textContent = msg; n.hidden = false; document.getElementById('pf-goal').focus(); };
+  if (!name) return say(T.goalEmpty);
+  if (g && g.t === name) { goalsBack(); return; }
+  if (goalList().some(x => x.id !== g?.id && normName(x.t) === normName(name))) return say(T.goalDup);
+  if (g) goalDrop(g);
+  D.goalsOff = D.goalsOff || {}; D.goalsAdd = D.goalsAdd || {};
+  // a removed purpose typed again comes back
+  const sample = Object.entries(T.purposes).find(([, v]) => normName(v) === normName(name));
+  D.goalsOff[id] = (D.goalsOff[id] || []).filter(x => x !== 'c:' + name && x !== (sample ? 'k:' + sample[0] : ''));
+  if (!sample) D.goalsAdd[id] = [...new Set([...(D.goalsAdd[id] || []), name])];
+  persist(); p.changed = true; goalsBack();
+}
+function deleteGoal() { const p = ui.pop; goalDrop(p.goal); persist(); p.changed = true; goalsBack(); }
 function placesBack() {
   const p = ui.pop;
   if (p.view === 'edit' && !p.pick && addrsRanked().length) { p.view = 'list'; renderPlaces(); return; }
@@ -1697,6 +1758,12 @@ document.addEventListener('click', ev => {
   if ('hint' in ds) { const row = b.closest('.prow'); const on = row.classList.toggle('hint-on'); b.setAttribute('aria-expanded', on); return; }
   if (ds.act === 'close-pop') { closePop(); return; }
   if (ds.act === 'places') { openPlaces(ui.pop?.anchor || b, ui.pop?.kind); return; }
+  if (ds.act === 'goals') { openGoals(ui.pop?.anchor || b, ui.pop?.kind); return; }
+  if (ds.act === 'goals-back') { goalsBack(); return; }
+  if (ds.act === 'goal-new') { ui.pop.view = 'edit'; ui.pop.goal = null; renderGoals(); return; }
+  if (ds.act === 'goal-save') { saveGoal(); return; }
+  if (ds.act === 'goal-del') { deleteGoal(); return; }
+  if (ds.goal !== undefined) { ui.pop.view = 'edit'; ui.pop.goal = ui.pop.rows[+ds.goal]; renderGoals(); return; }
   if (ds.act === 'places-back') { placesBack(); return; }
   if (ds.act === 'place-new') { ui.pop.view = 'edit'; ui.pop.addr = ''; renderPlaces(); return; }
   if (ds.place !== undefined) { ui.pop.view = 'edit'; ui.pop.addr = ui.pop.rows[+ds.place]; renderPlaces(); return; }
@@ -1771,9 +1838,10 @@ document.addEventListener('keydown', ev => {
     if (step && from) { ev.preventDefault(); const to = addDays(from, step); if (to >= ui.pop.min && to <= ui.pop.max) { if (to.slice(0, 7) !== ui.pop.ym) { ui.pop.ym = to.slice(0, 7); renderCal(to); } else document.querySelector(`[data-cal-day="${to}"]`)?.focus(); } }
     return;
   }
-  if (ui.pop?.kind === 'places') {
-    if (ev.key === 'Escape') { ev.preventDefault(); placesBack(); return; }
-    if (ev.key === 'Enter' && ev.target.tagName === 'INPUT') { ev.preventDefault(); savePlace(); return; }
+  if (ui.pop?.kind === 'places' || ui.pop?.kind === 'goals') {
+    const goals = ui.pop.kind === 'goals';
+    if (ev.key === 'Escape') { ev.preventDefault(); (goals ? goalsBack : placesBack)(); return; }
+    if (ev.key === 'Enter' && ev.target.tagName === 'INPUT') { ev.preventDefault(); (goals ? saveGoal : savePlace)(); return; }
     if (ev.key === 'Tab') {
       const f = [...document.querySelectorAll('#pop-root .pop button, #pop-root .pop input')]; const i = f.indexOf(document.activeElement);
       ev.preventDefault(); f[(i + (ev.shiftKey ? f.length - 1 : 1) + (i < 0 && ev.shiftKey ? 1 : 0)) % f.length]?.focus();
