@@ -69,11 +69,12 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .tab-lang { --c1: #ff7f9c; --c2: #e63b6a; }
 @media (max-width: 640px) {
   .app { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
-  .add-main { position: sticky; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); z-index: 5; }
   .tabs { --tab-bg: var(--nav); position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 60px; gap: 0; background: var(--nav); border-top: 1px solid var(--nav-edge); border-bottom: 0; padding: 8px env(safe-area-inset-right, 0px) calc(6px + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px); }
   .tabs button { width: auto; min-width: 0; padding: 0; gap: 4px; font-size: 11px; line-height: 14px; }
   .tabs .lang-tab { margin-left: 0; }
 }
+/* on a short screen a pinned button would cover the car and the odometer */
+@media (max-width: 640px) and (min-height: 620px) { .add-main { position: sticky; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); z-index: 5; } }
 /* the longest caption ("Компенсации") still fits one line on a 320px phone */
 @media (max-width: 360px) {
   .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)) 48px; }
