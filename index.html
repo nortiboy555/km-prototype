@@ -526,7 +526,7 @@ const S = {
     include: 'Incluir na declaração', undo: 'Retirar da declaração', noVatCars: 'Neste período não há IVA dos km pessoais.',
     noVatOthers: 'Sem IVA:', exempt: 'Entidade isenta (art. 53.º): sem IVA a liquidar.',
     shortCap: 'acima do limite', shortNotDed: 'IVA não deduzido', shortExempt: 'isento',
-    pdf: 'Mapa de km', pdfDone: 'PDF descarregado: falta a assinatura do colaborador', csvDone: 'CSV descarregado', csvFail: 'Não foi possível criar o CSV', pdfFail: 'Não foi possível criar o PDF, tente de novo', mapStale: 'Alterado depois do PDF: descarregue-o e assine de novo', kmWait: 'A calcular por estrada…', searching: 'A procurar…', geoBusy: 'O serviço de moradas não respondeu, tente de novo', geoOff: 'Sem sugestões aqui: escreva a morada', mapPick: 'Indicar no mapa', mapChoose: 'Escolher', mapLoad: 'A procurar a morada…', mapNone: 'Morada não encontrada, mova o mapa', mapFail: 'Mapa indisponível, escreva a morada', mapDoc: 'Mapa de km', download: 'Descarregar PDF', mapLegal: 'Compensação por deslocações em viatura própria ao serviço da empresa. Até 0,40 €/km sem IRS (Portaria 1553‑D/2008).',
+    pdf: 'Mapa de km', errPt: 'Escreva em português: entra no mapa de km', notPt: 'O mapa é só em português: corrija o motivo, a morada ou o nome', pdfDone: 'PDF descarregado: falta a assinatura do colaborador', csvDone: 'CSV descarregado', csvFail: 'Não foi possível criar o CSV', pdfFail: 'Não foi possível criar o PDF, tente de novo', mapStale: 'Alterado depois do PDF: descarregue-o e assine de novo', kmWait: 'A calcular por estrada…', searching: 'A procurar…', geoBusy: 'O serviço de moradas não respondeu, tente de novo', geoOff: 'Sem sugestões aqui: escreva a morada', mapPick: 'Indicar no mapa', mapChoose: 'Escolher', mapLoad: 'A procurar a morada…', mapNone: 'Morada não encontrada, mova o mapa', mapFail: 'Mapa indisponível, escreva a morada', mapDoc: 'Mapa de km', download: 'Descarregar PDF', mapLegal: 'Compensação por deslocações em viatura própria ao serviço da empresa. Até 0,40 €/km sem IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} ${n === 1 ? 'deslocação' : 'deslocações'} de casa fora do mapa`, rateBad: 'Valor em euros por km, p. ex. 0,40', excess: 'Acima de 0,40 €/km', excessSub: 'sujeito a IRS e Segurança Social', total: 'A pagar sem IRS',
     savedCar: 'Viatura guardada', removedCar: 'Viatura apagada', savedTrip: 'Deslocação guardada', removedTrip: 'Deslocação apagada',
     
@@ -578,7 +578,7 @@ const S = {
     include: 'Add to the return', undo: 'Remove from the return', noVatCars: 'No VAT on personal km in this period.',
     noVatOthers: 'No VAT:', exempt: 'Exempt entity (art. 53): no VAT to charge.',
     shortCap: 'above the limit', shortNotDed: 'VAT not deducted', shortExempt: 'exempt',
-    pdf: 'Mileage log', pdfDone: 'PDF downloaded: needs the employee’s signature', csvDone: 'CSV downloaded', csvFail: 'Could not create the CSV', pdfFail: 'Could not create the PDF, try again', mapStale: 'Changed after the PDF: download it and sign again', kmWait: 'Calculating by road…', searching: 'Searching…', geoBusy: 'The address service did not answer, try again', geoOff: 'No suggestions here: type the address', mapPick: 'Pick on the map', mapChoose: 'Choose', mapLoad: 'Finding the address…', mapNone: 'Address not found, move the map', mapFail: 'Map unavailable, type the address', mapDoc: 'Mileage log', download: 'Download PDF', mapLegal: 'Allowance for business trips in the employee’s own car. Up to 0,40 €/km free of IRS (Portaria 1553‑D/2008).',
+    pdf: 'Mileage log', errPt: 'Portuguese only: it goes on the mileage log', notPt: 'The log is Portuguese only: fix the purpose, address or name', pdfDone: 'PDF downloaded: needs the employee’s signature', csvDone: 'CSV downloaded', csvFail: 'Could not create the CSV', pdfFail: 'Could not create the PDF, try again', mapStale: 'Changed after the PDF: download it and sign again', kmWait: 'Calculating by road…', searching: 'Searching…', geoBusy: 'The address service did not answer, try again', geoOff: 'No suggestions here: type the address', mapPick: 'Pick on the map', mapChoose: 'Choose', mapLoad: 'Finding the address…', mapNone: 'Address not found, move the map', mapFail: 'Map unavailable, type the address', mapDoc: 'Mileage log', download: 'Download PDF', mapLegal: 'Allowance for business trips in the employee’s own car. Up to 0,40 €/km free of IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} home-to-work ${n === 1 ? 'trip' : 'trips'} left out`, rateBad: 'Rate in euros per km, e.g. 0,40', excess: 'Above 0,40 €/km', excessSub: 'subject to IRS and Social Security', total: 'To pay, free of IRS',
     savedCar: 'Car saved', removedCar: 'Car deleted', savedTrip: 'Trip saved', removedTrip: 'Trip deleted',
     
@@ -630,7 +630,7 @@ const S = {
     include: 'Включить в декларацию', undo: 'Убрать из декларации', noVatCars: 'В этом периоде IVA с личных км нет.',
     noVatOthers: 'Без IVA:', exempt: 'Освобождён (art. 53.º): IVA не начисляется.',
     shortCap: 'выше лимита', shortNotDed: 'IVA не вычитался', shortExempt: 'освобождён',
-    pdf: 'Ведомость км', pdfDone: 'PDF скачан: нужна подпись сотрудника', csvDone: 'CSV скачан', csvFail: 'Не удалось создать CSV', pdfFail: 'Не удалось создать PDF, попробуйте ещё раз', mapStale: 'Изменилось после PDF: скачайте и подпишите заново', kmWait: 'Считаем по дорогам…', searching: 'Ищем…', geoBusy: 'Сервис адресов не ответил, попробуйте ещё раз', geoOff: 'Подсказок здесь нет: введите адрес', mapPick: 'Указать на карте', mapChoose: 'Выбрать', mapLoad: 'Определяем адрес…', mapNone: 'Адрес не найден, сдвиньте карту', mapFail: 'Карта недоступна, введите адрес', mapDoc: 'Ведомость км', download: 'Скачать PDF', mapLegal: 'Компенсация за рабочие поездки на машине сотрудника. До 0,40 €/км без IRS (Portaria 1553‑D/2008).',
+    pdf: 'Ведомость км', errPt: 'Только на португальском: это попадёт в ведомость', notPt: 'Ведомость только на португальском: исправьте цель, адрес или имя', pdfDone: 'PDF скачан: нужна подпись сотрудника', csvDone: 'CSV скачан', csvFail: 'Не удалось создать CSV', pdfFail: 'Не удалось создать PDF, попробуйте ещё раз', mapStale: 'Изменилось после PDF: скачайте и подпишите заново', kmWait: 'Считаем по дорогам…', searching: 'Ищем…', geoBusy: 'Сервис адресов не ответил, попробуйте ещё раз', geoOff: 'Подсказок здесь нет: введите адрес', mapPick: 'Указать на карте', mapChoose: 'Выбрать', mapLoad: 'Определяем адрес…', mapNone: 'Адрес не найден, сдвиньте карту', mapFail: 'Карта недоступна, введите адрес', mapDoc: 'Ведомость км', download: 'Скачать PDF', mapLegal: 'Компенсация за рабочие поездки на машине сотрудника. До 0,40 €/км без IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} ${ruPl(n, 'поездка', 'поездки', 'поездок')} из дома не ${ruPl(n, 'входит', 'входят', 'входят')}`, rateBad: 'Ставка в евро за км, например 0,40', excess: 'Сверх 0,40 €/км', excessSub: 'облагается IRS и Segurança Social', total: 'К выплате без IRS',
     savedCar: 'Машина сохранена', removedCar: 'Машина удалена', savedTrip: 'Поездка сохранена', removedTrip: 'Поездка удалена',
     
@@ -1087,7 +1087,7 @@ function viewMaps() {
       ${s.paid.length ? prow(T.total, eur(s.total), { cls: 'strong', sub: km(s.kms) + (s.home ? ' · ' + T.homeOut(s.home) : '') }) : ''}
       ${s.raw > 0.4 && s.kms ? prow(T.excess, eur(r2(s.kms * (s.raw - 0.4))), { sub: T.excessSub }) : ''}
       ${s.total && pay.kind === 'COMPANY' ? prow(T.ta, eur(r2(s.total * 0.05)), { sub: T.taCond }) : ''}
-      <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">${(() => { const pdf = D.mapPdf[c.id + '|' + ui.mapMonth]; return pdf && pdf !== mapSig(c, s) ? alertBox(T.mapStale, '', 'info').replace('class="alert', 'style="width:100%" class="alert') : ''; })()}${!s.paid.length ? `<button class="btn ghost" data-trips-of="${c.id}|${ui.mapMonth}">${T.seeTrips}</button>` : s.paid.some(t => !t.stay) ? alertBox(T.noStayMap) : `<button class="btn" data-map="${c.id}" aria-label="${esc(T.download)}">${ico('doc')}PDF</button><button class="btn ghost" data-csv="${c.id}" aria-label="CSV">${ico('doc')}CSV</button>`}</div></div>`;
+      <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">${(() => { const pdf = D.mapPdf[c.id + '|' + ui.mapMonth]; return pdf && pdf !== mapSig(c, s) ? alertBox(T.mapStale, '', 'info').replace('class="alert', 'style="width:100%" class="alert') : ''; })()}${!s.paid.length ? `<button class="btn ghost" data-trips-of="${c.id}|${ui.mapMonth}">${T.seeTrips}</button>` : logTexts(c, s).some(notPt) ? alertBox(T.notPt) : s.paid.some(t => !t.stay) ? alertBox(T.noStayMap) : `<button class="btn" data-map="${c.id}" aria-label="${esc(T.download)}">${ico('doc')}PDF</button><button class="btn ghost" data-csv="${c.id}" aria-label="CSV">${ico('doc')}CSV</button>`}</div></div>`;
   }).join('');
   return ctx + cards;
 }
@@ -1461,7 +1461,7 @@ function sheetCarForm() {
   let rows = prow(T.plate, pin('f-plate', d.plate, `data-draft="plate" placeholder="AA-00-AA" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="8" ${err.plate ? 'aria-invalid="true"' : ''}`), { for: 'f-plate', err: err.plate });
   rows += prow(T.whose, `<input type="checkbox" role="switch" class="sw" id="f-own" ${d.own === 'PRIV' ? 'checked' : ''}>`, { for: 'f-own' });
   if (d.own === 'BIZ') rows += partyRow('owner', T.owner, T.pickNif);
-  else rows += partyRow('person', T.employee, T.pickNif) + prow(T.carOwner, pin('f-carowner', d.ownerName, `data-draft="ownerName" placeholder="${esc(T.carOwnerPh)}" autocomplete="off" maxlength="80"`), { for: 'f-carowner', hint: true, sub: T.carOwnerNote }) + partyRow('payer', T.payer, T.pickNipc);
+  else rows += partyRow('person', T.employee, T.pickNif) + prow(T.carOwner, pin('f-carowner', d.ownerName, `data-draft="ownerName" placeholder="${esc(T.carOwnerPh)}" autocomplete="off" maxlength="80"`), { for: 'f-carowner', hint: true, sub: T.carOwnerNote, err: err.ownerName }) + partyRow('payer', T.payer, T.pickNipc);
   if (d.own === 'BIZ') rows += prow(T.kind, sel('f-kind', d.kind || 'PAX', [['PAX', T.kindPax], ['GOODS', T.kindGoods], ['TRUCK', T.kindTruck], ['TAXI', T.kindTaxi]], 'data-draft-sel="kind"'), { for: 'f-kind', hint: true, sub: T.kindHint });
   if (d.own === 'BIZ') rows += prow(T.motor, sel('f-motor', d.motor, [['EV', T.mEV], ['PHEV', T.mPHEV], ['GPL', T.mGPL], ['DIESEL', T.mDIESEL], ['PETROL', T.mPETROL]], 'data-draft-sel="motor"'), { for: 'f-motor', err: err.motor });
   if (d.own === 'BIZ') {
@@ -1484,17 +1484,18 @@ function sheetCarForm() {
 // The mapa is a Portuguese document for the AT, so the file is in Portuguese whatever the screen language
 let pdfReady = null;
 const loadPdf = () => pdfReady || (pdfReady = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.integrity = 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=='; s.crossOrigin = 'anonymous'; s.onload = () => ok(window.jspdf.jsPDF); s.onerror = () => { pdfReady = null; no(new Error('jspdf')); }; document.head.append(s); }));
-// Standard PDF fonts only know Latin letters: a purpose typed in Cyrillic needs a real font, fetched only then
-let uniFont = null;
-const loadUniFont = () => uniFont || (uniFont = fetch('https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf', { integrity: 'sha256-faGVp0xVvvmI0NSPlQi9XYSUJcF3Dbpde/xs6e2EiVQ=' }).then(r => r.arrayBuffer()).then(b => { const u = new Uint8Array(b); let s = ''; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); }).catch(e => { uniFont = null; throw e; }));
+// The log is a document for the AT: Portuguese only, in PDF's own font, which has every Portuguese letter and no others
+const notPt = s => /[^\u0000-\u00ff\u2010-\u2015\u20ac]/.test(String(s ?? ''));
+// the words of a trip that reach the log: a built-in purpose is printed from the Portuguese list, whatever the screen shows
+const logTexts = (c, s) => [ent(c.payerId)?.name, per(c.personId)?.name, c.ownerName, c.plate, ...s.paid.flatMap(t => [t.from, t.to, t.pk ? '' : t.purpose])];
 async function saveMapPdf(c, m) {
   const JsPDF = await loadPdf();
   const P = S.pt; const s = mapStats(c, m); const p = per(c.personId), y = ent(c.payerId);
   const tx = x => String(x ?? '').replace(/[  ]/g, ' ').replace(/[‐-―]/g, '-');
   const doc = new JsPDF({ unit: 'mm', format: 'a4' });
   const X = 15, W = 180, R = X + W, BOTTOM = 276; let yy = 17;
-  // The system font of PDF, nothing embedded; text outside Latin (a purpose typed in Cyrillic) needs a font that has it, fetched only then
-  let F = 'helvetica', B = 'bold';
+  const F = 'helvetica', B = 'bold';
+  doc.setLanguage('pt-PT'); doc.setProperties({ title: `Mapa de quilómetros · ${c.plate} · ${m}` });
   if (/[^\u0000-ÿ‐-―€]/.test([y?.name, p?.name, c.ownerName, c.plate, ...s.paid.flatMap(t => [t.from, t.to, t.purpose])].join(' '))) { doc.addFileToVFS('u.ttf', await loadUniFont()); doc.addFont('u.ttf', 'U', 'normal'); F = 'U'; B = 'normal'; }
   const INK = [17, 17, 17], MUTED = [111, 105, 98], LINE = [233, 229, 226], FILL = [243, 240, 237], BRAND = [255, 200, 82];
   const set = (size, bold, color = INK) => { doc.setFont(F, bold ? B : 'normal'); doc.setFontSize(size); doc.setTextColor(...color); };
@@ -1688,9 +1689,9 @@ function carErrors(d) {
   const T = L(); const err = {};
   d.plate = plateNorm(d.plate);
   if (!d.plate) err.plate = T.errReq; else if (!PLATE_RE.test(d.plate)) err.plate = T.errPlate; else if (D.cars.some(c => c.plate === d.plate && c.id !== d.id)) err.plate = T.errDup;
-  const need = f => { if (!d[f]) err[f] = T.errReq; else if (d[f].isNew && !d[f].name.trim()) err[f + 'Name'] = T.errName; };
+  const need = f => { if (!d[f]) err[f] = T.errReq; else if (d[f].isNew && !d[f].name.trim()) err[f + 'Name'] = T.errName; else if (d[f].isNew && d.own === 'PRIV' && notPt(d[f].name)) err[f + 'Name'] = T.errPt; };
   if (d.own === 'BIZ') { need('owner'); if (!d.motor) err.motor = T.errReq; if (needsValue(d)) err.value = money(d.value); if (needsRent(d)) err.rent = money(d.rent); if (!/^\d{4}-\d{2}$/.test(d.start)) err.start = T.errReq; }
-  else { need('person'); need('payer'); if (d.person && d.payer && d.person.nif === d.payer.nif) err.payer = T.errSelf; if (!/^\d{4}-\d{2}$/.test(d.start)) err.start = T.errReq; }
+  else { need('person'); need('payer'); if (notPt(d.ownerName)) err.ownerName = T.errPt; if (d.person && d.payer && d.person.nif === d.payer.nif) err.payer = T.errSelf; if (!/^\d{4}-\d{2}$/.test(d.start)) err.start = T.errReq; }
   // a required amount: empty says so, a typo shows the expected form
   function money(v) { const n = num(v); return !String(v ?? '').trim() ? T.errReq : n == null ? T.errNum : n <= 0 ? T.errReq : ''; }
   for (const k of Object.keys(err)) if (!err[k]) delete err[k];
@@ -1863,6 +1864,9 @@ function tripErrors(d, car) {
   if (!d.from.trim()) err.from = T.errReq; else if (!hasTown(d.from)) err.from = T.needCity;
   if (!d.to.trim()) err.to = T.errReq; else if (d.from.trim().toLowerCase() === d.to.trim().toLowerCase()) err.to = T.errSame; else if (!hasTown(d.to)) err.to = T.needCity;
   if (!d.purpose.trim()) err.purpose = T.errReq;
+  else if (effect(car) === 'MAP' && !(d.pk && L().purposes[d.pk] === d.purpose.trim()) && notPt(d.purpose)) err.purpose = T.errPt;
+  if (!err.from && effect(car) === 'MAP' && notPt(d.from)) err.from = T.errPt;
+  if (!err.to && effect(car) === 'MAP' && notPt(d.to)) err.to = T.errPt;
   if (!int(d.km)) err.km = T.errReq;
   if (needsStay(car, d.pk)) { if (!String(d.stay ?? '').trim()) err.stay = T.errReq; else if (stayMin(d.stay) == null) err.stay = T.errStay; }
   return err;
