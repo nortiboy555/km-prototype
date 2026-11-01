@@ -215,10 +215,19 @@ button.item:hover { background: var(--fill); }
 .odo-in::placeholder { color: var(--ph); }
 .odo-in:focus { outline: none; border-bottom-color: var(--brand); }
 .odo-in::placeholder { color: var(--ph); }
-.odo-msg { margin: 0; font-size: 12px; line-height: 16px; color: var(--warn); }
+.alert { --a: var(--warn); display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 8px; border-radius: 12px; background: var(--fill); background: color-mix(in srgb, var(--a) 11%, transparent); font-size: 13px; line-height: 18px; color: var(--ink); }
+.alert.info { --a: #c98a00; }
+.alert-i { flex: none; width: 22px; height: 22px; color: var(--a); }
+.alert-i svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+.alert-t { flex: 1 1 auto; min-width: 0; font-weight: 500; }
+.alert-a { flex: none; border: 0; background: transparent; padding: 0 2px 0 6px; min-height: 28px; font: inherit; font-weight: 650; color: var(--a); }
+.card > .alert { margin: 6px 0 10px; }
+.vat-act:empty { display: none !important; }
+.card > .prow:has(+ .vat-act:empty) { border-bottom: 0; }
+.sum > .alert { margin-top: 6px; }
+.km-bar .over { flex: 1; background: var(--warn); }
+.km-line .off, .km-line .off b { color: var(--warn); }
 .prow > .full.left { align-items: flex-start; text-align: left; }
-.prow > .full .fixline { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%; }
-.fixline .btn { flex: none; padding-right: 0 !important; }
 .prow > .full.hint { display: none; align-items: flex-start; text-align: left; margin-top: -4px; }
 .prow.hint-on > .full.hint { display: flex; }
 .pl .info { display: inline-flex; vertical-align: top; width: 28px; height: 28px; margin: -5px 0 -5px 0; padding: 5px; border: 0; background: transparent; color: var(--muted); border-radius: 50%; position: relative; }
@@ -438,6 +447,8 @@ const ICON = {
   check: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M 8.207 14.621 L 0 6.414 L 1.414 5 L 8.207 11.793 L 20 0 L 21.414 1.414 L 8.207 14.621 Z" transform="translate(1.293 3.778)"/></svg>',
 };
 // Phosphor Icons, duotone (MIT)
+const WARN_ICON = '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z" opacity="0.2"/><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></svg>';
+const alertBox = (msg, action = '', tone = '') => `<div class="alert ${tone}"><span class="alert-i" aria-hidden="true">${WARN_ICON}</span><span class="alert-t">${esc(msg)}</span>${action}</div>`;
 const TAB_ICON = {
   trips: '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,200a24,24,0,1,1-24-24A24,24,0,0,1,224,200Z" opacity="0.2"/><path d="M200,168a32.06,32.06,0,0,0-31,24H72a32,32,0,0,1,0-64h96a40,40,0,0,0,0-80H72a8,8,0,0,0,0,16h96a24,24,0,0,1,0,48H72a48,48,0,0,0,0,96h97a32,32,0,1,0,31-40Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,200,216Z"/></svg>',
   vat: '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,56V208l-32-16-32,16-32-16L96,208,64,192,32,208V56a8,8,0,0,1,8-8H216A8,8,0,0,1,224,56Z" opacity="0.2"/><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"/></svg>',
@@ -499,7 +510,7 @@ const S = {
     errPlate: 'Formato AA-00-AA, 00-AA-00, 00-00-AA ou AA-00-00', errDup: 'Esta matrícula já existe', errReq: 'Obrigatório', errNum: 'Valor, p. ex. 12.027,15', fixErrors: 'Verifique os campos marcados', errName: 'Indique o nome',
     odoGap: (k, m) => `No fim de ${m}: ${k}`, odoLess: 'Fim do mês abaixo do início', odoS: (d) => `Conta-km ${d}`, odoE: (d) => `Conta-km ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', bizU: 'Serviço, km', totU: 'Total, km', overBy: (d) => `Serviço com mais ${d} do que o total`, rate: 'Valor por km', 
+    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', bizU: 'Serviço, km', totU: 'Total, km', overIn: (m, d) => `${m}: serviço com mais ${d} do que o total`, overBy: (d) => `Serviço com mais ${d} do que o total`, rate: 'Valor por km', 
     noTrips: 'Sem deslocações neste mês.', 
     newTrip: 'Nova deslocação', editTrip: 'Deslocação', date: 'Data', from: 'De', to: 'Para', purpose: 'Motivo', kmOne: 'Km num sentido', stay: 'Tempo no local', stayU: 'h', errStay: 'Escreva h:mm, por exemplo 1:30', stayIn: d => `${d} no local`, stayHint: 'Quanto tempo ficou no local. A AT pede-o no mapa de km',
     rt: 'Ida e volta', home: 'De casa para o trabalho', notPaid: 'não compensado', 
@@ -551,7 +562,7 @@ const S = {
     errPlate: 'Format AA-00-AA, 00-AA-00, 00-00-AA or AA-00-00', errDup: 'This plate already exists', errReq: 'Required', errNum: 'Amount, e.g. 12.027,15', fixErrors: 'Check the marked fields', errName: 'Enter the name',
     odoGap: (k, m) => `At the end of ${m}: ${k}`, odoLess: 'End of month is below the start', odoS: (d) => `Odometer ${d}`, odoE: (d) => `Odometer ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', bizU: 'Business, km', totU: 'Total, km', overBy: (d) => `Business is ${d} above the total`, rate: 'Rate per km', 
+    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', bizU: 'Business, km', totU: 'Total, km', overIn: (m, d) => `${m}: business is ${d} above the total`, overBy: (d) => `Business is ${d} above the total`, rate: 'Rate per km', 
     noTrips: 'No trips this month.', 
     newTrip: 'New trip', editTrip: 'Trip', date: 'Date', from: 'From', to: 'To', purpose: 'Purpose', kmOne: 'Km one way', stay: 'Time on site', stayU: 'h', errStay: 'Use h:mm, e.g. 1:30', stayIn: d => `${d} on site`, stayHint: 'How long you stayed there. AT asks for it on the mileage log',
     rt: 'Round trip', home: 'Home to work', notPaid: 'not reimbursed', 
@@ -603,7 +614,7 @@ const S = {
     errPlate: 'Формат AA-00-AA, 00-AA-00, 00-00-AA или AA-00-00', errDup: 'Такой номер уже есть', errReq: 'Обязательно', errNum: 'Сумма, например 12.027,15', fixErrors: 'Проверьте отмеченные поля', errName: 'Укажите имя',
     odoGap: (k, m) => `В конце ${m} было ${k}`, odoLess: 'Конец месяца меньше начала', odoS: (d) => `Одометр ${d}`, odoE: (d) => `Одометр ${d}`, km: 'км',
     
-    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', bizU: 'Бизнес, км', totU: 'Пробег, км', overBy: (d) => `Бизнес на ${d} больше пробега`, rate: 'Ставка за км', 
+    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', bizU: 'Бизнес, км', totU: 'Пробег, км', overIn: (m, d) => `${m}: бизнес на ${d} больше пробега`, overBy: (d) => `Бизнес на ${d} больше пробега`, rate: 'Ставка за км', 
     noTrips: 'В этом месяце поездок нет.', 
     newTrip: 'Новая поездка', editTrip: 'Поездка', date: 'Дата', from: 'Откуда', to: 'Куда', purpose: 'Цель', kmOne: 'Км в одну сторону', stay: 'Время на месте', stayU: 'ч', errStay: 'Формат ч:мм, например 1:30', stayIn: d => `${d} на месте`, stayHint: 'Сколько пробыли на месте. AT требует это в ведомости',
     rt: 'Туда и обратно', home: 'Из дома на работу', notPaid: 'не компенсируется', 
@@ -977,16 +988,17 @@ function viewTrips() {
     // a start that differs from last month's end loses or double-counts km
     const prevEnd = D.odo[car.id]?.[addMonths(ui.month, -1)]?.[1]; const gap = o[0] != null && prevEnd != null && o[0] !== prevEnd ? T.odoGap(km(prevEnd), (MONTHS_OF[lang] || MONTHS[lang])[ymParts(addMonths(ui.month, -1))[1] - 1]) : '';
     // Four figures in one line: the two odometer readings to type and what they give for the month
-    const msg = [gap, o[0] != null && o[1] != null && o[1] < o[0] ? T.odoLess : '', s.over ? T.overBy(km(s.biz - s.total)) : ''].filter(Boolean);
+    const less = o[0] != null && o[1] != null && o[1] < o[0];
+    const alerts = [less ? alertBox(T.odoLess) : '', s.over ? alertBox(T.overBy(km(s.biz - s.total))) : '', gap ? alertBox(gap, '', 'info') : ''].join('');
     const odoIn = (id, v, day) => `<input class="odo-in" id="${id}" value="${v != null ? fmt(v, 0) : ''}" inputmode="numeric" placeholder="—" aria-label="${esc(T[id === 'odo-s' ? 'odoS' : 'odoE'](dayOfMonth(ui.month, day)))}">`;
     const lastDay = lastDayOf(ui.month);
     // the odometer gives the total, the bar splits it: logged business km and the rest, personal, which carries the VAT
     const split = s.ok && !s.over && s.total > 0;
-    const line = split || s.biz ? `<div class="km-line"><span>${T.bizU} <b>${fmt(s.biz, 0)}</b></span>${split ? `<span>${T.persKmU} <b>${fmt(s.personal, 0)}</b></span>` : ''}</div>` : '';
+    const line = split || s.biz ? `<div class="km-line"><span class="${s.over ? 'off' : ''}">${T.bizU} <b>${fmt(s.biz, 0)}</b></span>${split ? `<span>${T.persKmU} <b>${fmt(s.personal, 0)}</b></span>` : ''}</div>` : '';
     card = `<div class="card sum"><div class="sum-g">
       <label for="odo-s">${T.odoRange(lastDay, MON[lang][ymParts(ui.month)[1] - 1])}</label><span class="cap r">${T.totU}</span>
       <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span><span class="sum-tot">${s.ok ? fmt(s.total, 0) : '—'}</span>
-    </div>${split ? `<div class="km-bar" aria-hidden="true">${s.biz ? `<i class="biz" style="width:${(s.biz / s.total * 100).toFixed(2)}%"></i>` : ''}${s.personal ? '<i class="pers"></i>' : ''}</div>` : ''}${line}${msg.map(x => `<p class="odo-msg">${esc(x)}</p>`).join('')}</div>`;
+    </div>${s.over ? '<div class="km-bar" aria-hidden="true"><i class="over"></i></div>' : ''}${split ? `<div class="km-bar" aria-hidden="true">${s.biz ? `<i class="biz" style="width:${(s.biz / s.total * 100).toFixed(2)}%"></i>` : ''}${s.personal ? '<i class="pers"></i>' : ''}</div>` : ''}${line}${alerts}</div>`;
   }
   const ts = tripsOf(car.id, ui.month);
   const list = !ts.length ? '' : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
@@ -1012,26 +1024,30 @@ function viewVat() {
     const others = r.cars.filter(c => effect(c) !== 'VAT');
     return head + ctx + `<div class="empty">${T.noVatCars}${others.length ? `<span>${T.noVatOthers} ${others.map(c => `${esc(c.plate)} (${shortReason(c)})`).join(', ')}</span>` : ''}</div>`;
   }
-  const status = r.bad.length ? `<span class="chip miss">${T.kmOff}</span>` : stale ? `<span class="chip miss">${T.changed}</span>` : inc ? `<span class="chip ok">${ico('check')}${T.included}</span>` : r.complete ? '' : r.running ? `<span class="chip run">${e.regime === 'M' ? T.runningM : T.running}</span>` : `<span class="chip miss">${T.missing}</span>`;
+  const status = r.bad.length ? '' : stale ? `<span class="chip miss">${T.changed}</span>` : inc ? `<span class="chip ok">${ico('check')}${T.included}</span>` : '';
   // until the period ends the figures cover only the months already closed: say which
   const closedMs = p.months.filter(m => r.blocks.some(b => monthStats(b.car, m).ok && monthCost(b.car, m) !== null));
   const sofar = r.running && p.months.length > 1 && closedMs.length ? `<p class="note" style="padding-top:0">${T.sofar(closedMs.map(m => { const n = MONTHS[lang][ymParts(m)[1] - 1]; return lang === 'en' ? n : n.toLowerCase(); }).join(', '))}</p>` : '';
   // The card reads as the calculation itself: personal km share x the car's cost for the period = personal use; IVA on top
   const perCar = r.blocks.map((b, i) => {
     const miss = r.missing.filter(x => x.car.id === b.car.id && !x.future);
-    const fixBtn = (m, label) => `<button class="btn text" style="min-height:28px;padding:0 4px" data-fix="${b.car.id}|${m}">${label}</button>`;
-    const fix = miss.map(x => `<span class="sub fixline"><span>${cap1(T.noOdoFor(monthOf(x.m)))}</span>${fixBtn(x.m, T.fill)}</span>`).join('')
-      + r.bad.filter(x => x.car.id === b.car.id).map(x => `<span class="err fixline"><span>${cap1(T.kmOffIn(monthOf(x.m)))}</span>${fixBtn(x.m, T.check)}</span>`).join('');
-    return (i ? `<div class="carhead">${plate(b.car.plate)}</div>` : `<div class="cap">${plate(b.car.plate)}</div>${sofar}`)
-      + prow(T.persKm, b.total && !r.bad.some(x => x.car.id === b.car.id) ? km(b.personal) : '—', { sub: fix || (b.total ? T.persKmCalc(fmt(b.total, 0), fmt(b.total - b.personal, 0)) : ''), left: !!fix })
+    const fixBtn = (m, label) => `<button class="alert-a" data-fix="${b.car.id}|${m}">${label}</button>`;
+    const bad = r.bad.filter(x => x.car.id === b.car.id);
+    const fix = [...bad.map(x => { const st = monthStats(x.car, x.m); return alertBox(T.overIn(cap1(monthOf(x.m)), km(st.biz - st.total)), fixBtn(x.m, T.check)); }), ...miss.map(x => alertBox(cap1(T.noOdoFor(monthOf(x.m))), fixBtn(x.m, T.fill), 'info'))].join('');
+    const headRow = i ? `<div class="carhead">${plate(b.car.plate)}</div>` : `<div class="cap">${plate(b.car.plate)}</div>${sofar}`;
+    // nothing to calculate for this car yet: the reason, not a column of dashes
+    if (bad.length || !b.total) return headRow + (fix || `<p class="note" style="padding:4px 0 10px">${cap1(T.stRun)}</p>`);
+    return headRow + fix
+      + prow(T.persKm, km(b.personal), { sub: T.persKmCalc(fmt(b.total, 0), fmt(b.total - b.personal, 0)) })
       + prow(T['cost' + (b.car.acq || 'P')], eur(b.closed ? b.cost : b.costAll))
-      + (r.bad.some(x => x.car.id === b.car.id) ? prow(T.persUse, '—') : prow(T.persUse, b.closed ? eur(b.base) : '—', { sub: b.total ? `${pct(b.share)} × ${eur(b.cost)}` : '' }));
+      + prow(T.persUse, b.closed ? eur(b.base) : '—', { sub: `${pct(b.share)} × ${eur(b.cost)}` });
   }).join('');
+  const figures = !r.bad.length && r.blocks.some(b => b.closed);
   const card = `<div class="card">
-    ${perCar}${r.blocks.length > 1 ? prow(T.persUseAll, r.bad.length || !r.blocks.some(b => b.closed) ? '—' : eur(r.base), { cls: 'strong' }) : ''}
-    ${prow(T.vatRate(Math.round(r.rate * 100) + '%'), !r.bad.length && r.blocks.some(b => b.closed) ? eur(r.vat) : '—', { cls: 'big' })}
+    ${perCar}${figures && r.blocks.length > 1 ? prow(T.persUseAll, eur(r.base), { cls: 'strong' }) : ''}
+    ${figures ? prow(T.vatRate(Math.round(r.rate * 100) + '%'), eur(r.vat), { cls: 'big' }) : ''}
     ${stale ? prow(T.incWas, eur(incVat)) : ''}
-    <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${status}${stale ? `<button class="btn" data-act="include">${T.update}</button>` : ''}${inc ? `<button class="btn ghost" data-act="unlink">${T.undo}</button>` : r.running ? `<p class="note" style="padding:0">${T.incFrom(fullDate(addMonths(p.months[p.months.length - 1], 1) + '-01'))}</p>` : r.complete ? `<button class="btn" data-act="include">${T.include}</button>` : ''}</div></div>`;
+    <div class="vat-act" style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${status}${stale ? `<button class="btn" data-act="include">${T.update}</button>` : ''}${inc ? `<button class="btn ghost" data-act="unlink">${T.undo}</button>` : r.bad.length ? '' : r.running ? `<p class="note" style="padding:0">${T.incFrom(fullDate(addMonths(p.months[p.months.length - 1], 1) + '-01'))}</p>` : r.complete ? `<button class="btn" data-act="include">${T.include}</button>` : ''}</div></div>`;
   return head + ctx + card;
 }
 
@@ -1052,7 +1068,7 @@ function viewMaps() {
       ${s.paid.length ? prow(T.total, eur(s.total), { cls: 'strong', sub: km(s.kms) + (s.home ? ' · ' + T.homeOut(s.home) : '') }) : ''}
       ${s.raw > 0.4 && s.kms ? prow(T.excess, eur(r2(s.kms * (s.raw - 0.4))), { sub: T.excessSub }) : ''}
       ${s.total && pay.kind === 'COMPANY' ? prow(T.ta, eur(r2(s.total * 0.05)), { sub: T.taCond }) : ''}
-      <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">${(() => { const pdf = D.mapPdf[c.id + '|' + ui.mapMonth]; return pdf && pdf !== mapSig(c, s) ? `<p class="note warn" style="padding:0;width:100%">${T.mapStale}</p>` : ''; })()}${!s.paid.length ? `<button class="btn ghost" data-trips-of="${c.id}|${ui.mapMonth}">${T.seeTrips}</button>` : s.paid.some(t => !t.stay) ? `<p class="note" style="padding:0;color:var(--warn)">${T.noStayMap}</p>` : `<button class="btn" data-map="${c.id}">${ico('doc')}${T.pdf}</button>`}</div></div>`;
+      <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">${(() => { const pdf = D.mapPdf[c.id + '|' + ui.mapMonth]; return pdf && pdf !== mapSig(c, s) ? alertBox(T.mapStale, '', 'info').replace('class="alert', 'style="width:100%" class="alert') : ''; })()}${!s.paid.length ? `<button class="btn ghost" data-trips-of="${c.id}|${ui.mapMonth}">${T.seeTrips}</button>` : s.paid.some(t => !t.stay) ? alertBox(T.noStayMap) : `<button class="btn" data-map="${c.id}">${ico('doc')}${T.pdf}</button>`}</div></div>`;
   }).join('');
   return head + ctx + cards;
 }
