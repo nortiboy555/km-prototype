@@ -449,7 +449,7 @@ const S = {
  proto: 'Protótipo · dados fictícios',
     tCars: 'Viaturas', tTrips: 'Deslocações', tVat: 'IVA', tMaps: 'Mapas de km', tMapsShort: 'Mapas',
     addCar: 'Adicionar viatura', addTrip: 'Adicionar deslocação', close: 'Fechar', cancel: 'Cancelar', save: 'Guardar', edit: 'Editar', del: 'Apagar', 
-    employees: 'Viaturas de colaboradores', noCarsEnt: 'Este sujeito passivo ainda não tem viaturas.', noEmpCars: 'Este sujeito passivo não tem viaturas de colaboradores.', 
+    noCarsEnt: 'Este sujeito passivo ainda não tem viaturas.', noEmpCars: 'Este sujeito passivo não tem viaturas de colaboradores.', 
     outVat: 'IVA sobre km pessoais', outMap: 'compensação por km', outNone: 'sem IVA a liquidar',
     mEV: 'Elétrico', mPHEV: 'Híbrido plug-in', mGPL: 'GPL', mDIESEL: 'Gasóleo', mPETROL: 'Gasolina',
     acqP: 'compra', acqL: 'leasing', acqR: 'renting',
@@ -501,7 +501,7 @@ const S = {
  proto: 'Prototype · sample data',
     tCars: 'Cars', tTrips: 'Trips', tVat: 'VAT', tMaps: 'Mileage logs', tMapsShort: 'Logs',
     addCar: 'Add car', addTrip: 'Add trip', close: 'Close', cancel: 'Cancel', save: 'Save', edit: 'Edit', del: 'Delete', 
-    employees: 'Employees’ cars', noCarsEnt: 'This taxpayer has no cars yet.', noEmpCars: 'This taxpayer has no employee cars.', 
+    noCarsEnt: 'This taxpayer has no cars yet.', noEmpCars: 'This taxpayer has no employee cars.', 
     outVat: 'VAT on private km', outMap: 'mileage allowance', outNone: 'no VAT due',
     mEV: 'Electric', mPHEV: 'Plug-in hybrid', mGPL: 'LPG', mDIESEL: 'Diesel', mPETROL: 'Petrol',
     acqP: 'purchase', acqL: 'leasing', acqR: 'renting',
@@ -553,7 +553,7 @@ const S = {
  proto: 'Прототип · условные данные',
     tCars: 'Машины', tTrips: 'Поездки', tVat: 'IVA', tMaps: 'Компенсация за км', tMapsShort: 'Компенсации',
     addCar: 'Добавить машину', addTrip: 'Добавить поездку', close: 'Закрыть', cancel: 'Отмена', save: 'Сохранить', edit: 'Изменить', del: 'Удалить', 
-    employees: 'Машины сотрудников', noCarsEnt: 'У этого плательщика пока нет машин.', noEmpCars: 'У этого плательщика нет машин сотрудников.', 
+    noCarsEnt: 'У этого плательщика пока нет машин.', noEmpCars: 'У этого плательщика нет машин сотрудников.', 
     outVat: 'IVA с личных км', outMap: 'компенсация за км', outNone: 'IVA не начисляется',
     mEV: 'Электро', mPHEV: 'Плагин-гибрид', mGPL: 'Газ', mDIESEL: 'Дизель', mPETROL: 'Бензин',
     acqP: 'покупка', acqL: 'лизинг', acqR: 'аренда',
@@ -899,8 +899,8 @@ function carItem(c) {
   const T = L();
   const f = effect(c);
   const sub = cap1([outcome(c), f === 'VAT' || f === 'MAP' ? '' : shortReason(c)].filter(Boolean).join(' · '));
-  const line = carSub(c);
-  return `<button class="item car-item" data-open-car="${c.id}" aria-label="${esc(c.plate)}, ${esc(carSub(c))}"><span class="main">${plate(c.plate)}${line ? `<span class="s">${esc(line)}</span>` : ''}<span class="s">${esc(sub)}</span></span>${ico('chev', 'chev')}</button>`;
+  const line = [carSub(c), sub].filter(Boolean).join(' · ');
+  return `<button class="item car-item" data-open-car="${c.id}" aria-label="${esc(c.plate)}, ${esc(line)}"><span class="main">${plate(c.plate)}<span class="s">${esc(line)}</span></span>${ico('chev', 'chev')}</button>`;
 }
 // No cars yet: the first thing under the title is the button that adds one
 const noCars = () => `<button class="btn add-btn" data-act="add-car">${ico('plus')}${L().addCar}</button>`;
@@ -908,9 +908,8 @@ function viewCars() {
   const T = L();
   const ents = activeEnts(); if (!ents.length) return noCars();
   const groups = ents.map(e => {
-    const cs = D.cars.filter(c => c.own === 'BIZ' && c.entityId === e.id);
-    const ps = D.cars.filter(c => c.own === 'PRIV' && c.payerId === e.id);
-    return `<div class="group"><div class="ghead"><span class="who">${taxId(e.nif)}</span><span class="meta">${esc(e.name)}</span></div>${cs.length ? `<div class="list">${cs.map(carItem).join('')}</div>` : ''}${ps.length ? `<div class="ghead sub"><span class="who">${T.employees}</span></div><div class="list">${ps.map(carItem).join('')}</div>` : ''}</div>`;
+    const cs = entCars(e).sort((x, y) => (x.own === 'PRIV') - (y.own === 'PRIV'));
+    return `<div class="group"><div class="ghead"><span class="who">${taxId(e.nif)}</span><span class="meta">${esc(e.name)}</span></div><div class="list">${cs.map(carItem).join('')}</div></div>`;
   });
   return groups.join('') + `<button class="btn add-btn" data-act="add-car">${ico('plus')}${T.addCar}</button>`;
 }
