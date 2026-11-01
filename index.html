@@ -28,7 +28,7 @@ button, input, select { font: inherit; color: inherit; }
 input, select, textarea { font-size: 16px !important; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-.app { max-width: 720px; margin: 0 auto; padding-block: 16px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 16px; }
+.app { max-width: 720px; margin: 0 auto; padding-block: 12px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 12px; }
 .ico { width: 18px; height: 18px; flex: none; display: inline-block; }
 .ico svg { width: 100%; height: 100%; display: block; }
 .num { font-variant-numeric: tabular-nums; }
@@ -111,7 +111,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 
 /* filter bar: every selection in a section uses the same field control, side by side */
 .fbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: var(--surface); border: 1px solid var(--hairline); border-radius: 16px; overflow: hidden; }
-.fseg { border: 0; background: transparent; text-align: left; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-height: 48px; min-width: 0; }
+.fseg { border: 0; background: transparent; text-align: left; padding: 9px 14px; display: flex; flex-direction: column; gap: 2px; min-height: 48px; min-width: 0; }
 .fseg + .fseg { border-left: 1px solid var(--hairline); }
 .fseg:hover { background: var(--fill); }
 .fseg.static:hover { background: transparent; }
@@ -132,10 +132,10 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .ghead .meta { color: var(--muted); font-size: 13px; line-height: 1.35; }
 .nw { white-space: nowrap; }
 .list { background: var(--surface); border: 1px solid var(--hairline); border-radius: 16px; overflow: hidden; }
-.item { width: 100%; border: 0; background: transparent; text-align: left; display: grid; align-items: start; gap: 4px 14px; padding: 14px 16px; border-bottom: 1px solid var(--hairline); }
+.item { width: 100%; border: 0; background: transparent; text-align: left; display: grid; align-items: start; gap: 4px 14px; padding: 10px 16px; border-bottom: 1px solid var(--hairline); }
 .item:last-child { border-bottom: 0; }
 button.item:hover { background: var(--fill); }
-.item .main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.item .main { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .item .t { font-weight: 500; overflow-wrap: anywhere; }
 .item .s { font-size: 13px; line-height: 1.3; color: var(--muted); }
 .item .r { text-align: right; display: flex; flex-direction: column; gap: 2px; }
@@ -158,7 +158,7 @@ button.item:hover { background: var(--fill); }
 .trip-item .rt2 i { font-style: normal; color: var(--muted); flex: none; }
 .trip-item .r .c { white-space: nowrap; }
 @media (max-width: 600px) { .car-item { grid-template-columns: minmax(0, 1fr) 16px; } .car-item .chev { grid-column: 2; grid-row: 1; } .car-item .r { grid-column: 1; grid-row: 2; text-align: left; flex-direction: row; gap: 6px; align-items: baseline; } }
-.inlist .item { padding: 12px 0; }
+.inlist .item { padding: 9px 0; }
 .inlist { border-bottom: 1px solid var(--hairline); }
 .inlist .item:last-child { border-bottom: 0; }
 .empty { border: 1px dashed var(--hairline-2); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; color: var(--muted); }
@@ -170,9 +170,9 @@ button.item:hover { background: var(--fill); }
 
 /* cards with label-left / value-right rows (also used for forms) */
 .card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 16px; padding: 4px 16px; display: flex; flex-direction: column; }
-.card > .cap { padding: 14px 0 6px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.card > .cap { padding: 12px 0 4px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .card > .cap h3 { font-size: 16px; }
-.prow { display: grid; grid-template-columns: minmax(40%, 1fr) minmax(0, auto); column-gap: 16px; row-gap: 2px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--hairline); min-height: 48px; }
+.prow { display: grid; grid-template-columns: minmax(40%, 1fr) minmax(0, auto); column-gap: 16px; row-gap: 2px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--hairline); min-height: 44px; }
 .card > .prow:last-child, .card > .prow.last { border-bottom: 0; }
 .prow > .pl { color: var(--muted); padding-top: 2px; min-width: 0; }
 /* a form label keeps its own width (up to half the row), the field takes the rest */
@@ -186,10 +186,16 @@ button.item:hover { background: var(--fill); }
 .prow > .full { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 13px; color: var(--muted); text-align: right; }
 /* messages read from the left, under the label; only calculations stay under the value */
 .prow > .full .err { align-self: flex-start; text-align: left; }
-.odo-grid { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 6px 32px; padding: 12px 0 14px; align-items: center; }
-.odo-grid label, .odo-grid .cap { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.odo-grid b { font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 44px; white-space: nowrap; }
-.odo-grid b.off { color: var(--warn); }
+/* month summary: what is entered on the left, the figure that matters on the right, how it comes out below */
+.sum { padding: 10px 16px; gap: 4px; }
+.sum-g { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: center; }
+.sum-g label, .sum-g .cap { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sum-g .cap.r, .sum-v { text-align: right; }
+.sum-v { font-size: 22px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sum-calc { margin: 0; font-size: 12px; line-height: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sum-g.pay .sum-calc { grid-column: 1 / -1; }
+.sum-g.pay .cap { font-size: 13px; color: var(--ink); font-weight: 600; }
+@media (min-width: 641px) { .sum-g:not(.pay) { grid-template-columns: 300px minmax(0, 1fr); } }
 /* the two readings are one range: a single soft field, the numbers centered around the arrow */
 .odo-pair { display: flex; align-items: center; min-width: 0; min-height: 44px; padding: 0 6px; border-radius: 12px; background: var(--fill); box-shadow: inset 0 0 0 1px transparent; transition: box-shadow 150ms ease; }
 .odo-pair:focus-within { box-shadow: inset 0 0 0 1.5px var(--brand); }
@@ -197,12 +203,9 @@ button.item:hover { background: var(--fill); }
 .odo-in { flex: 1 1 0; width: 100%; min-width: 0; height: 44px; border: 0; border-radius: 0; background: transparent; color: var(--ink); padding: 0; font: inherit; font-size: 16px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: center; }
 .odo-in:focus { outline: none; }
 .odo-in::placeholder { color: var(--ph); }
-@media (max-width: 640px) { .odo-grid { grid-template-columns: minmax(0, 1fr) auto auto; column-gap: 12px; } .odo-grid label, .odo-grid .cap { font-size: 12px; } .odo-grid b { font-size: 16px; } }
-@media (max-width: 374px) { .odo-grid { column-gap: 8px; } .odo-pair { padding: 0 4px; } }
-@media (max-width: 359px) { .odo-grid { grid-template-columns: 1fr 1fr; column-gap: 12px; } .odo-grid label, .odo-pair { grid-column: 1 / -1; } .odo-grid .cap { grid-row: 3; } .odo-grid b { grid-row: 4; line-height: 28px; } }
 .odo-in:focus { outline: none; border-bottom-color: var(--brand); }
 .odo-in::placeholder { color: var(--ph); }
-.odo-msg { margin: 0; padding: 0 0 12px; font-size: 13px; color: var(--warn); }
+.odo-msg { margin: 0; font-size: 12px; line-height: 16px; color: var(--warn); }
 .prow > .full.left { align-items: flex-start; text-align: left; }
 .prow > .full .fixline { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%; }
 .fixline .btn { flex: none; padding-right: 0 !important; }
@@ -478,7 +481,7 @@ const S = {
     errPlate: 'Formato AA-00-AA, 00-AA-00, 00-00-AA ou AA-00-00', errDup: 'Esta matrícula já existe', errReq: 'Obrigatório', errNum: 'Valor, p. ex. 12.027,15', fixErrors: 'Verifique os campos marcados', errName: 'Indique o nome',
     odoGap: (k, m) => `Fim de ${m}: ${k}`, odoLess: 'Menor do que no início do mês', odoS: (d) => `Conta-km ${d}`, odoE: (d) => `Conta-km ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, kmMonth: 'Total, km', kmBiz: 'Viagens, km', overBy: (d) => `Mais ${d} do que o conta-km. Verifique os dados`, rate: 'Valor por km', 
+    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', tripsKm: (b) => `viagens ${b}`, overBy: (d) => `Mais ${d} do que o conta-km. Verifique os dados`, rate: 'Valor por km', 
     noTrips: 'Sem deslocações neste mês.', 
     newTrip: 'Nova deslocação', editTrip: 'Deslocação', date: 'Data', from: 'De', to: 'Para', purpose: 'Motivo', kmOne: 'Km num sentido', stay: 'Tempo no local', stayU: 'h', errStay: 'Escreva h:mm, por exemplo 1:30', stayIn: d => `${d} no local`, stayHint: 'Quanto tempo ficou no local. A AT pede-o no mapa de km',
     rt: 'Ida e volta', home: 'De casa para o trabalho', notPaid: 'não compensado', 
@@ -530,7 +533,7 @@ const S = {
     errPlate: 'Format AA-00-AA, 00-AA-00, 00-00-AA or AA-00-00', errDup: 'This plate already exists', errReq: 'Required', errNum: 'Amount, e.g. 12.027,15', fixErrors: 'Check the marked fields', errName: 'Enter the name',
     odoGap: (k, m) => `End of ${m}: ${k}`, odoLess: 'Less than at the start of the month', odoS: (d) => `Odometer ${d}`, odoE: (d) => `Odometer ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, kmMonth: 'Total, km', kmBiz: 'Trips, km', overBy: (d) => `${d} above the odometer. Check the data`, rate: 'Rate per km', 
+    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', tripsKm: (b) => `trips ${b}`, overBy: (d) => `${d} above the odometer. Check the data`, rate: 'Rate per km', 
     noTrips: 'No trips this month.', 
     newTrip: 'New trip', editTrip: 'Trip', date: 'Date', from: 'From', to: 'To', purpose: 'Purpose', kmOne: 'Km one way', stay: 'Time on site', stayU: 'h', errStay: 'Use h:mm, e.g. 1:30', stayIn: d => `${d} on site`, stayHint: 'How long you stayed there. AT asks for it on the mileage log',
     rt: 'Round trip', home: 'Home to work', notPaid: 'not reimbursed', 
@@ -582,7 +585,7 @@ const S = {
     errPlate: 'Формат AA-00-AA, 00-AA-00, 00-00-AA или AA-00-00', errDup: 'Такой номер уже есть', errReq: 'Обязательно', errNum: 'Сумма, например 12.027,15', fixErrors: 'Проверьте отмеченные поля', errName: 'Укажите имя',
     odoGap: (k, m) => `Конец ${m}: ${k}`, odoLess: 'Меньше, чем в начале месяца', odoS: (d) => `Одометр ${d}`, odoE: (d) => `Одометр ${d}`, km: 'км',
     
-    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, kmMonth: 'Пробег, км', kmBiz: 'Поездки, км', overBy: (d) => `На ${d} больше пробега. Проверьте данные`, rate: 'Ставка за км', 
+    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', tripsKm: (b) => `поездки ${b}`, overBy: (d) => `На ${d} больше пробега. Проверьте данные`, rate: 'Ставка за км', 
     noTrips: 'В этом месяце поездок нет.', 
     newTrip: 'Новая поездка', editTrip: 'Поездка', date: 'Дата', from: 'Откуда', to: 'Куда', purpose: 'Цель', kmOne: 'Км в одну сторону', stay: 'Время на месте', stayU: 'ч', errStay: 'Формат ч:мм, например 1:30', stayIn: d => `${d} на месте`, stayHint: 'Сколько пробыли на месте. AT требует это в ведомости',
     rt: 'Туда и обратно', home: 'Из дома на работу', notPaid: 'не компенсируется', 
@@ -934,10 +937,14 @@ function viewTrips() {
   if (!mine.some(c => c.id === ui.carId)) ui.carId = mine[0].id;
   const car = carById(ui.carId); const f = effect(car); const months = carMonths(car);
   if (!months.includes(ui.month)) ui.month = months.includes(CURRENT) ? CURRENT : months[months.length - 1];
-  const ents = activeEnts(); const carSub = [car.own === 'PRIV' ? ownerName(car) : '', ents.length > 1 ? e.name : ''].filter(Boolean).join(' · ');
+  const ents = activeEnts(); const carSub = car.own === 'PRIV' ? ownerName(car) : ents.length > 1 ? e.name : '';
   const ctx = fbar([['car', T.fCar, car.plate, carSub, ents.flatMap(entCars).length === 1], ...(f === 'VAT' || f === 'MAP' ? [['month', T.fMonth, monthName(ui.month), '', months.length === 1]] : [])]);
   let card;
-  if (f === 'MAP') card = '';
+  if (f === 'MAP') {
+    const s = mapStats(car, ui.month);
+    const calc = !s.all.length ? T.noTrips : [s.paid.length ? `${km(s.kms)} × ${fmt(s.rate)} €` : T.noTrips, s.home ? T.homeOut(s.home) : '', s.raw > 0.4 && s.kms ? `${T.excess}: ${eur(r2(s.kms * (s.raw - 0.4)))}` : ''].filter(Boolean).join(' · ');
+    card = `<div class="card sum"><div class="sum-g pay"><span class="cap">${T.total}</span><span class="sum-v">${s.paid.length ? eur(s.total) : '—'}</span><p class="sum-calc">${esc(calc)}</p></div></div>`;
+  }
   else if (f !== 'VAT') card = `<p class="note">${T.noKmNeed}</p>`;
   else {
     const o = odoOf(car, ui.month); const s = monthStats(car, ui.month);
@@ -947,10 +954,11 @@ function viewTrips() {
     const msg = [gap, o[0] != null && o[1] != null && o[1] < o[0] ? T.odoLess : '', s.over ? T.overBy(km(s.biz - s.total)) : ''].filter(Boolean);
     const odoIn = (id, v, day) => `<input class="odo-in" id="${id}" value="${v != null ? fmt(v, 0) : ''}" inputmode="numeric" placeholder="—" aria-label="${esc(T[id === 'odo-s' ? 'odoS' : 'odoE'](dayOfMonth(ui.month, day)))}">`;
     const lastDay = lastDayOf(ui.month);
-    card = `<div class="card"><div class="odo-grid">
-      <label for="odo-s">${T.odoRange(lastDay, MON[lang][ymParts(ui.month)[1] - 1])}</label><span class="cap">${T.kmMonth}</span><span class="cap">${T.kmBiz}</span>
-      <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span><b>${s.ok ? fmt(s.total, 0) : '—'}</b><b class="${s.over ? 'off' : ''}">${fmt(s.biz, 0)}</b>
-    </div>${msg.map(x => `<p class="odo-msg">${esc(x)}</p>`).join('')}</div>`;
+    const calc = s.ok ? T.persKmCalc(fmt(s.total, 0), fmt(s.biz, 0)) : s.biz ? T.tripsKm(fmt(s.biz, 0)) : '';
+    card = `<div class="card sum"><div class="sum-g">
+      <label for="odo-s">${T.odoRange(lastDay, MON[lang][ymParts(ui.month)[1] - 1])}</label><span class="cap r">${T.persKmU}</span>
+      <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span><b class="sum-v">${s.ok && !s.over ? fmt(s.personal, 0) : '—'}</b>
+    </div>${calc ? `<p class="sum-calc">${esc(calc)}</p>` : ''}${msg.map(x => `<p class="odo-msg">${esc(x)}</p>`).join('')}</div>`;
   }
   const ts = tripsOf(car.id, ui.month);
   const list = !ts.length ? '' : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
