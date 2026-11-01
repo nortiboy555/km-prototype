@@ -497,9 +497,9 @@ const S = {
     badType: 'Use o NIF de uma pessoa ou o NIPC de uma empresa.', needPerson: 'Aqui é preciso o NIF de uma pessoa (1, 2, 3 ou 45).', errSelf: 'O colaborador não se compensa a si próprio',
     newNif: (v) => `Adicionar ${v}`, fromRegistry: 'encontrado no registo comercial', newOne: 'novo, indique o nome',
     errPlate: 'Formato AA-00-AA, 00-AA-00, 00-00-AA ou AA-00-00', errDup: 'Esta matrícula já existe', errReq: 'Obrigatório', errNum: 'Valor, p. ex. 12.027,15', fixErrors: 'Verifique os campos marcados', errName: 'Indique o nome',
-    odoGap: (k, m) => `No fim de ${m}: ${k}`, odoLess: 'Fim do mês abaixo do início: verifique o conta-km', odoS: (d) => `Conta-km ${d}`, odoE: (d) => `Conta-km ${d}`, km: 'km',
+    odoGap: (k, m) => `No fim de ${m}: ${k}`, odoLess: 'Fim do mês abaixo do início', odoS: (d) => `Conta-km ${d}`, odoE: (d) => `Conta-km ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', bizU: 'Serviço, km', totU: 'Total, km', overBy: (d) => `Serviço com mais ${d} do que o total. Verifique os dados`, rate: 'Valor por km', 
+    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', bizU: 'Serviço, km', totU: 'Total, km', overBy: (d) => `Serviço com mais ${d} do que o total`, rate: 'Valor por km', 
     noTrips: 'Sem deslocações neste mês.', 
     newTrip: 'Nova deslocação', editTrip: 'Deslocação', date: 'Data', from: 'De', to: 'Para', purpose: 'Motivo', kmOne: 'Km num sentido', stay: 'Tempo no local', stayU: 'h', errStay: 'Escreva h:mm, por exemplo 1:30', stayIn: d => `${d} no local`, stayHint: 'Quanto tempo ficou no local. A AT pede-o no mapa de km',
     rt: 'Ida e volta', home: 'De casa para o trabalho', notPaid: 'não compensado', 
@@ -549,9 +549,9 @@ const S = {
     badType: 'Use a person’s NIF or a company’s NIPC.', needPerson: 'This needs a person’s NIF (1, 2, 3 or 45).', errSelf: 'The employee cannot reimburse themselves',
     newNif: (v) => `Add ${v}`, fromRegistry: 'found in the business registry', newOne: 'new, enter the name',
     errPlate: 'Format AA-00-AA, 00-AA-00, 00-00-AA or AA-00-00', errDup: 'This plate already exists', errReq: 'Required', errNum: 'Amount, e.g. 12.027,15', fixErrors: 'Check the marked fields', errName: 'Enter the name',
-    odoGap: (k, m) => `At the end of ${m}: ${k}`, odoLess: 'End of month is below the start: check the odometer', odoS: (d) => `Odometer ${d}`, odoE: (d) => `Odometer ${d}`, km: 'km',
+    odoGap: (k, m) => `At the end of ${m}: ${k}`, odoLess: 'End of month is below the start', odoS: (d) => `Odometer ${d}`, odoE: (d) => `Odometer ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', bizU: 'Business, km', totU: 'Total, km', overBy: (d) => `Business is ${d} above the total. Check the data`, rate: 'Rate per km', 
+    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', bizU: 'Business, km', totU: 'Total, km', overBy: (d) => `Business is ${d} above the total`, rate: 'Rate per km', 
     noTrips: 'No trips this month.', 
     newTrip: 'New trip', editTrip: 'Trip', date: 'Date', from: 'From', to: 'To', purpose: 'Purpose', kmOne: 'Km one way', stay: 'Time on site', stayU: 'h', errStay: 'Use h:mm, e.g. 1:30', stayIn: d => `${d} on site`, stayHint: 'How long you stayed there. AT asks for it on the mileage log',
     rt: 'Round trip', home: 'Home to work', notPaid: 'not reimbursed', 
@@ -601,9 +601,9 @@ const S = {
     badType: 'Нужен NIF человека или NIPC компании.', needPerson: 'Здесь нужен NIF человека (1, 2, 3 или 45).', errSelf: 'Сотрудник не компенсирует сам себе',
     newNif: (v) => `Добавить ${v}`, fromRegistry: 'найдено в реестре компаний', newOne: 'новый, укажите имя',
     errPlate: 'Формат AA-00-AA, 00-AA-00, 00-00-AA или AA-00-00', errDup: 'Такой номер уже есть', errReq: 'Обязательно', errNum: 'Сумма, например 12.027,15', fixErrors: 'Проверьте отмеченные поля', errName: 'Укажите имя',
-    odoGap: (k, m) => `В конце ${m} было ${k}`, odoLess: 'Конец месяца меньше начала: проверьте одометр', odoS: (d) => `Одометр ${d}`, odoE: (d) => `Одометр ${d}`, km: 'км',
+    odoGap: (k, m) => `В конце ${m} было ${k}`, odoLess: 'Конец месяца меньше начала', odoS: (d) => `Одометр ${d}`, odoE: (d) => `Одометр ${d}`, km: 'км',
     
-    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', bizU: 'Бизнес, км', totU: 'Пробег, км', overBy: (d) => `Бизнес на ${d} больше пробега. Проверьте данные`, rate: 'Ставка за км', 
+    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', bizU: 'Бизнес, км', totU: 'Пробег, км', overBy: (d) => `Бизнес на ${d} больше пробега`, rate: 'Ставка за км', 
     noTrips: 'В этом месяце поездок нет.', 
     newTrip: 'Новая поездка', editTrip: 'Поездка', date: 'Дата', from: 'Откуда', to: 'Куда', purpose: 'Цель', kmOne: 'Км в одну сторону', stay: 'Время на месте', stayU: 'ч', errStay: 'Формат ч:мм, например 1:30', stayIn: d => `${d} на месте`, stayHint: 'Сколько пробыли на месте. AT требует это в ведомости',
     rt: 'Туда и обратно', home: 'Из дома на работу', notPaid: 'не компенсируется', 
@@ -1773,7 +1773,7 @@ document.addEventListener('click', ev => {
   if (ds.opt !== undefined) { pickOpt(+ds.opt); return; }
   if (ds.pop) { openPop(ds.pop, b); return; }
   if (ds.lang) { lang = ds.lang; try { localStorage.setItem('km-lang', lang); } catch (e) {} render(); return; }
-  if (ds.tab) { ui.tab = ds.tab; render(); return; }
+  if (ds.tab) { document.getElementById('toast-root').innerHTML = ''; ui.tab = ds.tab; render(); return; }
   if (ds.openCar) { openSheet({ type: 'car', id: ds.openCar }); return; }
   if (ds.editTrip) { const t = D.trips.find(x => x.id === ds.editTrip); ui.carId = t.carId; openSheet({ type: 'trip', draft: { id: t.id, date: t.date, from: t.from, to: t.to, purpose: purposeOf(t), pk: t.pk, km: String(t.km), rt: t.rt, home: !!t.home, stay: t.stay ? stayShow(t.stay) : '' } }); return; }
   if (ds.fix) { const [c, m] = ds.fix.split('|'); ui.tab = 'trips'; ui.carId = c; ui.month = m; render(); document.getElementById('odo-s')?.focus(); return; }
