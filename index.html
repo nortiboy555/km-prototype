@@ -1737,7 +1737,7 @@ async function mountRoute() {
     onStyleFail(map, fail);
     map.on('load', () => {
       map.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: line } } });
-      map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#2a6df4', 'line-width': 4 } }, map.getStyle().layers.find(l => l.type === 'symbol')?.id);
+      map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#2a6df4', 'line-width': 4 } }, aboveRoads(map));
       map.addSource('ends', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'MultiPoint', coordinates: [line[0], line[line.length - 1]] } } });
       map.addLayer({ id: 'ends', type: 'circle', source: 'ends', paint: { 'circle-radius': 6, 'circle-color': '#ffc852', 'circle-stroke-color': '#111', 'circle-stroke-width': 2 } });
     });
@@ -1771,6 +1771,8 @@ const loadMapGl = () => glReady || (glReady = new Promise((ok, no) => {
 }));
 // a refused token or a style that does not load leaves an empty box: the caller says so instead
 const onStyleFail = (map, fn) => { let up = false; map.on('load', () => { up = true; }); map.on('error', e => { if (!up && !e.sourceId) fn(); }); };
+// above every road and border, under the place names: the first label after the last line layer
+const aboveRoads = map => { const ls = map.getStyle().layers; const last = ls.map(l => l.type).lastIndexOf('line'); return ls.slice(last + 1).find(l => l.type === 'symbol')?.id; };
 const newMap = (gl, opts) => new gl.Map({ style: 'mapbox://styles/mapbox/streets-v12', language: lang, ...opts });
 function backToForm(mapPop, text) {
   mapPop.map?.remove(); const prev = mapPop.prev;
