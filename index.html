@@ -65,11 +65,13 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .tabs button[aria-selected="true"] .tile, .tabs button[aria-expanded="true"] .tile { background: var(--c); color: #fff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tile { background: color-mix(in srgb, var(--c) 26%, transparent); color: color-mix(in srgb, var(--c) 62%, #fff); } }
 :root[data-theme="dark"] .tile { background: color-mix(in srgb, var(--c) 26%, transparent); color: color-mix(in srgb, var(--c) 62%, #fff); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tab-lang .tile { color: #fda4b8; } }
+:root[data-theme="dark"] .tab-lang .tile { color: #fda4b8; }
 .tab-trips { --c: #f97316; }
 .tab-vat { --c: #059669; }
 .tab-maps { --c: #7c3aed; }
 .tab-cars { --c: #2563eb; }
-.tab-lang { --c: #e11d48; }
+.tab-lang { --c: #be123c; }
 @media (max-width: 640px) {
   .app { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
   .tabs { --tab-bg: var(--nav); position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; background: var(--nav); border-top: 1px solid var(--nav-edge); border-bottom: 0; padding: 8px env(safe-area-inset-right, 0px) calc(6px + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px); }
@@ -1157,7 +1159,7 @@ function renderPopList() {
   if (hint) { const none = !ui.pop.q.trim() ? '' : ui.pop.loading ? L().searching : (ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to') && geoOff ? L().geoOff : ui.pop.busy ? L().geoBusy : ui.pop.kind === 'g-purpose' ? L().purposeNone : ui.pop.kind.startsWith('g-') ? L().addrNone : L().nifNone;
     hint.textContent = msg || (items.some(x => !x.isNew || x.known) ? L().orPick : none); hint.classList.toggle('warn', !!msg && warn); if (hint.nextElementSibling) hint.nextElementSibling.hidden = !!msg; }
   const isAddr = ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to';
-  const mapRow = isAddr && !geoOff ? `<button class="opt add" data-act="map-pick">${ico('pin')}<span class="t">${esc(L().mapPick)}</span></button>` : '';
+  const mapRow = isAddr && !geoOff ? `<button class="opt add" role="option" aria-selected="false" data-act="map-pick">${ico('pin')}<span class="t">${esc(L().mapPick)}</span></button>` : '';
   box.innerHTML = (msg && !hint ? `<div class="msg ${warn ? 'warn' : ''}">${esc(msg)}</div>` : '') + mapRow + items.map((x, i) => `<button class="opt ${i === ui.pop.act ? 'act' : ''} ${x.isNew && ui.pop.kind.startsWith('g-') ? 'add' : ''}" role="option" aria-selected="${!!x.on}" data-opt="${i}">${x.isNew && ui.pop.kind.startsWith('g-') ? ico('plus') : ''}<span class="t">${esc(x.t)}</span>${x.on ? ico('check') : ''}<span class="s">${esc(x.s)}</span></button>`).join('');
 }
 // Our own calendar, not the browser's: the native date field needs showPicker(), which a cross-origin iframe refuses, and it looks different on every device
@@ -1198,7 +1200,7 @@ function openPop(kind, anchor) {
   const title = anchor.closest('.prow')?.querySelector('.pl')?.textContent.trim() || '';
   const left = Math.min(r.left, innerWidth - Math.min(380, innerWidth - 32) - 16);
   const below = r.bottom + 6; const top = below + 300 > innerHeight ? Math.max(16, r.top - 6 - 320) : below;
-  document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="pop ${isChoice ? 'choice' : ''} ${hasField ? 'has-q' : ''}" role="dialog" tabindex="-1" aria-label="${esc(title)}" style="left:${Math.max(16, isChoice ? r.right - 300 : left)}px;top:${top}px">${isChoice ? `<div class="pop-t">${esc(title)}</div>` : ''}${hasField ? `<div class="pop-h"><span>${esc(title)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div><input class="q" id="pop-q" enterkeyhint="done" autocorrect="off" spellcheck="false" ${form ? 'inputmode="numeric" pattern="[0-9]*"' : ''} placeholder="${esc(ph)}" aria-label="${esc(ph)}" autocomplete="off">${dir || form ? `<div class="pop-hint"><span id="pop-hint" role="status"></span>${kind === 'g-from' || kind === 'g-to' ? `<button class="hint-btn" data-act="places">${T.myPlaces}</button>` : kind === 'g-purpose' ? `<button class="hint-btn" data-act="goals">${T.myGoals}</button>` : ''}</div>` : ''}` : ''}<div class="opts" id="pop-opts" role="listbox"></div></div>`;
+  document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="pop ${isChoice ? 'choice' : ''} ${hasField ? 'has-q' : ''}" role="dialog" tabindex="-1" aria-label="${esc(title)}" style="left:${Math.max(16, isChoice ? r.right - 300 : left)}px;top:${top}px">${isChoice ? `<div class="pop-t">${esc(title)}</div>` : ''}${hasField ? `<div class="pop-h"><span>${esc(title)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div><input class="q" id="pop-q" enterkeyhint="done" autocorrect="off" spellcheck="false" ${form ? 'inputmode="numeric" pattern="[0-9]*"' : ''} placeholder="${esc(ph)}" aria-label="${esc(ph)}" autocomplete="off">${dir || form ? `<div class="pop-hint"><span id="pop-hint" role="status"></span>${kind === 'g-from' || kind === 'g-to' ? `<button class="hint-btn" data-act="places">${T.myPlaces}</button>` : kind === 'g-purpose' ? `<button class="hint-btn" data-act="goals">${T.myGoals}</button>` : ''}</div>` : ''}` : ''}<div class="opts" id="pop-opts" role="listbox" aria-label="${esc(title || ph)}"></div></div>`;
   renderPopList();
   const pe = document.querySelector('#pop-root .pop');
   // The window keeps the height it opened with, so neither it nor the field moves while typing.
@@ -1773,7 +1775,8 @@ const loadMapGl = () => glReady || (glReady = new Promise((ok, no) => {
 const onStyleFail = (map, fn) => { let up = false; map.on('load', () => { up = true; }); map.on('error', e => { if (!up && !e.sourceId) fn(); }); };
 // above every road and border, under the place names: the first label after the last line layer
 const aboveRoads = map => { const ls = map.getStyle().layers; const last = ls.map(l => l.type).lastIndexOf('line'); return ls.slice(last + 1).find(l => l.type === 'symbol')?.id; };
-const newMap = (gl, opts) => new gl.Map({ style: 'mapbox://styles/mapbox/streets-v12', language: lang, ...opts });
+const darkTheme = () => { const th = document.documentElement.dataset.theme; return th ? th === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+const newMap = (gl, opts) => new gl.Map({ style: `mapbox://styles/mapbox/${darkTheme() ? 'dark-v11' : 'streets-v12'}`, language: lang, ...opts });
 function backToForm(mapPop, text) {
   mapPop.map?.remove(); const prev = mapPop.prev;
   openPlaces(prev.anchor, prev.back, prev.pick, text); ui.pop.view = 'edit'; ui.pop.addr = ''; ui.pop.changed = prev.changed; renderPlaces();
