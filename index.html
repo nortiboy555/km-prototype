@@ -147,9 +147,11 @@ button.item:hover { background: var(--fill); }
 .trip-item .s.lack { color: var(--warn); }
 .sign { padding: 14px 0 6px; font-size: 13px; color: var(--muted); }
 .sign i { display: block; height: 44px; border-bottom: 1px solid var(--ink); margin-bottom: 6px; }
-/* lists keep a route on one line; the trip itself and the mileage log show the full address */
+/* lists keep each address on one line; the trip itself and the mileage log show the full address */
 .trip-item .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trip-item .rt2 i { font-style: normal; color: var(--muted); margin-right: 5px; }
 #sheet-root .trip-item .t { white-space: normal; }
+.trip-item .r .c { white-space: nowrap; }
 @media (max-width: 600px) { .car-item { grid-template-columns: minmax(0, 1fr) 16px; } .car-item .chev { grid-column: 2; grid-row: 1; } .car-item .r { grid-column: 1; grid-row: 2; text-align: left; flex-direction: row; gap: 6px; align-items: baseline; } }
 .inlist .item { padding: 12px 0; }
 .inlist { border-bottom: 1px solid var(--hairline); }
@@ -680,11 +682,11 @@ const SAMPLE = () => ({
   ],
   people: [{ id: 'p1', nif: '234567813', name: 'Rui Costa' }],
   cars: [
-    { id: 'c1', plate: 'AB-12-CD', kind: 'PAX', model: 'Dacia Spring', motor: 'EV', own: 'BIZ', entityId: 'e1', acq: 'P', value: 12027.15, rent: 0, vatDed: true, start: '2026-09', odoStart: 1240 },
-    { id: 'c2', plate: 'AE-34-FG', kind: 'PAX', model: 'Renault Mégane E-Tech', motor: 'PHEV', own: 'BIZ', entityId: 'e2', acq: 'L', value: 41000, rent: 450, vatDed: true, start: '2026-09', odoStart: 6900 },
-    { id: 'c4', plate: 'BC-56-HI', kind: 'PAX', model: 'Peugeot 308', motor: 'PETROL', own: 'BIZ', entityId: 'e2', acq: 'P', value: 24500, rent: 0, vatDed: false, start: '2026-03', odoStart: 18300 },
-    { id: 'c5', plate: 'AG-78-JK', kind: 'GOODS', model: 'Renault Kangoo', motor: 'DIESEL', own: 'BIZ', entityId: 'e2', acq: 'P', value: 18000, rent: 0, vatDed: true, start: '2025-06', odoStart: 30000 },
-    { id: 'c3', plate: '45-XY-78', model: 'Volkswagen Golf', motor: 'DIESEL', own: 'PRIV', personId: 'p1', payerId: 'e2', start: '2026-09' },
+    { id: 'c1', plate: 'AB-12-CD', kind: 'PAX', motor: 'EV', own: 'BIZ', entityId: 'e1', acq: 'P', value: 12027.15, rent: 0, vatDed: true, start: '2026-09', odoStart: 1240 },
+    { id: 'c2', plate: 'AE-34-FG', kind: 'PAX', motor: 'PHEV', own: 'BIZ', entityId: 'e2', acq: 'L', value: 41000, rent: 450, vatDed: true, start: '2026-09', odoStart: 6900 },
+    { id: 'c4', plate: 'BC-56-HI', kind: 'PAX', motor: 'PETROL', own: 'BIZ', entityId: 'e2', acq: 'P', value: 24500, rent: 0, vatDed: false, start: '2026-03', odoStart: 18300 },
+    { id: 'c5', plate: 'AG-78-JK', kind: 'GOODS', motor: 'DIESEL', own: 'BIZ', entityId: 'e2', acq: 'P', value: 18000, rent: 0, vatDed: true, start: '2025-06', odoStart: 30000 },
+    { id: 'c3', plate: '45-XY-78', motor: 'DIESEL', own: 'PRIV', personId: 'p1', payerId: 'e2', start: '2026-09' },
   ],
   odo: { c1: { '2026-09': [1240, 1500], '2026-10': [1500, 1790] }, c2: { '2026-09': [6900, 8200], '2026-10': [8200, 9650] }, c5: { '2026-09': [41200, 42850], '2026-10': [42850, 44400] } },
   trips: [
@@ -740,7 +742,7 @@ const addrNorm = s => addrTitle(s.replace(/\s*,\s*/g, ', '));
 const entTrips = () => { const ids = new Set(entCars(curEnt()).map(c => c.id)); return D.trips.filter(t => ids.has(t.carId)); };
 let D = SAMPLE();
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.cars) D = s; } catch (e) {}
-D.mapPdf = D.mapPdf || {}; D.geo = D.geo || {}; D.routes = D.routes || {};
+D.cars.forEach(c => delete c.model); D.mapPdf = D.mapPdf || {}; D.geo = D.geo || {}; D.routes = D.routes || {};
 const mapSig = (c, s) => JSON.stringify([c.plate, c.ownerName || '', s.raw, s.paid.map(t => [t.date, t.from, t.to, purposeOf(t), t.km, !!t.rt, t.stay || 0])]);
 const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} };
 const ui = { tab: 'trips', carId: 'c1', month: CURRENT, entityId: 'e1', period: 'Q-2026-3', payerId: 'e2', mapMonth: CURRENT, sheet: null, pop: null };
@@ -882,12 +884,13 @@ function renderChrome() {
 
 // ---------------- section: cars ----------------
 // The plate names a car; make, model and whose car it is always sit underneath in grey
-const carSub = c => [c.model, ownerName(c)].filter(Boolean).join(' · ');
+// The plate names a car; only an employee's car has a name under it
+const carSub = c => c.own === 'PRIV' ? ownerName(c) || '' : '';
 function carItem(c) {
   const T = L();
   const f = effect(c);
   const sub = cap1([outcome(c), f === 'VAT' || f === 'MAP' ? '' : shortReason(c)].filter(Boolean).join(' · '));
-  const line = c.own === 'PRIV' ? carSub(c) : (c.model || '');
+  const line = carSub(c);
   return `<button class="item car-item" data-open-car="${c.id}" aria-label="${esc(c.plate)}, ${esc(carSub(c))}"><span class="main">${plate(c.plate)}${line ? `<span class="s">${esc(line)}</span>` : ''}<span class="s">${esc(sub)}</span></span>${ico('chev', 'chev')}</button>`;
 }
 // No cars yet: the first thing under the title is the button that adds one
@@ -908,13 +911,13 @@ function viewCars() {
 }
 
 // ---------------- section: trips ----------------
-// km and date on the right; the euro amount lives only in the month total (the mileage log needs rate and total, not a sum per trip)
+// Two addresses, one under the other, so a town is never cut; km and time on site on the right. The euro amount lives only in the month total.
+const routeLines2 = (a, b, rt) => `<span class="t rt1">${esc(a)}</span><span class="t rt2"><i>${rt ? '↔' : '→'}</i>${esc(b)}</span>`;
 function tripItem(t) {
-  const T = L();
-  const route = `${esc(placeLabel(t.from))} ${t.rt ? '↔' : '→'} ${esc(placeLabel(t.to))}`;
-  const sub = [purposeOf(t), t.home ? `${t.pk === 'commute' ? '' : T.home.toLowerCase() + ' '}${effect(carById(t.carId)) === 'MAP' ? T.notPaid : T.homeVat}` : '', needsStay(carById(t.carId), t.pk) && t.stay ? T.stayIn(stayShow(t.stay) + '\u00a0' + T.stayU) : ''].filter(Boolean).join(' · ');
-  const noStay = needsStay(carById(t.carId), t.pk) && !t.stay;
-  return `<button class="item trip-item ${t.home ? 'home' : ''}" data-edit-trip="${t.id}"><span class="main"><span class="t">${route}</span><span class="s">${esc(sub)}</span>${noStay ? `<span class="s lack">${T.noStay}</span>` : ''}</span><span class="r"><span class="v">${km(tripKm(t))}</span><span class="c">${dayLabel(t.date)}</span></span></button>`;
+  const T = L(); const paid = needsStay(carById(t.carId), t.pk);
+  const sub = [purposeOf(t), dayLabel(t.date)].filter(Boolean).join(' · ');
+  const homeNote = t.home ? (effect(carById(t.carId)) === 'MAP' ? T.notPaid : T.homeVat) : '';
+  return `<button class="item trip-item ${t.home ? 'home' : ''}" data-edit-trip="${t.id}"><span class="main">${routeLines2(placeLabel(t.from), placeLabel(t.to), t.rt)}<span class="s">${esc(sub)}</span>${paid && !t.stay ? `<span class="s lack">${T.noStay}</span>` : ''}</span><span class="r"><span class="v">${km(tripKm(t))}</span>${homeNote ? `<span class="c">${esc(homeNote)}</span>` : paid && t.stay ? `<span class="c">${T.stayIn(stayShow(t.stay) + '\u00a0' + T.stayU)}</span>` : ''}</span></button>`;
 }
 function viewTrips() {
   const T = L();
@@ -1020,7 +1023,7 @@ function pickerItems(kind, q) {
   if (kind === 'month') { const car = carById(ui.carId); return { items: carMonths(car).slice().reverse().map(m => ({ id: m, t: monthName(m), s: monthState(car, m), on: m === ui.month })) }; }
   if (kind === 'period') { const e = ent(ui.entityId); return { items: periodsFor(e).slice().reverse().map(p => { const r = vatFor(e, p); return { id: p.id, t: p.label, s: `${T.due(p.due)} · ${r.bad.length ? T.kmOff : D.included[e.id + '|' + p.id] ? T.included : r.complete ? T.ready : r.running ? (e.regime === 'M' ? T.runningM : T.running) : r.blocks.length ? T.missing : T.noVatCars}`, on: p.id === ui.period }; }) }; }
   if (kind === 'mapMonth') { const cs = D.cars.filter(c => c.own === 'PRIV' && c.payerId === ui.entityId); return { items: mapMonths(ent(ui.entityId)).slice().reverse().map(m => ({ id: m, t: monthName(m), s: eur(r2(cs.reduce((a, c) => a + mapStats(c, m).total, 0))), on: m === ui.mapMonth })) }; }
-  if (kind === 'car') return { items: D.cars.filter(c => !qq || c.plate.toLowerCase().includes(qq) || (c.model || '').toLowerCase().includes(qq)).map(c => ({ id: c.id, t: c.plate, s: c.own === 'PRIV' ? (ownerName(c) || '') : '', on: c.id === ui.carId, mine: entCars(curEnt()).includes(c) })).filter(x => x.mine) };
+  if (kind === 'car') return { items: D.cars.filter(c => !qq || c.plate.toLowerCase().includes(qq)).map(c => ({ id: c.id, t: c.plate, s: c.own === 'PRIV' ? (ownerName(c) || '') : '', on: c.id === ui.carId, mine: entCars(curEnt()).includes(c) })).filter(x => x.mine) };
   if (kind === 'entity') base = activeEnts().map(e => ({ id: e.id, t: taxId(e.nif), s: e.name, nif: e.nif, name: e.name, on: e.id === ui.entityId }));
   if (kind === 'payer') base = D.entities.filter(e => D.cars.some(c => c.own === 'PRIV' && c.payerId === e.id)).map(e => ({ id: e.id, t: e.name, s: `NIPC ${nifShow(e.nif)}`, nif: e.nif, name: e.name, on: e.id === ui.payerId }));
   const d = ui.sheet?.draft;
@@ -1289,9 +1292,9 @@ function sheetCar(c) {
   return shell(plate(c.plate), `<span class="muted" style="font-size:14px">${esc(carSub(c))}</span>`, rows, foot);
 }
 function draftOf(c) {
-  if (!c) { const e = curEnt(); const ref = e ? { id: e.id, nif: e.nif, name: e.name } : null; return { id: null, plate: '', model: '', own: 'BIZ', owner: ref, person: null, payer: ref, kind: 'PAX', motor: 'EV', acq: 'P', value: '', rent: '', vatDed: true, start: CURRENT, odoStart: '' }; }
+  if (!c) { const e = curEnt(); const ref = e ? { id: e.id, nif: e.nif, name: e.name } : null; return { id: null, plate: '', own: 'BIZ', owner: ref, person: null, payer: ref, kind: 'PAX', motor: 'EV', acq: 'P', value: '', rent: '', vatDed: true, start: CURRENT, odoStart: '' }; }
   const e = ent(c.entityId), p = per(c.personId), y = ent(c.payerId);
-  return { id: c.id, plate: c.plate, model: c.model, kind: c.kind || 'PAX', own: c.own, owner: e ? { id: e.id, nif: e.nif, name: e.name } : null, person: p ? { id: p.id, nif: p.nif, name: p.name } : null, payer: y ? { id: y.id, nif: y.nif, name: y.name } : null, motor: c.motor, acq: c.acq || 'P', value: c.value != null ? fmt(c.value) : '', rent: c.rent ? fmt(c.rent) : '', vatDed: c.vatDed ?? true, start: c.start, ownerName: c.ownerName || '', odoStart: c.odoStart != null ? fmt(c.odoStart, 0) : '' };
+  return { id: c.id, plate: c.plate, kind: c.kind || 'PAX', own: c.own, owner: e ? { id: e.id, nif: e.nif, name: e.name } : null, person: p ? { id: p.id, nif: p.nif, name: p.name } : null, payer: y ? { id: y.id, nif: y.nif, name: y.name } : null, motor: c.motor, acq: c.acq || 'P', value: c.value != null ? fmt(c.value) : '', rent: c.rent ? fmt(c.rent) : '', vatDed: c.vatDed ?? true, start: c.start, ownerName: c.ownerName || '', odoStart: c.odoStart != null ? fmt(c.odoStart, 0) : '' };
 }
 function partyRow(field, label, placeholder) {
   const d = ui.sheet.draft; const v = d[field]; const err = ui.sheet.errors?.[field];
@@ -1329,9 +1332,9 @@ function sheetMap(c) {
   const T = L(); const s = mapStats(c, ui.mapMonth); const p = per(c.personId), y = ent(c.payerId);
   const rows = prow(T.payer, taxId(y?.nif), { sub: esc(y?.name) })
     + prow(T.employee, taxId(p?.nif), { sub: esc(p?.name) })
-    + prow(T.car, esc(c.plate), { sub: esc(c.model || '') })
+    + prow(T.car, esc(c.plate))
     + prow(T.carOwner, esc(c.ownerName || p?.name || ''))
-    + `<div class="inlist">${s.paid.map(t => `<div class="item trip-item"><span class="main"><span class="t">${esc(t.from)} ${t.rt ? '↔' : '→'} ${esc(t.to)}</span><span class="s">${esc([purposeOf(t), t.stay ? T.stayIn(stayShow(t.stay) + '\u00a0' + T.stayU) : ''].filter(Boolean).join(' · '))}</span></span><span class="r"><span class="v">${km(tripKm(t))}</span><span class="c">${dayLabel(t.date)}</span></span></div>`).join('')}</div>`
+    + `<div class="inlist">${s.paid.map(t => `<div class="item trip-item"><span class="main">${routeLines2(t.from, t.to, t.rt)}<span class="s">${esc([purposeOf(t), dayLabel(t.date)].join(' · '))}</span></span><span class="r"><span class="v">${km(tripKm(t))}</span>${t.stay ? `<span class="c">${T.stayIn(stayShow(t.stay) + '\u00a0' + T.stayU)}</span>` : ''}</span></div>`).join('')}</div>`
     + prow(T.rate, `${fmt(s.raw)}\u00a0€`)
     + prow(T.total, eur(s.total), { cls: 'strong', sub: km(s.kms) })
     + (s.raw > 0.4 && s.kms ? prow(T.excess, eur(r2(s.kms * (s.raw - 0.4))), { sub: T.excessSub }) : '')
@@ -1411,7 +1414,7 @@ function saveCar() {
   if (Object.keys(err).length) { failSheet(err); return; }
   const mkEntity = v => { if (v.id) return v.id; const e = { id: 'e' + Date.now() + Math.floor(Math.random() * 1000), kind: v.nif[0] === '5' ? 'COMPANY' : 'TI', nif: v.nif, name: v.name.trim(), regime: v.regime || 'Q', region: v.region || 'C' }; D.entities.push(e); return e.id; };
   const mkPerson = v => { if (v.id) return v.id; const p = { id: 'p' + Date.now(), nif: v.nif, name: v.name.trim() }; D.people.push(p); return p.id; };
-  const car = { id: d.id || 'c' + Date.now(), plate: d.plate, model: (d.model || '').trim(), kind: d.kind || 'PAX', motor: d.motor, own: d.own };
+  const car = { id: d.id || 'c' + Date.now(), plate: d.plate, kind: d.kind || 'PAX', motor: d.motor, own: d.own };
   if (d.own === 'BIZ') { Object.assign(car, { entityId: mkEntity(d.owner), acq: d.acq, value: needsValue(d) ? num(d.value) : 0, rent: needsRent(d) ? num(d.rent) : 0, start: d.start, odoStart: int(d.odoStart) ?? 0 }); car.vatDed = lawBlocks(car) ? false : !!d.vatDed; }
   else Object.assign(car, { personId: mkPerson(d.person), payerId: mkEntity(d.payer), start: d.start }, (d.ownerName || '').trim() ? { ownerName: d.ownerName.trim() } : {});
   // a car never starts after its first trip, so no saved trip drops out of the months
