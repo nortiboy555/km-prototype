@@ -197,6 +197,7 @@ button.item:hover { background: var(--fill); }
 .odo-pair { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
 .odo-pair .arr { color: var(--muted); flex: none; }
 .odo-in { flex: 1 1 0; width: 100%; min-width: 0; min-height: 44px; border: 0; border-bottom: 1.5px solid var(--hairline-2); border-radius: 0; background: transparent; color: var(--ink); padding: 0; font: inherit; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (max-width: 374px) { .odo-grid { column-gap: 10px; } .odo-grid label, .odo-grid .cap { font-size: 12px; } }
 @media (max-width: 359px) { .odo-grid { grid-template-columns: 1fr 1fr; } .odo-grid label, .odo-pair { grid-column: 1 / -1; } .odo-grid .cap { grid-row: 3; } .odo-grid b { grid-row: 4; line-height: 28px; } }
 .odo-in:focus { outline: none; border-bottom-color: var(--brand); }
 .odo-in::placeholder { color: var(--ph); }
