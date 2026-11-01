@@ -1733,7 +1733,7 @@ async function mountRoute() {
     const map = routeMap = newMap(gl, { container: box, interactive: false, bounds, fitBoundsOptions: { padding: 26 } });
     map.on('load', () => {
       map.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: line } } });
-      map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#2a6df4', 'line-width': 4 } });
+      map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#2a6df4', 'line-width': 4 } }, map.getStyle().layers.find(l => l.type === 'symbol')?.id);
       map.addSource('ends', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'MultiPoint', coordinates: [line[0], line[line.length - 1]] } } });
       map.addLayer({ id: 'ends', type: 'circle', source: 'ends', paint: { 'circle-radius': 6, 'circle-color': '#ffc852', 'circle-stroke-color': '#111', 'circle-stroke-width': 2 } });
     });
