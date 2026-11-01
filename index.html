@@ -118,7 +118,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .fseg .fv { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; font-weight: 600; }
 .fseg .fv .t { min-width: 0; overflow-wrap: anywhere; }
 .fseg .fv .ico { width: 16px; height: 16px; color: var(--muted); margin-top: 2px; }
-.fseg .fs { font-size: 12px; color: var(--muted); }
+.fseg .fs { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 359px) { .fseg { padding: 10px; } .fseg .fv { font-size: 14px; gap: 4px; } }
 .lhead { display: flex; justify-content: flex-end; align-items: flex-start; gap: 12px; padding-top: 4px; }
 .lhead .cnt { color: var(--muted); padding-top: 12px; }
@@ -222,7 +222,7 @@ button.alert { width: 100%; border: 0; min-height: 44px; text-align: left; font:
 .card > .alert { margin: 2px 0 14px; }
 .vat-act:empty { display: none !important; }
 .card > .prow:has(+ .vat-act:empty) { border-bottom: 0; }
-.sum > .alert { margin-top: 6px; }
+.sum > .alert { margin: 8px 0 0; }
 .km-bar .over { flex: 1; background: var(--warn); }
 .km-line .off, .km-line .off b { color: var(--warn); }
 .prow > .full.left { align-items: flex-start; text-align: left; }
@@ -289,6 +289,7 @@ button.alert { width: 100%; border: 0; min-height: 44px; text-align: left; font:
 .sheet-b .prow:last-of-type { border-bottom: 0; }
 .sheet-f { padding: 12px 20px 16px; border-top: 1px solid var(--hairline); display: flex; gap: 8px; align-items: flex-start; }
 .sheet-f .grow { flex: 1; }
+@media (max-width: 360px) { .sheet-f { padding-left: 12px; padding-right: 12px; gap: 6px; } .sheet-f .btn { padding-left: 12px; padding-right: 12px; } }
 /* an opened record with nothing changed has nothing to save or cancel: the cross closes it */
 .ask-only { display: none; }
 .sheet.asking .sheet-f { flex-wrap: wrap; }
@@ -657,7 +658,7 @@ const fullDate = iso => { const [y, m, d] = iso.split('-').map(Number); return `
 const dayLabel = iso => { const [, m, d] = iso.split('-').map(Number); return `${d} ${MON[lang][m - 1]}`; };
 const addMonths = (ym, n) => { let [y, m] = ymParts(ym); m += n; while (m > 12) { m -= 12; y++; } while (m < 1) { m += 12; y--; } return `${y}-${String(m).padStart(2, '0')}`; };
 const monthsBetween = (a, b) => { const [ya, ma] = ymParts(a), [yb, mb] = ymParts(b); return (yb - ya) * 12 + (mb - ma); };
-const dueOf = ym => { const [y, m] = ymParts(addMonths(ym, 2)); return `20.${String(m).padStart(2, '0')}.${y}`; };
+const dueOf = ym => { const [y, m] = ymParts(addMonths(ym, 2)); const wd = new Date(Date.UTC(y, m - 1, 20)).getUTCDay(); return `${wd === 6 ? 22 : wd === 0 ? 21 : 20}.${String(m).padStart(2, '0')}.${y}`; };
 const pad2 = n => String(n).padStart(2, '0');
 const NOW = new Date();
 const TODAY = `${NOW.getFullYear()}-${pad2(NOW.getMonth() + 1)}-${pad2(NOW.getDate())}`;
@@ -819,9 +820,11 @@ function effect(car) {
 const outcome = car => { const f = effect(car); return f === 'VAT' ? L().outVat : f === 'MAP' ? L().outMap : L().outNone; };
 const reason = car => { const f = effect(car), T = L(); return f === 'VAT' ? T.rVat : f === 'MAP' ? T.rMap(ent(car.payerId)?.name || '—') : f === 'EXEMPT' ? T.rExempt : f === 'FUEL' ? T.rFuel : f === 'CAP' ? T.rCap(eur(CAP[car.motor])) : T.rNotDed; };
 const shortReason = car => { const f = effect(car), T = L(); return f === 'FUEL' ? T['m' + car.motor].toLowerCase() : f === 'CAP' ? T.shortCap : f === 'EXEMPT' ? T.shortExempt : T.shortNotDed; };
+// DR 25/2009 table II: 2375 light and mixed 25%, 2385 heavy goods 20% (5 years)
+const deprRate = car => car.kind === 'TRUCK' ? 0.2 : 0.25;
 function monthCost(car, m) {
   if (!inUse(car, m)) return null;
-  if (car.acq === 'P') return monthsBetween(car.start, m) >= 48 ? 0 : r2(car.value * 0.25 / 12);
+  if (car.acq === 'P') return monthsBetween(car.start, m) >= 12 / deprRate(car) ? 0 : r2(car.value * deprRate(car) / 12);
   return car.rent;
 }
 // The odometer at the start of a month is the end of the previous one, or the car's starting reading in its first month
@@ -969,7 +972,7 @@ function viewCars() {
 const routeLines2 = (a, b, rt) => `<span class="t rt1">${esc(a)}</span><span class="t rt2"><i>${rt ? '↔' : '→'}</i>${esc(b)}</span>`;
 function tripItem(t) {
   const T = L(); const paid = needsStay(carById(t.carId), t.pk);
-  const sub = [purposeOf(t), dayLabel(t.date)].filter(Boolean).join(' · ');
+  const sub = [purposeOf(t), dayLabel(t.date).replace(/ /g, '\u00a0')].filter(Boolean).join(' · ');
   const homeNote = t.home ? (effect(carById(t.carId)) === 'MAP' ? T.notPaid : T.homeVat) : '';
   return `<button class="item trip-item ${t.home ? 'home' : ''}" data-edit-trip="${t.id}"><span class="main">${routeLines2(placeLabel(t.from), placeLabel(t.to), t.rt)}<span class="s">${esc(sub)}</span>${paid && !t.stay ? `<span class="s lack">${T.noStay}</span>` : ''}</span><span class="r"><span class="v">${km(tripKm(t))}</span>${homeNote ? `<span class="c">${esc(homeNote)}</span>` : paid && t.stay ? `<span class="c">${T.stayIn(stayShow(t.stay) + '\u00a0' + T.stayU)}</span>` : ''}</span></button>`;
 }
@@ -1428,7 +1431,7 @@ function sheetCar(c) {
     if (needsRent(c)) rows += prow(T.rent, eur(c.rent), { sub: c.acq === 'R' ? T.rentRNote : '' });
     const gplDed = halfDed(c) && f === 'VAT';
     rows += prow(T['vatDed' + (c.acq || 'P')], (f === 'FUEL' || f === 'CAP') ? T.dedNever : !c.vatDed ? T.dedNo : halfDed(c) ? T.dedHalf : T.dedYes, { sub: gplDed ? 'art. 21.º n.º 2 g) CIVA' : '' }) + prow(T.since, monthName(c.start)) + (c.end ? prow(T.until, monthName(c.end)) : '') + (fuelBlocked(c) ? '' : prow(`${T.odoStart}, ${T.km}`, fmt(c.odoStart || 0, 0)));
-    if (f === 'VAT' && c.acq === 'P') { const mc = monthCost(c, CURRENT); rows += prow(T.depr, mc === 0 ? T.deprDone : eur(mc), { sub: mc === 0 ? '' : `${eur(c.value)} × 25% / 12` }); }
+    if (f === 'VAT' && c.acq === 'P') { const mc = monthCost(c, CURRENT); rows += prow(T.depr, mc === 0 ? T.deprDone : eur(mc), { sub: mc === 0 ? '' : `${eur(c.value)} × ${deprRate(c) * 100}% / 12` }); }
   }
   const n = D.trips.filter(t => t.carId === c.id).length;
   const foot = ui.sheet.confirm
@@ -1468,8 +1471,8 @@ function sheetCarForm() {
     // blocked by law: the answer is fixed and says why in two words; otherwise the user says whether it was deducted
     rows += prow(T['vatDed' + (d.acq || 'P')], lb ? `<span class="muted">${T.dedNever}</span>` : sel('f-vat', String(!!d.vatDed), [['true', half ? T.dedHalf : T.dedYes], ['false', T.dedNo]], 'data-draft-sel="vatDed"'), { for: lb ? '' : 'f-vat', sub: lb === 'FUEL' ? `${T.kindPax.toLowerCase()} · ${T['m' + d.motor].toLowerCase()}` : lb === 'CAP' ? `${T.kindPax.toLowerCase()} ${T.capShort(eur(CAP[d.motor]))}` : '' });
   }
-  // Month select in the UI language (a native month input follows the browser locale, not the app's)
-  const startOpts = []; for (let m = '2015-01'; monthsBetween(m, CURRENT) >= 0; m = addMonths(m, 1)) startOpts.unshift([m, monthName(m)]);
+  // Month select in the UI language; a car never starts after its first trip, so no saved trip drops out of the months
+  const firstT = d.id && D.trips.filter(x => x.carId === d.id).map(x => ymOf(x.date)).sort()[0]; const startOpts = []; for (let m = '2015-01'; monthsBetween(m, firstT || CURRENT) >= 0; m = addMonths(m, 1)) startOpts.unshift([m, monthName(m)]);
   rows += prow(T.since, sel('f-start', d.start, startOpts, 'data-draft-sel="start"'), { for: 'f-start', err: err.start });
   // a car that was sold or returned stays in the months it was used, and is no longer asked for afterwards
   // it never leaves before its last trip
@@ -1648,9 +1651,6 @@ function saveCar() {
   const car = { id: d.id || 'c' + Date.now(), plate: d.plate, kind: d.kind || 'PAX', motor: d.motor, own: d.own };
   if (d.own === 'BIZ') { Object.assign(car, { entityId: mkEntity(d.owner), acq: d.acq, value: needsValue(d) ? num(d.value) : 0, rent: needsRent(d) ? num(d.rent) : 0, start: d.start, odoStart: int(d.odoStart) ?? 0 }); car.vatDed = lawBlocks(car) ? false : !!d.vatDed; }
   else Object.assign(car, { personId: mkPerson(d.person), payerId: mkEntity(d.payer), start: d.start }, (d.ownerName || '').trim() ? { ownerName: d.ownerName.trim() } : {});
-  // a car never starts after its first trip, so no saved trip drops out of the months
-  const first = D.trips.filter(x => x.carId === car.id).map(x => ymOf(x.date)).sort()[0];
-  if (first && monthsBetween(first, car.start) > 0) car.start = first;
   if (d.end && monthsBetween(car.start, d.end) >= 0) car.end = d.end;
   const i = D.cars.findIndex(c => c.id === car.id); if (i >= 0) D.cars[i] = car; else D.cars.push(car);
   ui.entityId = carEntId(car);
@@ -1801,7 +1801,7 @@ function saveTrip() {
   // keep the translatable key only while the text is still the sample's own wording
   if (d.pk && d.purpose.trim() === (L().purposes[d.pk] || '')) { trip.pk = d.pk; trip.purpose = ''; }
   const i = D.trips.findIndex(x => x.id === trip.id); if (i >= 0) D.trips[i] = trip; else D.trips.push(trip);
-  ui.month = ymOf(d.date); persist(); closeSheet(); render(); toast(T.savedTrip);
+  ui.month = ymOf(d.date); if (ui.tab === 'maps') ui.mapMonth = ui.month; persist(); closeSheet(); render(); toast(T.savedTrip);
 }
 
 // ---------------- events ----------------
@@ -1847,12 +1847,15 @@ document.addEventListener('click', ev => {
     case 'save-trip': ui.sheet.ask = false; saveTrip(); break;
     case 'ask-remove': ui.sheet.confirm = true; renderSheet(); break;
     case 'cancel-remove': ui.sheet.confirm = false; renderSheet(); break;
-    case 'do-remove': { const id = ui.sheet.id; D.cars = D.cars.filter(c => c.id !== id); D.trips = D.trips.filter(t => t.carId !== id); delete D.odo[id]; persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedCar); break; }
+    case 'do-remove': { const id = ui.sheet.id; D.cars = D.cars.filter(c => c.id !== id); D.trips = D.trips.filter(t => t.carId !== id); delete D.odo[id]; delete D.rates[id]; delete D.rateFrom[id]; persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedCar); break; }
     case 'do-remove-trip': { D.trips = D.trips.filter(t => t.id !== ui.sheet.draft.id); persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedTrip); break; }
     case 'include': case 'unlink': { const key = ui.entityId + '|' + ui.period; if (ds.act === 'include') { const r = vatFor(ent(ui.entityId), periodsFor(ent(ui.entityId)).find(x => x.id === ui.period)); D.included[key] = { base: r.base, vat: r.vat }; } else delete D.included[key]; persist(); render(); break; }
     case 'pdf': { if (ui.pdfBusy) break; ui.pdfBusy = true; const c = carById(ui.sheet.id); const m = ui.mapMonth; saveMapPdf(c, m).then(done => { if (!done) return; D.mapPdf[c.id + '|' + m] = mapSig(c, mapStats(c, m)); persist(); render(); toast(T.pdfDone); }).catch(() => toast(T.pdfFail)).finally(() => { ui.pdfBusy = false; }); break; }
   }
 });
+// A dot in the number would throw the cursor to the end at the first key: the field holds plain digits while it is being edited
+document.addEventListener('focusin', ev => { const el = ev.target; if (el.classList?.contains('odo-in')) el.value = el.value.replace(/\D/g, ''); });
+document.addEventListener('focusout', ev => { const el = ev.target; if (el.classList?.contains('odo-in') && el.value) el.value = fmt(int(el.value), 0); });
 // after every other listener has updated the draft
 document.addEventListener('input', () => setTimeout(syncDirty));
 document.addEventListener('change', () => setTimeout(syncDirty));
