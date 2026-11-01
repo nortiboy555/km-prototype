@@ -854,12 +854,15 @@ function vatFor(e, p) {
   return { cars, blocks, missing, bad, base, vat, rate: rateOf(e), complete: blocks.length > 0 && !missing.length && !bad.length && !open, running: open && missing.every(x => x.future) };
 }
 // NIF for a person (sole trader), NIPC for a company: the number type says who it is
-const taxId = nif => `${String(nif)[0] === '5' ? 'NIPC' : 'NIF'} ${nifShow(nif)}`;
+// On screen the number speaks for itself; the PDF is a document for the AT and names it
+const taxId = nif => nifShow(nif);
+const taxIdFull = nif => `${String(nif)[0] === '5' ? 'NIPC' : 'NIF'} ${nifShow(nif)}`;
 const ownerName = car => car.own === 'PRIV' ? per(car.personId)?.name : ent(car.entityId)?.name;
 
 // ---------------- shared controls ----------------
 // A field with one option is only shown (no chevron, no list): there is nothing to choose
-const fbar = segs => `<div class="fbar" style="grid-template-columns:${segs.length === 2 ? 'minmax(0,5fr) minmax(0,6fr)' : 'minmax(0,1fr)'}">${segs.map(([key, cap, value, sub, only]) => only
+// the car's caption needs the room: the month next to it takes only its own width
+const fbar = segs => `<div class="fbar" style="grid-template-columns:${segs.length < 2 ? 'minmax(0,1fr)' : segs[0][0] === 'car' ? 'minmax(0,1fr) auto' : 'minmax(0,5fr) minmax(0,6fr)'}">${segs.map(([key, cap, value, sub, only]) => only
   ? `<div class="fseg static" aria-label="${esc(cap)}: ${esc(value)}"><span class="fv"><span class="t">${esc(value)}</span></span>${sub ? `<span class="fs">${esc(sub)}</span>` : ''}</div>`
   : `<button class="fseg" data-pop="${key}" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(cap)}: ${esc(value)}"><span class="fv"><span class="t">${esc(value)}</span>${ico('chev')}</span>${sub ? `<span class="fs">${esc(sub)}</span>` : ''}</button>`).join('')}</div>`;
 // What a month looks like in a picker: closed / missing odometer for VAT cars, trips and amount for reimbursed cars
@@ -887,7 +890,7 @@ const entCars = e => !e ? [] : D.cars.filter(c => (c.own === 'BIZ' && c.entityId
 // A NIF / NIPC appears only together with a car: without cars there is no taxpayer to switch to
 const activeEnts = () => D.entities.filter(e => entCars(e).length);
 const carEntId = c => c.own === 'BIZ' ? c.entityId : c.payerId;
-const entSeg = e => ['entity', L().fEntity, nifShow(e.nif), `${String(e.nif)[0] === '5' ? 'NIPC' : 'NIF'} · ${e.name}`, activeEnts().length === 1];
+const entSeg = e => ['entity', L().fEntity, nifShow(e.nif), e.name, activeEnts().length === 1];
 const curEnt = () => { const a = activeEnts(); if (!a.some(e => e.id === ui.entityId)) ui.entityId = a[0]?.id; return a.find(e => e.id === ui.entityId) || null; };
 function renderChrome() {
   const T = L();
@@ -937,7 +940,7 @@ function viewTrips() {
   if (!mine.some(c => c.id === ui.carId)) ui.carId = mine[0].id;
   const car = carById(ui.carId); const f = effect(car); const months = carMonths(car);
   if (!months.includes(ui.month)) ui.month = months.includes(CURRENT) ? CURRENT : months[months.length - 1];
-  const ents = activeEnts(); const carSub = car.own === 'PRIV' ? ownerName(car) : ents.length > 1 ? e.name : '';
+  const ents = activeEnts(); const carSub = [car.own === 'PRIV' ? ownerName(car) : '', taxId(e.nif)].filter(Boolean).join(' · ');
   const ctx = fbar([['car', T.fCar, car.plate, carSub, ents.flatMap(entCars).length === 1], ...(f === 'VAT' || f === 'MAP' ? [['month', T.fMonth, monthName(ui.month), '', months.length === 1]] : [])]);
   let card;
   if (f === 'MAP') {
@@ -1042,7 +1045,7 @@ function pickerItems(kind, q) {
   if (kind === 'mapMonth') { const cs = D.cars.filter(c => c.own === 'PRIV' && c.payerId === ui.entityId); return { items: mapMonths(ent(ui.entityId)).slice().reverse().map(m => ({ id: m, t: monthName(m), s: eur(r2(cs.reduce((a, c) => a + mapStats(c, m).total, 0))), on: m === ui.mapMonth })) }; }
   if (kind === 'car') { const ents = activeEnts(); return { items: ents.flatMap(e => entCars(e).map(c => ({ c, e }))).filter(({ c, e }) => !qq || `${c.plate} ${e.name} ${e.nif} ${ownerName(c) || ''}`.toLowerCase().includes(qq)).map(({ c, e }) => ({ id: c.id, t: c.plate, s: [c.own === 'PRIV' ? ownerName(c) : '', ents.length > 1 ? `${taxId(e.nif)} · ${e.name}` : ''].filter(Boolean).join(' · '), on: c.id === ui.carId })) }; }
   if (kind === 'entity') base = activeEnts().map(e => ({ id: e.id, t: taxId(e.nif), s: e.name, nif: e.nif, name: e.name, on: e.id === ui.entityId }));
-  if (kind === 'payer') base = D.entities.filter(e => D.cars.some(c => c.own === 'PRIV' && c.payerId === e.id)).map(e => ({ id: e.id, t: e.name, s: `NIPC ${nifShow(e.nif)}`, nif: e.nif, name: e.name, on: e.id === ui.payerId }));
+  if (kind === 'payer') base = D.entities.filter(e => D.cars.some(c => c.own === 'PRIV' && c.payerId === e.id)).map(e => ({ id: e.id, t: e.name, s: nifShow(e.nif), nif: e.nif, name: e.name, on: e.id === ui.payerId }));
   const d = ui.sheet?.draft;
   if (kind === 'g-from' || kind === 'g-to') {
     const cur = d?.[kind.slice(2)]; const other = d?.[kind === 'g-from' ? 'to' : 'from'];
@@ -1381,7 +1384,7 @@ async function saveMapPdf(c, m) {
   doc.setFont(F, B); doc.setFontSize(16); doc.text(tx(P.mapDoc), X, yy);
   doc.setFont(F, 'normal'); doc.setFontSize(11); doc.text(`${MONTHS.pt[mo - 1]} ${yr}`, X + W, yy, { align: 'right' }); yy += 9;
   doc.setFontSize(10);
-  [[P.payer, `${taxId(y?.nif)} · ${y?.name || ''}`], [P.employee, `${taxId(p?.nif)} · ${p?.name || ''}`], [P.car, c.plate], [P.carOwner, c.ownerName || p?.name || '']].forEach(([a, b]) => {
+  [[P.payer, `${taxIdFull(y?.nif)} · ${y?.name || ''}`], [P.employee, `${taxIdFull(p?.nif)} · ${p?.name || ''}`], [P.car, c.plate], [P.carOwner, c.ownerName || p?.name || '']].forEach(([a, b]) => {
     doc.setTextColor(110); doc.text(tx(a), X, yy); doc.setTextColor(0); doc.text(tx(b), X + 42, yy); yy += 5.5;
   });
   yy += 3;
