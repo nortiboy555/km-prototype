@@ -1501,11 +1501,10 @@ async function saveMapPdf(c, m) {
   const [yr, mo] = ymParts(m); const period = `${cap1(MONTHS.pt[mo - 1])} ${yr}`;
 
   // heading: what it is on the left, the month it covers on the right
-  doc.setFillColor(...BRAND); doc.roundedRect(X, yy - 5.2, 2.2, 13.4, 1.1, 1.1, 'F');
-  set(21, true); doc.text('Mapa de quilómetros', X + 6, yy + 1);
-  set(9.5, false, MUTED); doc.text('Compensação por deslocações em viatura própria', X + 6, yy + 7.2);
+  set(21, true); doc.text('Mapa de quilómetros', X, yy + 1);
+  set(9.5, false, MUTED); doc.text('Compensação por deslocações em viatura própria', X, yy + 7.2);
   set(8.5, false, MUTED); doc.text('Período', R, yy - 2.6, { align: 'right' });
-  set(13, true); doc.text(period, R, yy + 3.4, { align: 'right' });
+  set(13, false); doc.text(period, R, yy + 3.4, { align: 'right' });
   yy += 15;
 
   // who and what: four blocks, the name first and the number under it
@@ -1514,7 +1513,7 @@ async function saveMapPdf(c, m) {
     doc.setFillColor(...FILL); doc.roundedRect(bx, by, bw, bh, 2.4, 2.4, 'F');
     set(8, false, MUTED); doc.text(tx(label), bx + 4, by + 5.6);
     if (draw) { draw(bx + 4, by + 8.2); return; }
-    set(10.5, true); doc.text(doc.splitTextToSize(tx(main), bw - 8)[0], bx + 4, by + 10.8);
+    set(10.5, false); doc.text(doc.splitTextToSize(tx(main), bw - 8)[0], bx + 4, by + 10.8);
     if (sub) { set(8.5, false, MUTED); doc.text(tx(sub), bx + 4, by + 14.9); }
   };
   const plateMark = (px, py) => {
@@ -1535,7 +1534,7 @@ async function saveMapPdf(c, m) {
   const cDate = X + 3, cRoute = X + 24, cWhy = X + 104, cStay = X + 161, cKm = R - 3;
   const head = () => {
     doc.setFillColor(...FILL); doc.roundedRect(X, yy, W, 8.4, 2, 2, 'F');
-    set(8.5, true, MUTED);
+    set(8.5, false, MUTED);
     doc.text('Data', cDate, yy + 5.4); doc.text('Percurso', cRoute, yy + 5.4); doc.text('Motivo', cWhy, yy + 5.4);
     doc.text('No local', cStay, yy + 5.4, { align: 'right' }); doc.text('Km', cKm, yy + 5.4, { align: 'right' });
     yy += 8.4;
@@ -1543,22 +1542,24 @@ async function saveMapPdf(c, m) {
   head();
   s.paid.forEach((t, i) => {
     const [yd, md, dd] = t.date.split('-');
-    set(9.5, true); const from = doc.splitTextToSize(tx(t.from), 76), to = doc.splitTextToSize(tx(t.to), 72);
-    set(9.5, false); const why = doc.splitTextToSize(tx((t.pk && P.purposes[t.pk]) || t.purpose || ''), 40);
-    const h = Math.max((from.length + to.length) * 4.5, why.length * 4.5, 9) + 5;
+    set(9.5, false); const from = doc.splitTextToSize(tx(t.from), 76), to = doc.splitTextToSize(tx(t.to), 72);
+    const why = doc.splitTextToSize(tx((t.pk && P.purposes[t.pk]) || t.purpose || ''), 40);
+    // the round trip belongs to the route: after the destination, or under it when it does not fit
+    const lastW = doc.getTextWidth(to[to.length - 1]); set(8, false); const rtW = doc.getTextWidth(' · ida e volta'); const rtBelow = t.rt && lastW + rtW > 72;
+    const h = Math.max((from.length + to.length + (rtBelow ? 1 : 0)) * 4.5, why.length * 4.5, 9) + 5;
     if (yy + h > BOTTOM) { doc.addPage(); yy = 17; head(); }
     const top = yy + 5.4;
     set(9.5, false); doc.text(`${dd}/${md}/${yd}`, cDate, top);
-    set(9.5, false); doc.text(from, cRoute, top);
+    doc.text(from, cRoute, top);
     const toY = top + from.length * 4.5;
     // the arrow is drawn: one way or there and back
     doc.setDrawColor(...MUTED); doc.setLineWidth(.3); const ay = toY - 1.1; doc.line(cRoute, ay, cRoute + 3.2, ay); doc.line(cRoute + 3.2, ay, cRoute + 2.2, ay - .8); doc.line(cRoute + 3.2, ay, cRoute + 2.2, ay + .8);
     if (t.rt) { doc.line(cRoute, ay, cRoute + 1, ay - .8); doc.line(cRoute, ay, cRoute + 1, ay + .8); }
-    set(9.5, true); doc.text(to, cRoute + 4.6, toY);
-    set(9.5, false); doc.text(why, cWhy, top);
+    doc.text(to, cRoute + 4.6, toY);
+    doc.text(why, cWhy, top);
     if (t.stay) doc.text(`${stayShow(t.stay)} h`, cStay, top, { align: 'right' });
-    set(9.5, true); doc.text(fmt(tripKm(t), 0), cKm, top, { align: 'right' });
-    if (t.rt) { set(7.5, false, MUTED); doc.text('ida e volta', cKm, top + 4.1, { align: 'right' }); }
+    doc.text(fmt(tripKm(t), 0), cKm, top, { align: 'right' });
+    if (t.rt) { set(8, false, MUTED); const lastY = toY + (to.length - 1) * 4.5; if (rtBelow) doc.text('ida e volta', cRoute + 4.6, lastY + 4.5); else doc.text(' · ida e volta', cRoute + 4.6 + lastW, lastY); }
     yy += h;
     if (i < s.paid.length - 1) { doc.setDrawColor(...LINE); doc.setLineWidth(.25); doc.line(X, yy, R, yy); }
   });
@@ -1567,15 +1568,15 @@ async function saveMapPdf(c, m) {
   // what to pay is the point of the page
   const sumH = 12 + 15.5 + (s.raw > 0.4 && s.kms ? 5.5 : 0);
   if (yy + sumH + 42 > BOTTOM) { doc.addPage(); yy = 17; }
-  const sx = X + 96, sw = W - 96;
-  const line = (a, b) => { set(9.5, false, MUTED); doc.text(tx(a), sx + 4, yy); set(9.5, true); doc.text(tx(b), R - 4, yy, { align: 'right' }); yy += 5.5; };
+  const sx = cWhy - 3, sw = R - sx;
+  const line = (a, b) => { set(9.5, false, MUTED); doc.text(tx(a), cWhy, yy); set(9.5, false); doc.text(tx(b), cKm, yy, { align: 'right' }); yy += 5.5; };
   yy += 2;
   line('Total de km', `${fmt(s.kms, 0)} km`); line(P.rate, `${fmt(s.raw)} €`);
   if (s.raw > 0.4 && s.kms) line(P.excess, eur(r2(s.kms * (s.raw - 0.4))));
   yy -= 1.5;
   doc.setFillColor(...BRAND); doc.roundedRect(sx, yy, sw, 13, 2.4, 2.4, 'F');
-  set(10.5, true); doc.text(tx(P.total), sx + 4, yy + 8.1);
-  set(15, true); doc.text(tx(eur(s.total)), R - 4, yy + 8.6, { align: 'right' });
+  set(10.5, false); doc.text(tx(P.total), cWhy, yy + 8.1);
+  set(15, true); doc.text(tx(eur(s.total)), cKm, yy + 8.6, { align: 'right' });
   yy += 13;
 
   // signature right under the amount it confirms
