@@ -476,7 +476,7 @@ const S = {
     include: 'Incluir na declaração', undo: 'Retirar da declaração', noVatCars: 'Neste período não há IVA dos km pessoais.',
     noVatOthers: 'Sem IVA:', exempt: 'Entidade isenta (art. 53.º): sem IVA a liquidar.',
     shortCap: 'acima do limite', shortNotDed: 'IVA não deduzido', shortExempt: 'isento',
-    pdf: 'Mapa de km', pdfDone: 'PDF pronto (simulação): falta a assinatura do colaborador', mapStale: 'Alterado depois do PDF: descarregue-o e assine de novo', kmMap: 'por estrada', kmWait: 'A calcular por estrada…', kmNoMap: 'Distância não encontrada, indique os km', searching: 'A procurar…', geoOff: 'Sem sugestões aqui: escreva a morada', kmOff2: 'Indique os km: cálculo indisponível aqui', mapPick: 'Indicar no mapa', mapChoose: 'Escolher', mapLoad: 'A procurar a morada…', mapNone: 'Morada não encontrada, mova o mapa', mapFail: 'Mapa indisponível, escreva a morada', mapDoc: 'Mapa de km', download: 'Descarregar PDF', mapLegal: 'Compensação por deslocações em viatura própria ao serviço da empresa. Até 0,40 €/km sem IRS (Portaria 1553‑D/2008).',
+    pdf: 'Mapa de km', pdfDone: 'PDF pronto (simulação): falta a assinatura do colaborador', mapStale: 'Alterado depois do PDF: descarregue-o e assine de novo', kmMap: 'por estrada', kmWait: 'A calcular por estrada…', kmNoMap: 'Distância não encontrada, indique os km', searching: 'A procurar…', geoBusy: 'O serviço de moradas não respondeu, tente de novo', geoOff: 'Sem sugestões aqui: escreva a morada', kmOff2: 'Indique os km: cálculo indisponível aqui', mapPick: 'Indicar no mapa', mapChoose: 'Escolher', mapLoad: 'A procurar a morada…', mapNone: 'Morada não encontrada, mova o mapa', mapFail: 'Mapa indisponível, escreva a morada', mapDoc: 'Mapa de km', download: 'Descarregar PDF', mapLegal: 'Compensação por deslocações em viatura própria ao serviço da empresa. Até 0,40 €/km sem IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} ${n === 1 ? 'deslocação' : 'deslocações'} de casa fora do mapa`, rateBad: 'Valor em euros por km, p. ex. 0,40', excess: 'Acima de 0,40 €/km', excessSub: 'sujeito a IRS e Segurança Social', total: 'A pagar sem IRS',
     savedCar: 'Viatura guardada', removedCar: 'Viatura apagada', savedTrip: 'Deslocação guardada', removedTrip: 'Deslocação apagada',
     
@@ -528,7 +528,7 @@ const S = {
     include: 'Add to the return', undo: 'Remove from the return', noVatCars: 'No VAT on personal km in this period.',
     noVatOthers: 'No VAT:', exempt: 'Exempt entity (art. 53): no VAT to charge.',
     shortCap: 'above the limit', shortNotDed: 'VAT not deducted', shortExempt: 'exempt',
-    pdf: 'Mileage log', pdfDone: 'PDF ready (simulation): needs the employee’s signature', mapStale: 'Changed after the PDF: download it and sign again', kmMap: 'by road', kmWait: 'Calculating by road…', kmNoMap: 'Distance not found, enter the km', searching: 'Searching…', geoOff: 'No suggestions here: type the address', kmOff2: 'Enter the km: calculation unavailable here', mapPick: 'Pick on the map', mapChoose: 'Choose', mapLoad: 'Finding the address…', mapNone: 'Address not found, move the map', mapFail: 'Map unavailable, type the address', mapDoc: 'Mileage log', download: 'Download PDF', mapLegal: 'Allowance for business trips in the employee’s own car. Up to 0,40 €/km free of IRS (Portaria 1553‑D/2008).',
+    pdf: 'Mileage log', pdfDone: 'PDF ready (simulation): needs the employee’s signature', mapStale: 'Changed after the PDF: download it and sign again', kmMap: 'by road', kmWait: 'Calculating by road…', kmNoMap: 'Distance not found, enter the km', searching: 'Searching…', geoBusy: 'The address service did not answer, try again', geoOff: 'No suggestions here: type the address', kmOff2: 'Enter the km: calculation unavailable here', mapPick: 'Pick on the map', mapChoose: 'Choose', mapLoad: 'Finding the address…', mapNone: 'Address not found, move the map', mapFail: 'Map unavailable, type the address', mapDoc: 'Mileage log', download: 'Download PDF', mapLegal: 'Allowance for business trips in the employee’s own car. Up to 0,40 €/km free of IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} home-to-work ${n === 1 ? 'trip' : 'trips'} left out`, rateBad: 'Rate in euros per km, e.g. 0,40', excess: 'Above 0,40 €/km', excessSub: 'subject to IRS and Social Security', total: 'To pay, free of IRS',
     savedCar: 'Car saved', removedCar: 'Car deleted', savedTrip: 'Trip saved', removedTrip: 'Trip deleted',
     
@@ -580,7 +580,7 @@ const S = {
     include: 'Включить в декларацию', undo: 'Убрать из декларации', noVatCars: 'В этом периоде IVA с личных км нет.',
     noVatOthers: 'Без IVA:', exempt: 'Освобождён (art. 53.º): IVA не начисляется.',
     shortCap: 'выше лимита', shortNotDed: 'IVA не вычитался', shortExempt: 'освобождён',
-    pdf: 'Ведомость км', pdfDone: 'PDF готов (симуляция): нужна подпись сотрудника', mapStale: 'Изменилось после PDF: скачайте и подпишите заново', kmMap: 'по дорогам', kmWait: 'Считаем по дорогам…', kmNoMap: 'Расстояние не найдено, укажите км', searching: 'Ищем…', geoOff: 'Подсказок здесь нет: введите адрес', kmOff2: 'Укажите км: расчёт здесь недоступен', mapPick: 'Указать на карте', mapChoose: 'Выбрать', mapLoad: 'Определяем адрес…', mapNone: 'Адрес не найден, сдвиньте карту', mapFail: 'Карта недоступна, введите адрес', mapDoc: 'Ведомость км', download: 'Скачать PDF', mapLegal: 'Компенсация за рабочие поездки на машине сотрудника. До 0,40 €/км без IRS (Portaria 1553‑D/2008).',
+    pdf: 'Ведомость км', pdfDone: 'PDF готов (симуляция): нужна подпись сотрудника', mapStale: 'Изменилось после PDF: скачайте и подпишите заново', kmMap: 'по дорогам', kmWait: 'Считаем по дорогам…', kmNoMap: 'Расстояние не найдено, укажите км', searching: 'Ищем…', geoBusy: 'Сервис адресов не ответил, попробуйте ещё раз', geoOff: 'Подсказок здесь нет: введите адрес', kmOff2: 'Укажите км: расчёт здесь недоступен', mapPick: 'Указать на карте', mapChoose: 'Выбрать', mapLoad: 'Определяем адрес…', mapNone: 'Адрес не найден, сдвиньте карту', mapFail: 'Карта недоступна, введите адрес', mapDoc: 'Ведомость км', download: 'Скачать PDF', mapLegal: 'Компенсация за рабочие поездки на машине сотрудника. До 0,40 €/км без IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} ${ruPl(n, 'поездка', 'поездки', 'поездок')} из дома не ${ruPl(n, 'входит', 'входят', 'входят')}`, rateBad: 'Ставка в евро за км, например 0,40', excess: 'Сверх 0,40 €/км', excessSub: 'облагается IRS и Segurança Social', total: 'К выплате без IRS',
     savedCar: 'Машина сохранена', removedCar: 'Машина удалена', savedTrip: 'Поездка сохранена', removedTrip: 'Поездка удалена',
     
@@ -1080,7 +1080,7 @@ function renderPopList() {
   // A picker that takes new entries has a line of its own under the field: "or pick below", or a hint about what was typed.
   // Its height is fixed, so the rows do not move when the text changes.
   const hint = document.getElementById('pop-hint');
-  if (hint) { const none = !ui.pop.q.trim() ? '' : ui.pop.loading ? L().searching : (ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to') && geoOff ? L().geoOff : ui.pop.kind === 'g-purpose' ? L().purposeNone : ui.pop.kind.startsWith('g-') ? L().addrNone : L().nifNone;
+  if (hint) { const none = !ui.pop.q.trim() ? '' : ui.pop.loading ? L().searching : (ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to') && geoOff ? L().geoOff : ui.pop.busy ? L().geoBusy : ui.pop.kind === 'g-purpose' ? L().purposeNone : ui.pop.kind.startsWith('g-') ? L().addrNone : L().nifNone;
     hint.textContent = msg || (items.some(x => !x.isNew) ? L().orPick : none); hint.classList.toggle('warn', !!msg && warn); if (hint.nextElementSibling) hint.nextElementSibling.hidden = !!msg; }
   const isAddr = ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to';
   const mapRow = isAddr && !geoOff ? `<button class="opt add" data-act="map-pick">${ico('pin')}<span class="t">${esc(L().mapPick)}</span></button>` : '';
@@ -1198,7 +1198,7 @@ function renderPfSug() {
   const rows = (p.remote || []).slice(0, 5);
   // while there is something to choose, the rest of the form waits
   box.closest('.place-form')?.classList.toggle('sug', rows.length > 0 || (q.length >= 3 && !!p.loading));
-  const status = geoOff ? T.geoOff : q.length >= 3 && p.loading && !rows.length ? T.searching : q.length >= 3 && !p.loading && !rows.length ? T.addrNone : '';
+  const status = geoOff ? T.geoOff : q.length >= 3 && p.loading && !rows.length ? T.searching : q.length >= 3 && !p.loading && !rows.length ? (p.busy ? T.geoBusy : T.addrNone) : '';
   box.innerHTML = (status ? `<p class="pf-note">${esc(status)}</p>` : '') + rows.map((x, i) => `<button class="opt" data-sug="${i}"><span class="t">${esc(x.t)}</span><span class="s">${esc(x.s)}</span></button>`).join('') + (geoOff ? '' : `<button class="opt add" data-act="map-pick">${ico('pin')}<span class="t">${esc(T.mapPick)}</span></button>`);
 }
 function placesBack() {
@@ -1438,7 +1438,7 @@ const PHOTON = 'https://photon.komoot.io', OSRM = 'https://router.project-osrm.o
 // null: not known yet; true: the browser refused the request, so no suggestions, no map, no route here
 let geoOff = null;
 const probeGeo = () => { if (geoOff !== null) return; geoOff = false; fetch(photonUrl('api', { q: 'Lisboa', limit: 1 })).catch(() => { geoOff = true; if (ui.pop?.kind === 'g-from' || ui.pop?.kind === 'g-to') renderPopList(); }); };
-const fetchJson = async url => { const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); };
+const fetchJson = async url => { let r = await fetch(url); if (!r.ok) { await new Promise(ok => setTimeout(ok, 900)); r = await fetch(url); } if (!r.ok) throw new Error(r.status); return r.json(); };
 const photonUrl = (path, params) => `${PHOTON}/${path}?${new URLSearchParams({ lang: 'default', ...params })}`;
 // A found place as an address: street and number, town
 function featureAddr(f) {
@@ -1456,10 +1456,10 @@ function geoSearch() {
   if (q.length < 3 || geoOff) { p.remote = null; p.loading = false; return; }
   p.loading = true;
   p.timer = setTimeout(async () => {
-    const req = p.req = (p.req || 0) + 1; let found = [];
-    try { found = await searchAddrs(q); } catch (e) {}
+    const req = p.req = (p.req || 0) + 1; let found = [], busy = false;
+    try { found = await searchAddrs(q); } catch (e) { busy = true; }
     if (ui.pop !== p || p.req !== req) return;
-    p.remote = found; p.loading = false; renderPopList(); renderPfSug();
+    p.remote = found; p.busy = busy; p.loading = false; renderPopList(); renderPfSug();
   }, 300);
 }
 async function ensureGeo(addr) {
@@ -1475,7 +1475,7 @@ async function routeKm(a, b) {
   D.routes[key] = Math.max(1, Math.round(m / 1000)); persist(); return D.routes[key];
 }
 // A new trip starts where trips usually start
-const usualStart = () => { const n = new Map(); for (const t of entTrips()) if (!t.home) n.set(t.from, (n.get(t.from) || 0) + 1); return [...n].sort((a, b) => b[1] - a[1])[0]?.[0] || ''; };
+const usualStart = () => { const top = list => { const n = new Map(); for (const t of list) if (!t.home) n.set(t.from, (n.get(t.from) || 0) + 1); return [...n].sort((a, b) => b[1] - a[1])[0]?.[0] || ''; }; return top(entTrips().filter(t => t.carId === ui.carId)) || top(entTrips()); };
 // The route on a small map in the trip form: the road line from the same service that gives the km
 const routeLines = new Map(); let routeMap = null, routeReq = 0;
 async function mountRoute() {
