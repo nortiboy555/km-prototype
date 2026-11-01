@@ -41,7 +41,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 16px; align-items: start; }
 .top h1 { grid-row: 1; grid-column: 1; }
 /* desktop: the menu comes first, the taxpayer under it */
-@media (min-width: 641px) { .top { display: none; } .app { display: flex; flex-direction: column; } .app > .tabs { order: -1; } }
+@media (min-width: 641px) { .top { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); } .app { display: flex; flex-direction: column; } .app > .tabs { order: -1; } }
 /* the add action is the last row of the list it adds to */
 .add-btn { width: 100%; }
 .route-map { height: 170px; border-radius: 12px; overflow: hidden; margin: 10px 0 4px; background: var(--fill); isolation: isolate; }
@@ -449,7 +449,7 @@ const S = {
  proto: 'Protótipo · dados fictícios',
     tCars: 'Viaturas', tTrips: 'Deslocações', tVat: 'IVA', tMaps: 'Mapas de km', tMapsShort: 'Mapas',
     addCar: 'Adicionar viatura', addTrip: 'Adicionar deslocação', close: 'Fechar', cancel: 'Cancelar', save: 'Guardar', edit: 'Editar', del: 'Apagar', 
-    noCarsEnt: 'Este sujeito passivo ainda não tem viaturas.', noEmpCars: 'Este sujeito passivo não tem viaturas de colaboradores.', 
+    noCarsAll: 'Adicione uma viatura para registar deslocações e calcular o IVA.', noEmpCars: 'Este sujeito passivo não tem viaturas de colaboradores.', 
     outVat: 'IVA sobre km pessoais', outMap: 'compensação por km', outNone: 'sem IVA a liquidar',
     mEV: 'Elétrico', mPHEV: 'Híbrido plug-in', mGPL: 'GPL', mDIESEL: 'Gasóleo', mPETROL: 'Gasolina',
     acqP: 'compra', acqL: 'leasing', acqR: 'renting',
@@ -501,7 +501,7 @@ const S = {
  proto: 'Prototype · sample data',
     tCars: 'Cars', tTrips: 'Trips', tVat: 'VAT', tMaps: 'Mileage logs', tMapsShort: 'Logs',
     addCar: 'Add car', addTrip: 'Add trip', close: 'Close', cancel: 'Cancel', save: 'Save', edit: 'Edit', del: 'Delete', 
-    noCarsEnt: 'This taxpayer has no cars yet.', noEmpCars: 'This taxpayer has no employee cars.', 
+    noCarsAll: 'Add a car to log trips and work out the VAT.', noEmpCars: 'This taxpayer has no employee cars.', 
     outVat: 'VAT on private km', outMap: 'mileage allowance', outNone: 'no VAT due',
     mEV: 'Electric', mPHEV: 'Plug-in hybrid', mGPL: 'LPG', mDIESEL: 'Diesel', mPETROL: 'Petrol',
     acqP: 'purchase', acqL: 'leasing', acqR: 'renting',
@@ -553,7 +553,7 @@ const S = {
  proto: 'Прототип · условные данные',
     tCars: 'Машины', tTrips: 'Поездки', tVat: 'IVA', tMaps: 'Компенсация за км', tMapsShort: 'Компенсации',
     addCar: 'Добавить машину', addTrip: 'Добавить поездку', close: 'Закрыть', cancel: 'Отмена', save: 'Сохранить', edit: 'Изменить', del: 'Удалить', 
-    noCarsEnt: 'У этого плательщика пока нет машин.', noEmpCars: 'У этого плательщика нет машин сотрудников.', 
+    noCarsAll: 'Добавьте машину, чтобы записывать поездки и считать IVA.', noEmpCars: 'У этого плательщика нет машин сотрудников.', 
     outVat: 'IVA с личных км', outMap: 'компенсация за км', outNone: 'IVA не начисляется',
     mEV: 'Электро', mPHEV: 'Плагин-гибрид', mGPL: 'Газ', mDIESEL: 'Дизель', mPETROL: 'Бензин',
     acqP: 'покупка', acqL: 'лизинг', acqR: 'аренда',
@@ -903,7 +903,7 @@ function carItem(c) {
   return `<button class="item car-item" data-open-car="${c.id}" aria-label="${esc(c.plate)}, ${esc(line)}"><span class="main">${plate(c.plate)}<span class="s">${esc(line)}</span></span>${ico('chev', 'chev')}</button>`;
 }
 // No cars yet: the first thing under the title is the button that adds one
-const noCars = () => `<button class="btn add-btn" data-act="add-car">${ico('plus')}${L().addCar}</button>`;
+const noCars = () => `<div class="empty">${L().noCarsAll}</div><button class="btn add-btn" data-act="add-car">${ico('plus')}${L().addCar}</button>`;
 function viewCars() {
   const T = L();
   const ents = activeEnts(); if (!ents.length) return noCars();
@@ -984,7 +984,7 @@ function viewVat() {
     const fix = miss.map(x => `<span class="sub fixline"><span>${cap1(T.noOdoFor(monthOf(x.m)))}</span>${fixBtn(x.m, T.fill)}</span>`).join('')
       + r.bad.filter(x => x.car.id === b.car.id).map(x => `<span class="err fixline"><span>${cap1(T.kmOffIn(monthOf(x.m)))}</span>${fixBtn(x.m, T.check)}</span>`).join('');
     return (i ? `<div class="carhead">${plate(b.car.plate)}</div>` : `<div class="cap">${plate(b.car.plate)}</div>${sofar}`)
-      + prow(T.persKm, b.total ? km(b.personal) : '—', { sub: fix || (b.total ? T.persKmCalc(fmt(b.total, 0), fmt(b.total - b.personal, 0)) : ''), left: !!fix })
+      + prow(T.persKm, b.total && !r.bad.some(x => x.car.id === b.car.id) ? km(b.personal) : '—', { sub: fix || (b.total ? T.persKmCalc(fmt(b.total, 0), fmt(b.total - b.personal, 0)) : ''), left: !!fix })
       + prow(T['cost' + (b.car.acq || 'P')], eur(b.closed ? b.cost : b.costAll))
       + (r.bad.some(x => x.car.id === b.car.id) ? prow(T.persUse, '—') : prow(T.persUse, b.closed ? eur(b.base) : '—', { sub: b.total ? `${pct(b.share)} × ${eur(b.cost)}` : '' }));
   }).join('');
@@ -1256,7 +1256,7 @@ function pickOpt(i) {
   if (kind === 'month') { ui.month = x.id; render(); return; }
   if (kind === 'period') { ui.period = x.id; render(); return; }
   if (kind === 'mapMonth') { ui.mapMonth = x.id; render(); return; }
-  if (kind === 'entity') { ui.entityId = x.id; render(); return; }
+  if (kind === 'entity') { ui.entityId = x.id; ui.mapMonth = null; render(); return; }
   if (kind === 'payer') { ui.payerId = x.id; render(); return; }
   if (kind.startsWith('g-')) {
     const d = ui.sheet.draft;
@@ -1351,15 +1351,20 @@ function sheetMap(c) {
 // The mapa is a Portuguese document for the AT, so the file is in Portuguese whatever the screen language
 let pdfReady = null;
 const loadPdf = () => pdfReady || (pdfReady = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.integrity = 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=='; s.crossOrigin = 'anonymous'; s.onload = () => ok(window.jspdf.jsPDF); s.onerror = () => { pdfReady = null; no(new Error('jspdf')); }; document.head.append(s); }));
+// Standard PDF fonts only know Latin letters: a purpose typed in Cyrillic needs a real font, fetched only then
+let uniFont = null;
+const loadUniFont = () => uniFont || (uniFont = fetch('https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf', { integrity: 'sha256-faGVp0xVvvmI0NSPlQi9XYSUJcF3Dbpde/xs6e2EiVQ=' }).then(r => r.arrayBuffer()).then(b => { const u = new Uint8Array(b); let s = ''; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); }).catch(e => { uniFont = null; throw e; }));
 async function saveMapPdf(c, m) {
   const JsPDF = await loadPdf();
   const P = S.pt; const s = mapStats(c, m); const p = per(c.personId), y = ent(c.payerId);
   const tx = x => String(x ?? '').replace(/[  ]/g, ' ').replace(/[‐-―]/g, '-');
   const doc = new JsPDF({ unit: 'mm', format: 'a4' });
   const X = 15, W = 180, BOTTOM = 280; let yy = 18;
+  let F = 'helvetica', B = 'bold';
+  if (/[^\u0000-\u00ff\u2010-\u2015\u20ac]/.test([y?.name, p?.name, c.ownerName, c.plate, ...s.paid.flatMap(t => [t.from, t.to, t.purpose])].join(' '))) { doc.addFileToVFS('u.ttf', await loadUniFont()); doc.addFont('u.ttf', 'U', 'normal'); F = 'U'; B = 'normal'; }
   const [yr, mo] = ymParts(m);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(tx(P.mapDoc), X, yy);
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(`${MONTHS.pt[mo - 1]} ${yr}`, X + W, yy, { align: 'right' }); yy += 9;
+  doc.setFont(F, B); doc.setFontSize(16); doc.text(tx(P.mapDoc), X, yy);
+  doc.setFont(F, 'normal'); doc.setFontSize(11); doc.text(`${MONTHS.pt[mo - 1]} ${yr}`, X + W, yy, { align: 'right' }); yy += 9;
   doc.setFontSize(10);
   [[P.payer, `${taxId(y?.nif)} · ${y?.name || ''}`], [P.employee, `${taxId(p?.nif)} · ${p?.name || ''}`], [P.car, c.plate], [P.carOwner, c.ownerName || p?.name || '']].forEach(([a, b]) => {
     doc.setTextColor(110); doc.text(tx(a), X, yy); doc.setTextColor(0); doc.text(tx(b), X + 42, yy); yy += 5.5;
@@ -1367,28 +1372,28 @@ async function saveMapPdf(c, m) {
   yy += 3;
   const cols = [['Data', 23], ['Origem', 43], ['Destino', 43], ['Objetivo', 37], ['Tempo no local', 18], ['Km', 16]];
   const head = () => {
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+    doc.setFont(F, B); doc.setFontSize(9);
     let x = X; cols.forEach(([n, w], i) => { doc.text(doc.splitTextToSize(n, w - 2), i >= 4 ? x + w : x, yy, i >= 4 ? { align: 'right' } : undefined); x += w; });
-    yy += 8; doc.setDrawColor(0); doc.line(X, yy - 3.5, X + W, yy - 3.5); doc.setFont('helvetica', 'normal');
+    yy += 10; doc.setDrawColor(0); doc.line(X, yy - 4, X + W, yy - 4); doc.setFont(F, 'normal');
   };
   head();
   s.paid.forEach(t => {
     const [yd, md, dd] = t.date.split('-');
     const cells = [`${dd}/${md}/${yd}`, t.from, t.to + (t.rt ? ' (ida e volta)' : ''), (t.pk && P.purposes[t.pk]) || t.purpose || '', t.stay ? `${stayShow(t.stay)} h` : '', fmt(tripKm(t), 0)].map((v, i) => doc.splitTextToSize(tx(v), cols[i][1] - 3));
     const h = Math.max(...cells.map(l => l.length)) * 4.2 + 2;
-    if (yy + h > BOTTOM - 45) { doc.addPage(); yy = 18; head(); }
+    if (yy + h > BOTTOM) { doc.addPage(); yy = 18; head(); }
     let x = X; cells.forEach((l, i) => { doc.text(l, i >= 4 ? x + cols[i][1] : x, yy, i >= 4 ? { align: 'right' } : undefined); x += cols[i][1]; });
     yy += h; doc.setDrawColor(210); doc.line(X, yy - 3.2, X + W, yy - 3.2);
   });
-  yy += 3; doc.setFontSize(10);
-  const line = (a, b, bold) => { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.text(tx(a), X + 90, yy); doc.text(tx(b), X + W, yy, { align: 'right' }); yy += 5.5; };
+  yy += 3; if (yy + 55 > BOTTOM) { doc.addPage(); yy = 18; } doc.setFontSize(10);
+  const line = (a, b, bold) => { doc.setFont(F, bold ? B : 'normal'); doc.text(tx(a), X + 90, yy); doc.text(tx(b), X + W, yy, { align: 'right' }); yy += 5.5; };
   line('Total de km', `${fmt(s.kms, 0)} km`); line(P.rate, `${fmt(s.raw)} €`); line(P.total, eur(s.total), true);
   if (s.raw > 0.4 && s.kms) line(P.excess, eur(r2(s.kms * (s.raw - 0.4))));
-  yy += 14; doc.setFont('helvetica', 'normal'); doc.setDrawColor(0); doc.line(X, yy, X + 90, yy); doc.text('Data: ____ / ____ / ________', X + W, yy, { align: 'right' }); yy += 4.5;
+  yy += 14; doc.setFont(F, 'normal'); doc.setDrawColor(0); doc.line(X, yy, X + 90, yy); doc.text('Data: ____ / ____ / ________', X + W, yy, { align: 'right' }); yy += 4.5;
   doc.setFontSize(9); doc.text(tx(`${P.signLabel} · ${p?.name || ''}`), X, yy); yy += 7;
   doc.setTextColor(110); doc.setFontSize(8); doc.text(doc.splitTextToSize(tx(P.mapLegal), W), X, yy);
   const pages = doc.getNumberOfPages();
-  for (let i = 1; i <= pages; i++) { doc.setPage(i); doc.setTextColor(110); doc.setFontSize(8); doc.text(`${i} / ${pages}`, X + W, 290, { align: 'right' }); }
+  for (let i = 1; i <= pages; i++) { doc.setPage(i); doc.setFont(F, 'normal'); doc.setTextColor(110); doc.setFontSize(8); doc.text(tx(`${p?.name || ''} · ${c.plate} · ${MONTHS.pt[mo - 1]} ${yr}`), X, 290); doc.text(`${i} / ${pages}`, X + W, 290, { align: 'right' }); }
   doc.save(`mapa-km-${c.plate}-${m}.pdf`);
 }
 function sheetTrip() {
@@ -1655,7 +1660,7 @@ document.addEventListener('click', ev => {
     case 'do-remove': { const id = ui.sheet.id; D.cars = D.cars.filter(c => c.id !== id); D.trips = D.trips.filter(t => t.carId !== id); delete D.odo[id]; persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedCar); break; }
     case 'do-remove-trip': { D.trips = D.trips.filter(t => t.id !== ui.sheet.draft.id); persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedTrip); break; }
     case 'include': case 'unlink': { const key = ui.entityId + '|' + ui.period; if (ds.act === 'include') { const r = vatFor(ent(ui.entityId), periodsFor(ent(ui.entityId)).find(x => x.id === ui.period)); D.included[key] = { base: r.base, vat: r.vat }; } else delete D.included[key]; persist(); render(); break; }
-    case 'pdf': { const c = carById(ui.sheet.id); const m = ui.mapMonth; saveMapPdf(c, m).then(() => { D.mapPdf[c.id + '|' + m] = mapSig(c, mapStats(c, m)); persist(); render(); toast(T.pdfDone); }).catch(() => toast(T.pdfFail)); break; }
+    case 'pdf': { if (ui.pdfBusy) break; ui.pdfBusy = true; const c = carById(ui.sheet.id); const m = ui.mapMonth; saveMapPdf(c, m).then(() => { D.mapPdf[c.id + '|' + m] = mapSig(c, mapStats(c, m)); persist(); render(); toast(T.pdfDone); }).catch(() => toast(T.pdfFail)).finally(() => { ui.pdfBusy = false; }); break; }
   }
 });
 document.addEventListener('input', ev => {
