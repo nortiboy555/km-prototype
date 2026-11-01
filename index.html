@@ -1496,7 +1496,6 @@ async function saveMapPdf(c, m) {
   const X = 15, W = 180, R = X + W, BOTTOM = 276; let yy = 17;
   const F = 'helvetica', B = 'bold';
   doc.setLanguage('pt-PT'); doc.setProperties({ title: `Mapa de quilómetros · ${c.plate} · ${m}` });
-  if (/[^\u0000-ÿ‐-―€]/.test([y?.name, p?.name, c.ownerName, c.plate, ...s.paid.flatMap(t => [t.from, t.to, t.purpose])].join(' '))) { doc.addFileToVFS('u.ttf', await loadUniFont()); doc.addFont('u.ttf', 'U', 'normal'); F = 'U'; B = 'normal'; }
   const INK = [17, 17, 17], MUTED = [111, 105, 98], LINE = [233, 229, 226], FILL = [243, 240, 237], BRAND = [255, 200, 82];
   const set = (size, bold, color = INK) => { doc.setFont(F, bold ? B : 'normal'); doc.setFontSize(size); doc.setTextColor(...color); };
   const [yr, mo] = ymParts(m); const period = `${cap1(MONTHS.pt[mo - 1])} ${yr}`;
