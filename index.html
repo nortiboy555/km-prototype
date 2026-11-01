@@ -1068,7 +1068,7 @@ function pickerItems(kind, q) {
     const ch = nifCheck(digits);
     if (!ch.ok) { msg = T[ch.err]; warn = ch.err !== 'type9'; }
     else if (want === 'PERSON' && ch.kind !== 'PERSON') { msg = T.needPerson; warn = true; }
-    else { const reg = REGISTRY[ch.v]; const known = D.entities.find(e => e.nif === ch.v)?.name || D.people.find(x => x.nif === ch.v)?.name; items.unshift({ id: 'new:' + ch.v, t: T.newNif(taxId(ch.v)), s: reg ? `${reg} · ${T.fromRegistry}` : known || T.newOne, nif: ch.v, name: reg || known || '', isNew: true, kind: ch.kind }); }
+    else { const reg = REGISTRY[ch.v]; const known = D.entities.find(e => e.nif === ch.v)?.name || D.people.find(x => x.nif === ch.v)?.name; items.unshift({ id: 'new:' + ch.v, t: known ? taxId(ch.v) : T.newNif(taxId(ch.v)), s: reg ? `${reg} · ${T.fromRegistry}` : known || T.newOne, nif: ch.v, name: reg || known || '', isNew: true, known: !!known, kind: ch.kind }); }
   } else if (!items.length) msg = T.nothing;
   if (kind.startsWith('f-') && filter && !digits.length && !items.length) msg = T.typeToAdd;
   return { items, msg, warn };
@@ -1087,7 +1087,7 @@ function renderPopList() {
   // Its height is fixed, so the rows do not move when the text changes.
   const hint = document.getElementById('pop-hint');
   if (hint) { const none = !ui.pop.q.trim() ? '' : ui.pop.loading ? L().searching : (ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to') && geoOff ? L().geoOff : ui.pop.busy ? L().geoBusy : ui.pop.kind === 'g-purpose' ? L().purposeNone : ui.pop.kind.startsWith('g-') ? L().addrNone : L().nifNone;
-    hint.textContent = msg || (items.some(x => !x.isNew) ? L().orPick : none); hint.classList.toggle('warn', !!msg && warn); if (hint.nextElementSibling) hint.nextElementSibling.hidden = !!msg; }
+    hint.textContent = msg || (items.some(x => !x.isNew || x.known) ? L().orPick : none); hint.classList.toggle('warn', !!msg && warn); if (hint.nextElementSibling) hint.nextElementSibling.hidden = !!msg; }
   const isAddr = ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to';
   const mapRow = isAddr && !geoOff ? `<button class="opt add" data-act="map-pick">${ico('pin')}<span class="t">${esc(L().mapPick)}</span></button>` : '';
   box.innerHTML = (msg && !hint ? `<div class="msg ${warn ? 'warn' : ''}">${esc(msg)}</div>` : '') + mapRow + items.map((x, i) => `<button class="opt ${i === ui.pop.act ? 'act' : ''} ${x.isNew && ui.pop.kind.startsWith('g-') ? 'add' : ''}" role="option" aria-selected="${!!x.on}" data-opt="${i}">${x.isNew && ui.pop.kind.startsWith('g-') ? ico('plus') : ''}<span class="t">${esc(x.t)}</span>${x.on ? ico('check') : ''}<span class="s">${esc(x.s)}</span></button>`).join('');
@@ -1269,7 +1269,7 @@ function pickOpt(i) {
     tripPicked(kind); return;
   }
   const d = ui.sheet.draft; const field = kind === 'f-owner' ? 'owner' : kind === 'f-person' ? 'person' : 'payer';
-  d[field] = x.isNew ? { id: null, nif: x.nif, name: x.name, isNew: true, kind: x.kind, regime: 'Q', region: 'C' } : { id: x.id, nif: x.nif, name: x.name };
+  d[field] = x.isNew ? { id: null, nif: x.nif, name: x.name, isNew: true, known: x.known, kind: x.kind, regime: 'Q', region: 'C' } : { id: x.id, nif: x.nif, name: x.name };
   if (ui.sheet.errors) delete ui.sheet.errors[field];
   renderSheet(x.isNew && !x.name ? 'f-' + field + '-name' : null);
 }
@@ -1309,7 +1309,7 @@ function partyRow(field, label, placeholder) {
   const d = ui.sheet.draft; const v = d[field]; const err = ui.sheet.errors?.[field];
   const btn = `<button class="pick-btn" id="f-${field}" data-pop="f-${field === 'owner' ? 'owner' : field}">${v ? `<span>${taxId(v.nif)}</span>` : `<span class="ph">${placeholder}</span>`}${ico('chev')}</button>`;
   let out = prow(label, btn, { for: `f-${field}`, sub: v ? esc(v.name || '') : '', err });
-  if (v?.isNew && !REGISTRY[v.nif]) out += prow(L().name, pin(`f-${field}-name`, v.name, `data-party="${field}" autocomplete="off" maxlength="80"`), { for: `f-${field}-name`, err: ui.sheet.errors?.[field + 'Name'] });
+  if (v?.isNew && !REGISTRY[v.nif] && !v.known) out += prow(L().name, pin(`f-${field}-name`, v.name, `data-party="${field}" autocomplete="off" maxlength="80"`), { for: `f-${field}-name`, err: ui.sheet.errors?.[field + 'Name'] });
   if (field === 'owner' && v?.isNew) out += prow(L().regime, sel('f-regime', v.regime, [['Q', L().regQ], ['M', L().regM], ['E', L().regE]], 'data-party-regime="owner"'), { for: 'f-regime' })
     + prow(L().region, sel('f-region', v.region || 'C', [['C', L().regC], ['MA', L().regMA], ['AC', L().regAC]], 'data-party-region="owner"'), { for: 'f-region' });
   return out;
