@@ -1589,7 +1589,7 @@ function syncDirty() { const s = ui.sheet; const el = document.querySelector('.s
 }
 // Closing a form with changes asks first; closing again while it asks goes back to editing. Cancel is an answer in itself and never asks.
 function askClose() { const s = ui.sheet; if (s?.ask) { s.ask = false; syncDirty(); return; } if (s?.base && draftKey(s.draft) !== s.base) { s.ask = true; syncDirty(); return; } closeSheet(); }
-function openSheet(s) { lastFocus = document.activeElement; if (s.draft) s.base = draftKey(s.draft); if (s.draft?.id) s.orig = s.base; ui.sheet = s; renderSheet(); }
+function openSheet(s) { lastFocus = document.activeElement; if (s.draft) s.orig = s.base = draftKey(s.draft); ui.sheet = s; renderSheet(); }
 function closeSheet() { ui.sheet = null; renderSheet(); }
 // A field's change fires in the middle of a tap on something else: redrawing the screen then would swallow that tap
 let tapDown = false, tapWait = 0;
