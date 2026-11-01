@@ -1354,7 +1354,7 @@ function sheetTrip() {
     rows += prow(T[f], pickBtn('g-' + f, nm || st), { for: 'g-' + f, sub: nm ? esc(d[f]) : esc(loc), err: (ui.sheet.errors || {})[f] });
   }
   // the route itself: a map as soon as both ends are known
-  if (d.from && d.to && !geoOff) rows += '<div class="route-map" id="route-map"></div>';
+  if (d.from && d.to && !geoOff) rows += `<div class="route-map" id="route-map" role="img" aria-label="${esc(d.from)} → ${esc(d.to)}"></div>`;
   rows += prow(T.kmOne, unitIn('g-km', d.km, T.km, 'data-draft="km" inputmode="numeric" placeholder="0"'), { for: 'g-km', sub: d.kmAuto === 'map' ? T.kmMap : d.kmAuto === 'wait' ? T.kmWait : d.kmAuto ? T.kmPrev : d.from && d.to && !int(d.km) ? (geoOff ? T.kmOff2 : T.kmNoMap) : '', err: (ui.sheet.errors || {}).km });
   rows += prow(T.rt, `<input type="checkbox" role="switch" class="sw" id="g-rt" data-draft="rt" ${d.rt ? 'checked' : ''}>`, { for: 'g-rt', sub: d.rt && int(d.km) ? km(int(d.km) * 2) : '' });
   rows += prow(T.purpose, pickBtn('g-purpose', d.purpose), { for: 'g-purpose', err: (ui.sheet.errors || {}).purpose, sub: d.pk === 'commute' ? (f === 'MAP' ? T.notPaid : T.homeVat) : '' });
@@ -1438,7 +1438,11 @@ const PHOTON = 'https://photon.komoot.io', OSRM = 'https://router.project-osrm.o
 // null: not known yet; true: the browser refused the request, so no suggestions, no map, no route here
 let geoOff = null;
 const probeGeo = () => { if (geoOff !== null) return; geoOff = false; fetch(photonUrl('api', { q: 'Lisboa', limit: 1 })).catch(() => { geoOff = true; if (ui.pop?.kind === 'g-from' || ui.pop?.kind === 'g-to') renderPopList(); }); };
-const fetchJson = async url => { let r = await fetch(url); if (!r.ok) { await new Promise(ok => setTimeout(ok, 900)); r = await fetch(url); } if (!r.ok) throw new Error(r.status); return r.json(); };
+// a service that hangs must not leave "calculating" on screen for ever
+const fetchOnce = url => fetch(url, { signal: AbortSignal.timeout?.(8000) });
+const fetchJson = async url => { let r = await fetchOnce(url); if (!r.ok) { await new Promise(ok => setTimeout(ok, 900)); r = await fetchOnce(url); } if (!r.ok) throw new Error(r.status); return r.json(); };
+// The router moves a point to its nearest road without saying so: from Madeira that road is on the mainland and the km are invented.
+const onRoad = j => (j.waypoints || []).every(w => w.distance < 2000);
 const photonUrl = (path, params) => `${PHOTON}/${path}?${new URLSearchParams({ lang: 'default', ...params })}`;
 // A found place as an address: street and number, town
 function featureAddr(f) {
@@ -1471,7 +1475,7 @@ const routeKey = (a, b) => [a, b].sort().join('|');
 async function routeKm(a, b) {
   const key = routeKey(a, b); if (D.routes[key]) return D.routes[key];
   const [x, y] = await Promise.all([ensureGeo(a), ensureGeo(b)]); if (!x || !y) return null;
-  const j = await fetchJson(`${OSRM}/route/v1/driving/${x[0]},${x[1]};${y[0]},${y[1]}?overview=false`); const m = j.routes?.[0]?.distance; if (m == null) return null;
+  const j = await fetchJson(`${OSRM}/route/v1/driving/${x[0]},${x[1]};${y[0]},${y[1]}?overview=false`); const m = j.routes?.[0]?.distance; if (m == null || !onRoad(j)) return null;
   D.routes[key] = Math.max(1, Math.round(m / 1000)); persist(); return D.routes[key];
 }
 // A new trip starts where trips usually start
@@ -1487,6 +1491,7 @@ async function mountRoute() {
     if (!line) {
       const [x, y] = await Promise.all([ensureGeo(d.from), ensureGeo(d.to)]); if (!x || !y) throw new Error('no point');
       const j = await fetchJson(`${OSRM}/route/v1/driving/${x[0]},${x[1]};${y[0]},${y[1]}?overview=simplified&geometries=geojson`);
+      if (!onRoad(j)) throw new Error('no road');
       line = j.routes[0].geometry.coordinates.map(c => [c[1], c[0]]); routeLines.set(key, line);
     }
     const box = document.getElementById('route-map'); if (req !== routeReq || !box) return;
@@ -1517,7 +1522,7 @@ function autoKm(d) {
 }
 // ---------------- pick on the map ----------------
 let leafletReady = null;
-const loadLeaflet = () => leafletReady || (leafletReady = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'; s.onload = ok; s.onerror = () => { leafletReady = null; no(new Error('leaflet')); }; document.head.appendChild(s); }));
+const loadLeaflet = () => leafletReady || (leafletReady = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'; s.integrity = 'sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=='; s.crossOrigin = 'anonymous'; s.onload = ok; s.onerror = () => { leafletReady = null; no(new Error('leaflet')); }; document.head.appendChild(s); }));
 function backToForm(mapPop, text) {
   mapPop.map?.remove(); const prev = mapPop.prev;
   openPlaces(prev.anchor, prev.back, prev.pick, text); ui.pop.view = 'edit'; ui.pop.addr = ''; ui.pop.changed = prev.changed; renderPlaces();
