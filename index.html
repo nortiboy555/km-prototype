@@ -1400,7 +1400,7 @@ async function saveMapPdf(c, m) {
   const filename = `mapa-km-${c.plate}-${m}.pdf`;
   // inside a claude.ai artifact the frame cannot download by itself: the viewer's own save goes first
   const downloads = window.claude?.use ? await window.claude.use('downloads') : null;
-  if (downloads) { await downloads.save({ filename, data: doc.output('arraybuffer') }); return true; }
+  if (downloads) { try { await downloads.save({ filename, data: doc.output('arraybuffer') }); return true; } catch (e) { if (e.code === 'declined') return false; throw e; } }
   // a phone browser would open the PDF in place of the app: the system share sheet saves it and stays here
   const file = new File([doc.output('blob')], filename, { type: 'application/pdf' });
   if (TOUCH && navigator.canShare?.({ files: [file] })) {
