@@ -281,6 +281,11 @@ button.item:hover { background: var(--fill); }
 .sheet-f { padding: 12px 20px 16px; border-top: 1px solid var(--hairline); display: flex; gap: 8px; align-items: flex-start; }
 .sheet-f .grow { flex: 1; }
 /* an opened record with nothing changed has nothing to save or cancel: the cross closes it */
+.ask-only { display: none; }
+.sheet.asking .sheet-f { flex-wrap: wrap; }
+.sheet.asking .sheet-f > :not(.ask-only) { display: none; }
+.sheet.asking .btn.ask-only { display: inline-flex; }
+.sheet.asking p.ask-only { display: block; }
 .sheet.clean .if-dirty { display: none; }
 .sheet.clean .sheet-f:not(.wrap):not(:has(.danger)) { display: none; }
 .sheet-f .confirm { flex: 1 1 100%; font-size: 14px; padding: 0 0 8px; }
@@ -465,7 +470,7 @@ const S = {
     stClosed: (k) => `total ${k}`, stOpen: (k) => `${k} · mês em curso`, stRun: 'mês em curso', stOver: 'km não batem certo', stNoOdo: 'sem conta-km', stTrips: (n, e) => `${n} ${n === 1 ? 'deslocação' : 'deslocações'} · ${e}`, stNone: 'sem deslocações', 
  proto: 'Protótipo · dados fictícios',
     tCars: 'Viaturas', tTrips: 'Deslocações', tVat: 'IVA', tMaps: 'Mapas de km', tMapsShort: 'Mapas',
-    addCar: 'Adicionar viatura', addTrip: 'Adicionar deslocação', close: 'Fechar', cancel: 'Cancelar', save: 'Guardar', edit: 'Editar', del: 'Apagar', 
+    addCar: 'Adicionar viatura', addTrip: 'Adicionar deslocação', close: 'Fechar', saveQ: "Guardar as alterações?", discard: "Não guardar", cancel: 'Cancelar', save: 'Guardar', edit: 'Editar', del: 'Apagar', 
     noCarsAll: 'Adicione uma viatura para registar deslocações e calcular o IVA.', noEmpCars: 'Este sujeito passivo não tem viaturas de colaboradores.', 
     outVat: 'IVA sobre km pessoais', outMap: 'compensação por km', outNone: 'sem IVA a liquidar',
     mEV: 'Elétrico', mPHEV: 'Híbrido plug-in', mGPL: 'GPL', mDIESEL: 'Gasóleo', mPETROL: 'Gasolina',
@@ -517,7 +522,7 @@ const S = {
     stClosed: (k) => `total ${k}`, stOpen: (k) => `${k} · month in progress`, stRun: 'month in progress', stOver: 'km do not add up', stNoOdo: 'no odometer', stTrips: (n, e) => `${n} ${n === 1 ? 'trip' : 'trips'} · ${e}`, stNone: 'no trips', 
  proto: 'Prototype · sample data',
     tCars: 'Cars', tTrips: 'Trips', tVat: 'VAT', tMaps: 'Mileage logs', tMapsShort: 'Logs',
-    addCar: 'Add car', addTrip: 'Add trip', close: 'Close', cancel: 'Cancel', save: 'Save', edit: 'Edit', del: 'Delete', 
+    addCar: 'Add car', addTrip: 'Add trip', close: 'Close', saveQ: "Save the changes?", discard: "Don't save", cancel: 'Cancel', save: 'Save', edit: 'Edit', del: 'Delete', 
     noCarsAll: 'Add a car to log trips and work out the VAT.', noEmpCars: 'This taxpayer has no employee cars.', 
     outVat: 'VAT on private km', outMap: 'mileage allowance', outNone: 'no VAT due',
     mEV: 'Electric', mPHEV: 'Plug-in hybrid', mGPL: 'LPG', mDIESEL: 'Diesel', mPETROL: 'Petrol',
@@ -569,7 +574,7 @@ const S = {
     stClosed: (k) => `пробег ${k}`, stOpen: (k) => `${k} · месяц идёт`, stRun: 'месяц идёт', stOver: 'км не сходятся', stNoOdo: 'нет одометра', stTrips: (n, e) => `${n} ${ruPl(n, 'поездка', 'поездки', 'поездок')} · ${e}`, stNone: 'поездок нет', 
  proto: 'Прототип · условные данные',
     tCars: 'Машины', tTrips: 'Поездки', tVat: 'IVA', tMaps: 'Компенсация за км', tMapsShort: 'Компенсации',
-    addCar: 'Добавить машину', addTrip: 'Добавить поездку', close: 'Закрыть', cancel: 'Отмена', save: 'Сохранить', edit: 'Изменить', del: 'Удалить', 
+    addCar: 'Добавить машину', addTrip: 'Добавить поездку', close: 'Закрыть', saveQ: "Сохранить изменения?", discard: "Не сохранять", cancel: 'Отмена', save: 'Сохранить', edit: 'Изменить', del: 'Удалить', 
     noCarsAll: 'Добавьте машину, чтобы записывать поездки и считать IVA.', noEmpCars: 'У этого плательщика нет машин сотрудников.', 
     outVat: 'IVA с личных км', outMap: 'компенсация за км', outNone: 'IVA не начисляется',
     mEV: 'Электро', mPHEV: 'Плагин-гибрид', mGPL: 'Газ', mDIESEL: 'Дизель', mPETROL: 'Бензин',
@@ -1308,7 +1313,7 @@ function pickOpt(i) {
 function shell(title, sub, body, foot) {
   return `<div class="scrim" data-act="close-sheet"></div><aside class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1">
     <div class="sheet-h"><div class="ttl"><h2 id="sheet-title">${title}</h2>${sub || ''}</div><button class="iconbtn" data-act="close-sheet" aria-label="${L().close}">${ico('cross')}</button></div>
-    <div class="sheet-b" id="sheet-b">${body}</div><div class="sheet-f ${ui.sheet.confirm ? 'wrap' : ''}">${foot}</div></aside>`;
+    <div class="sheet-b" id="sheet-b">${body}</div><div class="sheet-f ${ui.sheet.confirm ? 'wrap' : ''}">${foot}${ui.sheet.base ? `<p class="confirm ask-only">${L().saveQ}</p><button class="btn ghost grow ask-only" data-act="discard">${L().discard}</button><button class="btn grow ask-only" data-act="${ui.sheet.type === 'trip' ? 'save-trip' : 'save-car'}">${L().save}</button>` : ''}</div></aside>`;
 }
 function sheetCar(c) {
   const T = L(); const f = effect(c);
@@ -1364,7 +1369,7 @@ function sheetCarForm() {
   const startOpts = []; for (let m = '2015-01'; monthsBetween(m, CURRENT) >= 0; m = addMonths(m, 1)) startOpts.unshift([m, monthName(m)]);
   rows += prow(T.since, sel('f-start', d.start, startOpts, 'data-draft-sel="start"'), { for: 'f-start', err: err.start });
   if (d.own === 'BIZ' && !fuelBlocked(d)) rows += prow(T.odoStart, unitIn('f-odo', d.odoStart, T.km, 'data-draft="odoStart" inputmode="numeric" placeholder="0"'), { for: 'f-odo' });
-  return shell(d.id ? T.editCar : T.newCar, '', rows, `<span class="grow"></span><button class="btn ghost if-dirty" data-act="close-sheet">${T.cancel}</button><button class="btn if-dirty" data-act="save-car">${T.save}</button>`);
+  return shell(d.id ? T.editCar : T.newCar, '', rows, `<span class="grow"></span><button class="btn ghost if-dirty" data-act="discard">${T.cancel}</button><button class="btn if-dirty" data-act="save-car">${T.save}</button>`);
 }
 // The mileage log as a document: full street addresses (never place names), dates, purposes, time on site, km, rate, total; the owner is named (AT PIV 26595)
 function sheetMap(c) {
@@ -1458,7 +1463,7 @@ function sheetTrip() {
   rows += prow(T.date, `<button class="pick-btn" id="g-date" data-pop="g-date" aria-haspopup="dialog" aria-expanded="false"><span>${/^\d{4}-\d{2}-\d{2}$/.test(d.date) ? fullDate(d.date) : '—'}</span>${ico('chev')}</button>`, { for: 'g-date', err: (ui.sheet.errors || {}).date });
   const foot = ui.sheet.confirm
     ? `<p class="confirm">${T.removeTripQ}</p><button class="btn ghost grow" data-act="cancel-remove">${T.cancel}</button><button class="btn grow" style="background:var(--warn);color:#fff" data-act="do-remove-trip">${T.del}</button>`
-    : `${d.id ? `<button class="btn text danger" data-act="ask-remove">${T.del}</button>` : ''}<span class="grow"></span><button class="btn ghost if-dirty" data-act="close-sheet">${T.cancel}</button><button class="btn if-dirty" data-act="save-trip">${T.save}</button>`;
+    : `${d.id ? `<button class="btn text danger" data-act="ask-remove">${T.del}</button>` : ''}<span class="grow"></span><button class="btn ghost if-dirty" data-act="discard">${T.cancel}</button><button class="btn if-dirty" data-act="save-trip">${T.save}</button>`;
   return shell(d.id ? T.editTrip : T.newTrip, `${plate(car.plate)}<span class="muted" style="font-size:14px">${esc(carSub(car))}</span>`, rows, foot);
 }
 
@@ -1487,8 +1492,10 @@ function render() {
   if (ui.sheet) renderSheet();
 }
 const draftKey = d => JSON.stringify(d, (k, v) => (k === 'kmAuto' || k === 'kmTyped' ? undefined : v));
-function syncDirty() { const s = ui.sheet; if (s?.orig) document.querySelector('.sheet')?.classList.toggle('clean', draftKey(s.draft) === s.orig); }
-function openSheet(s) { lastFocus = document.activeElement; if (s.draft?.id) s.orig = draftKey(s.draft); ui.sheet = s; renderSheet(); }
+function syncDirty() { const s = ui.sheet; const el = document.querySelector('.sheet'); if (!s || !el) return; if (s.orig) el.classList.toggle('clean', draftKey(s.draft) === s.orig); el.classList.toggle('asking', !!s.ask); }
+// Closing a form with changes asks first; closing again while it asks goes back to editing. Cancel is an answer in itself and never asks.
+function askClose() { const s = ui.sheet; if (s?.ask) { s.ask = false; syncDirty(); return; } if (s?.base && draftKey(s.draft) !== s.base) { s.ask = true; syncDirty(); return; } closeSheet(); }
+function openSheet(s) { lastFocus = document.activeElement; if (s.draft) s.base = draftKey(s.draft); if (s.draft?.id) s.orig = s.base; ui.sheet = s; renderSheet(); }
 function closeSheet() { ui.sheet = null; renderSheet(); }
 function toast(msg) { const r = document.getElementById('toast-root'); r.innerHTML = `<div class="toast">${esc(msg)}</div>`; clearTimeout(toast.t); toast.t = setTimeout(() => { r.innerHTML = ''; }, 2400); }
 
@@ -1695,12 +1702,13 @@ document.addEventListener('click', ev => {
   if (ds.fix) { const [c, m] = ds.fix.split('|'); ui.tab = 'trips'; ui.carId = c; ui.month = m; render(); document.getElementById('odo-s')?.focus(); return; }
   if (ds.tripsOf !== undefined) { const [c, m] = ds.tripsOf.split('|'); ui.tab = 'trips'; ui.carId = c; ui.entityId = carEntId(carById(c)); if (m) ui.month = m; ui.sheet = null; renderSheet(); render(); window.scrollTo(0, 0); return; }
   switch (ds.act) {
-    case 'close-sheet': closeSheet(); break;
+    case 'close-sheet': askClose(); break;
+    case 'discard': closeSheet(); break;
     case 'add-car': openSheet({ type: 'car-form', draft: draftOf(null), errors: {} }); break;
-    case 'edit-car': { const draft = draftOf(carById(ui.sheet.id)); ui.sheet = { type: 'car-form', draft, orig: draftKey(draft), errors: {} }; renderSheet(); break; }
-    case 'save-car': saveCar(); break;
+    case 'edit-car': { const draft = draftOf(carById(ui.sheet.id)); ui.sheet = { type: 'car-form', draft, orig: draftKey(draft), base: draftKey(draft), errors: {} }; renderSheet(); break; }
+    case 'save-car': ui.sheet.ask = false; saveCar(); break;
     case 'add-trip': probeGeo(); openSheet({ type: 'trip', draft: { date: ui.month === CURRENT ? TODAY : ui.month + '-01', from: usualStart(), to: '', purpose: '', km: '', rt: true, home: false, stay: '' } }); break;
-    case 'save-trip': saveTrip(); break;
+    case 'save-trip': ui.sheet.ask = false; saveTrip(); break;
     case 'ask-remove': ui.sheet.confirm = true; renderSheet(); break;
     case 'cancel-remove': ui.sheet.confirm = false; renderSheet(); break;
     case 'do-remove': { const id = ui.sheet.id; D.cars = D.cars.filter(c => c.id !== id); D.trips = D.trips.filter(t => t.carId !== id); delete D.odo[id]; persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedCar); break; }
@@ -1771,7 +1779,7 @@ document.addEventListener('keydown', ev => {
     if (ev.key === 'Enter' && ev.target.id === 'pop-q') { ev.preventDefault(); const nw = ui.pop.items.findIndex(x => x.isNew); pickOpt(ui.pop.act >= 0 ? ui.pop.act : ui.pop.filter || nw < 0 ? 0 : nw); return; }
     return;
   }
-  if (ev.key === 'Escape' && ui.sheet) { closeSheet(); return; }
+  if (ev.key === 'Escape' && ui.sheet) { askClose(); return; }
   if (ev.key === 'Enter' && ui.sheet && ev.target.classList?.contains('pin') && ev.target.type !== 'date') { ev.preventDefault(); ev.target.blur(); }
   if (ev.key === 'Tab' && ui.sheet) {
     const f = [...document.querySelectorAll('.sheet button:not([disabled]), .sheet input, .sheet select')];
