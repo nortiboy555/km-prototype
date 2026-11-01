@@ -281,6 +281,9 @@ button.item:hover { background: var(--fill); }
 .sheet-b .prow:last-of-type { border-bottom: 0; }
 .sheet-f { padding: 12px 20px 16px; border-top: 1px solid var(--hairline); display: flex; gap: 8px; align-items: flex-start; }
 .sheet-f .grow { flex: 1; }
+/* an opened record with nothing changed has nothing to save or cancel: the cross closes it */
+.sheet.clean .if-dirty { display: none; }
+.sheet.clean .sheet-f:not(.wrap):not(:has(.danger)) { display: none; }
 .sheet-f .confirm { flex: 1 1 100%; font-size: 14px; padding: 0 0 8px; }
 .sheet-f.wrap { flex-wrap: wrap; }
 @media (max-width: 600px) { .sheet { width: 100vw; border-left: 0; padding-left: env(safe-area-inset-left, 0px); } }
@@ -1358,7 +1361,7 @@ function sheetCarForm() {
   const startOpts = []; for (let m = '2015-01'; monthsBetween(m, CURRENT) >= 0; m = addMonths(m, 1)) startOpts.unshift([m, monthName(m)]);
   rows += prow(T.since, sel('f-start', d.start, startOpts, 'data-draft-sel="start"'), { for: 'f-start', err: err.start });
   if (d.own === 'BIZ' && !fuelBlocked(d)) rows += prow(T.odoStart, unitIn('f-odo', d.odoStart, T.km, 'data-draft="odoStart" inputmode="numeric" placeholder="0"'), { for: 'f-odo' });
-  return shell(d.id ? T.editCar : T.newCar, '', rows, `<span class="grow"></span><button class="btn ghost" data-act="close-sheet">${T.cancel}</button><button class="btn" data-act="save-car">${T.save}</button>`);
+  return shell(d.id ? T.editCar : T.newCar, '', rows, `<span class="grow"></span><button class="btn ghost if-dirty" data-act="close-sheet">${T.cancel}</button><button class="btn if-dirty" data-act="save-car">${T.save}</button>`);
 }
 // The mileage log as a document: full street addresses (never place names), dates, purposes, time on site, km, rate, total; the owner is named (AT PIV 26595)
 function sheetMap(c) {
@@ -1452,7 +1455,7 @@ function sheetTrip() {
   rows += prow(T.date, `<button class="pick-btn" id="g-date" data-pop="g-date" aria-haspopup="dialog" aria-expanded="false"><span>${/^\d{4}-\d{2}-\d{2}$/.test(d.date) ? fullDate(d.date) : '—'}</span>${ico('chev')}</button>`, { for: 'g-date', err: (ui.sheet.errors || {}).date });
   const foot = ui.sheet.confirm
     ? `<p class="confirm">${T.removeTripQ}</p><button class="btn ghost grow" data-act="cancel-remove">${T.cancel}</button><button class="btn grow" style="background:var(--warn);color:#fff" data-act="do-remove-trip">${T.del}</button>`
-    : `${d.id ? `<button class="btn text danger" data-act="ask-remove">${T.del}</button>` : ''}<span class="grow"></span><button class="btn ghost" data-act="close-sheet">${T.cancel}</button><button class="btn" data-act="save-trip">${T.save}</button>`;
+    : `${d.id ? `<button class="btn text danger" data-act="ask-remove">${T.del}</button>` : ''}<span class="grow"></span><button class="btn ghost if-dirty" data-act="close-sheet">${T.cancel}</button><button class="btn if-dirty" data-act="save-trip">${T.save}</button>`;
   return shell(d.id ? T.editTrip : T.newTrip, `${plate(car.plate)}<span class="muted" style="font-size:14px">${esc(carSub(car))}</span>`, rows, foot);
 }
 
@@ -1466,6 +1469,7 @@ function renderSheet(focusId) {
   const active = document.activeElement?.id;
   root.innerHTML = ui.sheet.type === 'car' ? sheetCar(carById(ui.sheet.id)) : ui.sheet.type === 'car-form' ? sheetCarForm() : ui.sheet.type === 'map' ? sheetMap(carById(ui.sheet.id)) : sheetTrip();
   document.body.classList.add('locked');
+  syncDirty();
   const b = document.getElementById('sheet-b'); if (b) b.scrollTop = scroll;
   if (ui.sheet.type === 'trip') mountRoute();
   // On touch screens focus never lands on a select or date field (iOS reopens its picker) and opening a form does not pop the keyboard
@@ -1479,7 +1483,9 @@ function render() {
   document.getElementById('view').innerHTML = { cars: viewCars, trips: viewTrips, vat: viewVat, maps: viewMaps }[ui.tab]();
   if (ui.sheet) renderSheet();
 }
-function openSheet(s) { lastFocus = document.activeElement; ui.sheet = s; renderSheet(); }
+const draftKey = d => JSON.stringify(d, (k, v) => (k === 'kmAuto' || k === 'kmTyped' ? undefined : v));
+function syncDirty() { const s = ui.sheet; if (s?.orig) document.querySelector('.sheet')?.classList.toggle('clean', draftKey(s.draft) === s.orig); }
+function openSheet(s) { lastFocus = document.activeElement; if (s.draft?.id) s.orig = draftKey(s.draft); ui.sheet = s; renderSheet(); }
 function closeSheet() { ui.sheet = null; renderSheet(); }
 function toast(msg) { const r = document.getElementById('toast-root'); r.innerHTML = `<div class="toast">${esc(msg)}</div>`; clearTimeout(toast.t); toast.t = setTimeout(() => { r.innerHTML = ''; }, 2400); }
 
@@ -1688,7 +1694,7 @@ document.addEventListener('click', ev => {
   switch (ds.act) {
     case 'close-sheet': closeSheet(); break;
     case 'add-car': openSheet({ type: 'car-form', draft: draftOf(null), errors: {} }); break;
-    case 'edit-car': ui.sheet = { type: 'car-form', draft: draftOf(carById(ui.sheet.id)), errors: {} }; renderSheet(); break;
+    case 'edit-car': { const draft = draftOf(carById(ui.sheet.id)); ui.sheet = { type: 'car-form', draft, orig: draftKey(draft), errors: {} }; renderSheet(); break; }
     case 'save-car': saveCar(); break;
     case 'add-trip': probeGeo(); openSheet({ type: 'trip', draft: { date: ui.month === CURRENT ? TODAY : ui.month + '-01', from: usualStart(), to: '', purpose: '', km: '', rt: true, home: false, stay: '' } }); break;
     case 'save-trip': saveTrip(); break;
@@ -1700,6 +1706,9 @@ document.addEventListener('click', ev => {
     case 'pdf': { if (ui.pdfBusy) break; ui.pdfBusy = true; const c = carById(ui.sheet.id); const m = ui.mapMonth; saveMapPdf(c, m).then(done => { if (!done) return; D.mapPdf[c.id + '|' + m] = mapSig(c, mapStats(c, m)); persist(); render(); toast(T.pdfDone); }).catch(() => toast(T.pdfFail)).finally(() => { ui.pdfBusy = false; }); break; }
   }
 });
+// after every other listener has updated the draft
+document.addEventListener('input', () => setTimeout(syncDirty));
+document.addEventListener('change', () => setTimeout(syncDirty));
 document.addEventListener('input', ev => {
   const el = ev.target;
   // Masks: the field takes only what its format allows and shapes it while typing
