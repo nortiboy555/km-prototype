@@ -53,6 +53,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .ent-switch:hover .v { text-decoration: underline; text-decoration-color: var(--hairline-2); text-underline-offset: 4px; }
 /* the add action is the last row of the list it adds to */
 .add-btn { width: 100%; }
+.route-map { height: 170px; border-radius: 12px; overflow: hidden; margin: 10px 0 4px; background: var(--fill); isolation: isolate; }
 .add-row { width: 100%; border: 0; background: transparent; display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; min-height: 52px; font-weight: 600; color: var(--ink); text-align: left; }
 .add-row:hover { background: var(--fill); }
 .add-row .ico { margin-top: 1px; }
@@ -67,6 +68,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .tabs .short { display: none; }
 @media (max-width: 640px) {
   .app { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .add-main { position: sticky; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); z-index: 5; }
   .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; background: var(--nav); border-top: 1px solid var(--nav-edge); box-shadow: 0 -4px 16px rgba(0,0,0,.12); border-bottom: 0; padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
   .tabs button { flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; min-height: 60px; font-size: 12px; border-bottom: 0; margin: 0; box-shadow: inset 0 2px 0 transparent; }
   .tabs button[aria-selected="true"] { box-shadow: inset 0 3px 0 var(--brand); color: var(--ink); font-weight: 600; }
@@ -290,6 +292,12 @@ button.item:hover { background: var(--fill); }
 .pop.places .opts { flex: 1 1 auto; min-height: 0; padding: 0 0 8px; }
 .pop .opt.add { display: flex; align-items: center; gap: 10px; }
 .pop .opt.add .ico { margin: 0; width: 14px; height: 14px; flex: none; }
+.pop.places:has(.place-form) { height: auto; max-height: min(620px, 88vh); }
+.place-form.sug > .pf:not(:first-child), .place-form.sug > .pf-actions { display: none; }
+#pf-sug { margin-top: 6px; }
+#pf-sug .opt { padding: 10px 0; min-height: 44px; }
+#pf-sug .opt.add .ico { margin-top: 0; }
+#pf-sug .pf-note { margin: 0 0 4px; }
 .place-form { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 16px; }
 .pf label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .pf input { width: 100%; border: 1.5px solid var(--hairline-2); border-radius: 10px; background: transparent; padding: 0 12px; min-height: 48px; font-size: 16px; color: var(--ink); }
@@ -735,7 +743,7 @@ try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.cars) D = s; }
 D.mapPdf = D.mapPdf || {}; D.geo = D.geo || {}; D.routes = D.routes || {};
 const mapSig = (c, s) => JSON.stringify([c.plate, c.ownerName || '', s.raw, s.paid.map(t => [t.date, t.from, t.to, purposeOf(t), t.km, !!t.rt, t.stay || 0])]);
 const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} };
-const ui = { tab: 'cars', carId: 'c1', month: CURRENT, entityId: 'e1', period: 'Q-2026-3', payerId: 'e2', mapMonth: CURRENT, sheet: null, pop: null };
+const ui = { tab: 'trips', carId: 'c1', month: CURRENT, entityId: 'e1', period: 'Q-2026-3', payerId: 'e2', mapMonth: CURRENT, sheet: null, pop: null };
 
 // ---------------- domain ----------------
 const ent = id => D.entities.find(e => e.id === id);
@@ -862,7 +870,7 @@ function renderChrome() {
   const T = L();
   document.documentElement.lang = lang === 'pt' ? 'pt-PT' : lang;
   document.getElementById('stitle').textContent = { cars: T.tCars, trips: T.tTrips, vat: T.tVat, maps: T.tMaps }[ui.tab];
-  const tabs = [['cars', 'car', T.tCars, T.tCars], ['trips', 'cal', T.tTrips, T.tTrips], ['vat', 'euro', T.tVat, T.tVat], ['maps', 'doc', T.tMaps, T.tMapsShort]];
+  const tabs = [['trips', 'cal', T.tTrips, T.tTrips], ['vat', 'euro', T.tVat, T.tVat], ['maps', 'doc', T.tMaps, T.tMapsShort], ['cars', 'car', T.tCars, T.tCars]];
   document.getElementById('tabs').innerHTML = tabs.map(([id, ic, name, short]) => `<button role="tab" data-tab="${id}" aria-selected="${ui.tab === id}" aria-label="${esc(name)}">${ico(ic)}<span class="full">${name}</span><span class="short">${short}</span></button>`).join('');
   const e = curEnt();
   document.getElementById('topact').innerHTML = `<button class="lang-btn" data-pop="lang" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(T.langLabel)}: ${LANG_NAMES[lang]}">${lang.toUpperCase()}${ico('chev')}</button>`;
@@ -936,7 +944,7 @@ function viewTrips() {
   const list = !ts.length ? '' : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
   // Adding a trip comes after the month's trips, as a real button under the list
   if (f !== 'VAT' && f !== 'MAP') return `${ctx}${card}${list}`;
-  return `${ctx}${card}${list}<button class="btn add-btn" data-act="add-trip">${ico('plus')}${T.addTrip}</button><button class="btn text add-btn" id="trips-places" data-act="places">${T.myPlaces}</button>`;
+  return `${ctx}${card}${list}<button class="btn add-btn add-main" data-act="add-trip">${ico('plus')}${T.addTrip}</button><button class="btn text add-btn" id="trips-places" data-act="places">${T.myPlaces}</button>`;
 }
 
 // ---------------- section: VAT ----------------
@@ -1171,13 +1179,24 @@ function renderPlaces() {
   }
   const a = p.addr; const used = a && addrInTrips(a); const pl = a && placeOf(a); const cur = pl ? placeName(pl) : ''; const typed = a || p.text || '';
   pe.innerHTML = `${head}<div class="place-form">
-    <div class="pf"><label${used ? '' : ' for="pf-addr"'}>${T.placeAddr}</label>${used ? `<div class="pf-static">${esc(a)}</div><p class="pf-note">${T.placeUsed}</p>` : `<input id="pf-addr" value="${esc(typed)}" placeholder="${esc(T.newAddr)}" autocomplete="off" maxlength="120"><p class="pf-note" id="pf-addr-n"${typed && hasTown(typed) ? ' hidden' : ''}>${esc(T.needCity)}</p>${p.pick && !geoOff ? `<button class="hint-btn" data-act="map-pick">${esc(T.mapPick)}</button>` : ''}`}</div>
+    <div class="pf"><label${used ? '' : ' for="pf-addr"'}>${T.placeAddr}</label>${used ? `<div class="pf-static">${esc(a)}</div><p class="pf-note">${T.placeUsed}</p>` : `<input id="pf-addr" value="${esc(typed)}" placeholder="${esc(T.findAddr)}" autocomplete="off" maxlength="120"><p class="pf-note" id="pf-addr-n" hidden></p><div id="pf-sug"></div>`}</div>
     <div class="pf"><label for="pf-label">${T.placeName}</label><input id="pf-label" value="${esc(cur)}" placeholder="${esc(T.placeNamePh)}" autocomplete="off" maxlength="40"><p class="pf-note warn" id="pf-label-n" hidden></p></div>
     <div class="pf-actions">${a && !used ? `<button class="btn text danger" data-act="place-del">${T.del}</button>` : ''}<button class="btn" data-act="place-save">${T.save}</button></div>
   </div>`;
+  // what was typed in the picker is searched straight away
+  if (!used) { probeGeo(); if (!a && typed && !hasTown(typed)) { p.q = typed; geoSearch(); } renderPfSug(); }
   // an empty form has one next step, so the field takes the focus; otherwise a phone does not open the keyboard until a field is tapped
   const first = used || (typed && hasTown(typed)) ? 'pf-label' : 'pf-addr';
   (TOUCH && first === 'pf-label' ? pe : document.getElementById(first)).focus({ preventScroll: true });
+}
+// Suggestions inside the address form, the same service as in the picker
+function renderPfSug() {
+  const box = document.getElementById('pf-sug'); const p = ui.pop; if (!box || !p) return; const T = L(); const q = (p.q || '').trim();
+  const rows = (p.remote || []).slice(0, 5);
+  // while there is something to choose, the rest of the form waits
+  box.closest('.place-form')?.classList.toggle('sug', rows.length > 0 || (q.length >= 3 && !!p.loading));
+  const status = geoOff ? T.geoOff : q.length >= 3 && p.loading && !rows.length ? T.searching : q.length >= 3 && !p.loading && !rows.length ? T.addrNone : '';
+  box.innerHTML = (status ? `<p class="pf-note">${esc(status)}</p>` : '') + rows.map((x, i) => `<button class="opt" data-sug="${i}"><span class="t">${esc(x.t)}</span><span class="s">${esc(x.s)}</span></button>`).join('') + (geoOff ? '' : `<button class="opt add" data-act="map-pick">${ico('pin')}<span class="t">${esc(T.mapPick)}</span></button>`);
 }
 function placesBack() {
   const p = ui.pop;
@@ -1324,7 +1343,6 @@ function sheetMap(c) {
 function sheetTrip() {
   const T = L(); const d = ui.sheet.draft; const car = carById(ui.carId); const f = effect(car);
   let rows = '';
-  rows += prow(T.date, `<button class="pick-btn" id="g-date" data-pop="g-date" aria-haspopup="dialog" aria-expanded="false"><span>${/^\d{4}-\d{2}-\d{2}$/.test(d.date) ? fullDate(d.date) : '—'}</span>${ico('chev')}</button>`, { for: 'g-date', err: (ui.sheet.errors || {}).date });
   const pickBtn = (id, v) => `<button class="pick-btn" id="${id}" data-pop="${id}" aria-haspopup="listbox" aria-expanded="false">${v ? `<span>${esc(v)}</span>` : `<span class="ph">${T.pickAdd}</span>`}${ico('chev')}</button>`;
   for (const f of ['from', 'to']) {
     const pl = d[f] && placeOf(d[f]); const nm = pl && placeName(pl);
@@ -1332,10 +1350,13 @@ function sheetTrip() {
     const [st, loc] = d[f] ? splitAddr(d[f]) : ['', ''];
     rows += prow(T[f], pickBtn('g-' + f, nm || st), { for: 'g-' + f, sub: nm ? esc(d[f]) : esc(loc), err: (ui.sheet.errors || {})[f] });
   }
-  rows += prow(T.purpose, pickBtn('g-purpose', d.purpose), { for: 'g-purpose', err: (ui.sheet.errors || {}).purpose, sub: d.pk === 'commute' ? (f === 'MAP' ? T.notPaid : T.homeVat) : '' });
+  // the route itself: a map as soon as both ends are known
+  if (d.from && d.to && !geoOff) rows += '<div class="route-map" id="route-map"></div>';
   rows += prow(T.kmOne, unitIn('g-km', d.km, T.km, 'data-draft="km" inputmode="numeric" placeholder="0"'), { for: 'g-km', sub: d.kmAuto === 'map' ? T.kmMap : d.kmAuto === 'wait' ? T.kmWait : d.kmAuto ? T.kmPrev : d.from && d.to && !int(d.km) ? (geoOff ? T.kmOff2 : T.kmNoMap) : '', err: (ui.sheet.errors || {}).km });
   rows += prow(T.rt, `<input type="checkbox" role="switch" class="sw" id="g-rt" data-draft="rt" ${d.rt ? 'checked' : ''}>`, { for: 'g-rt', sub: d.rt && int(d.km) ? km(int(d.km) * 2) : '' });
+  rows += prow(T.purpose, pickBtn('g-purpose', d.purpose), { for: 'g-purpose', err: (ui.sheet.errors || {}).purpose, sub: d.pk === 'commute' ? (f === 'MAP' ? T.notPaid : T.homeVat) : '' });
   if (needsStay(car, d.pk)) rows += prow(T.stay, unitIn('g-stay', d.stay, T.stayU, 'data-draft="stay" inputmode="decimal" placeholder="1:30" autocomplete="off"'), { for: 'g-stay', err: (ui.sheet.errors || {}).stay, hint: true, sub: T.stayHint });
+  rows += prow(T.date, `<button class="pick-btn" id="g-date" data-pop="g-date" aria-haspopup="dialog" aria-expanded="false"><span>${/^\d{4}-\d{2}-\d{2}$/.test(d.date) ? fullDate(d.date) : '—'}</span>${ico('chev')}</button>`, { for: 'g-date', err: (ui.sheet.errors || {}).date });
   const foot = ui.sheet.confirm
     ? `<p class="confirm">${T.removeTripQ}</p><button class="btn ghost grow" data-act="cancel-remove">${T.cancel}</button><button class="btn grow" style="background:var(--warn);color:#fff" data-act="do-remove-trip">${T.del}</button>`
     : `${d.id ? `<button class="btn text danger" data-act="ask-remove">${T.del}</button>` : ''}<span class="grow"></span><button class="btn ghost" data-act="close-sheet">${T.cancel}</button><button class="btn" data-act="save-trip">${T.save}</button>`;
@@ -1346,12 +1367,14 @@ function sheetTrip() {
 let lastFocus = null;
 function renderSheet(focusId) {
   const root = document.getElementById('sheet-root');
-  if (!ui.sheet) { root.innerHTML = ''; document.body.classList.remove('locked'); if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus(); lastFocus = null; return; }
+  if (!ui.sheet) { routeMap?.remove(); routeMap = null; root.innerHTML = ''; document.body.classList.remove('locked'); if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus(); lastFocus = null; return; }
+  routeMap?.remove(); routeMap = null;
   const scroll = document.getElementById('sheet-b')?.scrollTop || 0;
   const active = document.activeElement?.id;
   root.innerHTML = ui.sheet.type === 'car' ? sheetCar(carById(ui.sheet.id)) : ui.sheet.type === 'car-form' ? sheetCarForm() : ui.sheet.type === 'map' ? sheetMap(carById(ui.sheet.id)) : sheetTrip();
   document.body.classList.add('locked');
   const b = document.getElementById('sheet-b'); if (b) b.scrollTop = scroll;
+  if (ui.sheet.type === 'trip') mountRoute();
   // On touch screens focus never lands on a select or date field (iOS reopens its picker) and opening a form does not pop the keyboard
   const want = document.getElementById(focusId || active || '');
   const el = TOUCH ? (want && !isPicker(want) ? want : root.querySelector('.sheet')) : want || root.querySelector('.sheet .pin, .sheet .iconbtn');
@@ -1423,7 +1446,7 @@ function featureAddr(f) {
   if (!town || town === st) return p.county && p.county !== st ? { addr: `${st}, ${p.county}`, t: st, s: p.county, geo: f.geometry.coordinates } : null;
   return { addr: `${st}, ${town}`, t: st, s: town, geo: f.geometry.coordinates };
 }
-const searchAddrs = async q => { const j = await fetchJson(photonUrl('api', { q, limit: 8, bbox: '-31.5,32,-6,42.2' })); const seen = new Set(); return (j.features || []).map(featureAddr).filter(x => x && !seen.has(x.addr) && seen.add(x.addr)); };
+const searchAddrs = async q => { const j = await fetchJson(photonUrl('api', { q, limit: 8, bbox: '-31.5,32,-6,42.2' })); const seen = new Set(); return (j.features || []).filter(f => !['bus_stop', 'platform', 'station', 'stop_position'].includes(f.properties?.osm_value) && f.properties?.osm_key !== 'public_transport').map(featureAddr).filter(x => x && !seen.has(x.addr) && seen.add(x.addr)); };
 // Suggestions while typing; a slow answer to an older text never replaces a newer one
 function geoSearch() {
   const p = ui.pop; clearTimeout(p.timer); const q = p.q.trim();
@@ -1433,7 +1456,7 @@ function geoSearch() {
     const req = p.req = (p.req || 0) + 1; let found = [];
     try { found = await searchAddrs(q); } catch (e) {}
     if (ui.pop !== p || p.req !== req) return;
-    p.remote = found; p.loading = false; renderPopList();
+    p.remote = found; p.loading = false; renderPopList(); renderPfSug();
   }, 300);
 }
 async function ensureGeo(addr) {
@@ -1447,6 +1470,30 @@ async function routeKm(a, b) {
   const [x, y] = await Promise.all([ensureGeo(a), ensureGeo(b)]); if (!x || !y) return null;
   const j = await fetchJson(`${OSRM}/route/v1/driving/${x[0]},${x[1]};${y[0]},${y[1]}?overview=false`); const m = j.routes?.[0]?.distance; if (m == null) return null;
   D.routes[key] = Math.max(1, Math.round(m / 1000)); persist(); return D.routes[key];
+}
+// A new trip starts where trips usually start
+const usualStart = () => { const n = new Map(); for (const t of entTrips()) if (!t.home) n.set(t.from, (n.get(t.from) || 0) + 1); return [...n].sort((a, b) => b[1] - a[1])[0]?.[0] || ''; };
+// The route on a small map in the trip form: the road line from the same service that gives the km
+const routeLines = new Map(); let routeMap = null, routeReq = 0;
+async function mountRoute() {
+  const el = document.getElementById('route-map'); const d = ui.sheet?.draft; if (!el || !d?.from || !d?.to) return;
+  const req = ++routeReq;
+  try {
+    await loadLeaflet();
+    const key = routeKey(d.from, d.to); let line = routeLines.get(key);
+    if (!line) {
+      const [x, y] = await Promise.all([ensureGeo(d.from), ensureGeo(d.to)]); if (!x || !y) throw new Error('no point');
+      const j = await fetchJson(`${OSRM}/route/v1/driving/${x[0]},${x[1]};${y[0]},${y[1]}?overview=simplified&geometries=geojson`);
+      line = j.routes[0].geometry.coordinates.map(c => [c[1], c[0]]); routeLines.set(key, line);
+    }
+    const box = document.getElementById('route-map'); if (req !== routeReq || !box) return;
+    routeMap?.remove();
+    routeMap = window.L.map(box, { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: false, boxZoom: false, keyboard: false });
+    window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(routeMap);
+    const road = window.L.polyline(line, { color: '#2a6df4', weight: 4 }).addTo(routeMap);
+    [line[0], line[line.length - 1]].forEach(c => window.L.circleMarker(c, { radius: 6, color: '#111', weight: 2, fillColor: '#ffc852', fillOpacity: 1 }).addTo(routeMap));
+    routeMap.fitBounds(road.getBounds(), { padding: [18, 18] });
+  } catch (e) { if (req === routeReq) document.getElementById('route-map')?.remove(); }
 }
 let kmReq = 0;
 function autoKm(d) {
@@ -1468,12 +1515,16 @@ function autoKm(d) {
 // ---------------- pick on the map ----------------
 let leafletReady = null;
 const loadLeaflet = () => leafletReady || (leafletReady = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'; s.onload = ok; s.onerror = () => { leafletReady = null; no(new Error('leaflet')); }; document.head.appendChild(s); }));
-async function openMap(field, anchor) {
-  const T = L(); const d = ui.sheet.draft; const p = ui.pop = { kind: 'map', anchor, field, items: [] };
+function backToForm(mapPop, text) {
+  mapPop.map?.remove(); const prev = mapPop.prev;
+  openPlaces(prev.anchor, prev.back, prev.pick, text); ui.pop.view = 'edit'; ui.pop.addr = ''; ui.pop.changed = prev.changed; renderPlaces();
+}
+async function openMap(field, anchor, prev) {
+  const T = L(); const d = ui.sheet?.draft || {}; const p = ui.pop = { kind: 'map', anchor, field, items: [], prev };
   document.getElementById('pop-root').innerHTML = `<div class="pop-scrim" data-act="close-pop"></div><div class="mapview" role="dialog" aria-label="${esc(T.mapPick)}"><div class="map-h"><span>${esc(T.mapPick)}</span><button class="iconbtn" data-act="close-pop" aria-label="${T.close}">${ico('cross')}</button></div><div class="map-wrap"><div id="map"></div><span class="map-pin">${ico('pin')}</span></div><div class="map-foot"><div id="map-addr" role="status">${esc(T.mapLoad)}</div><button class="btn" id="map-ok" data-act="map-ok" disabled>${esc(T.mapChoose)}</button></div></div>`;
   try { await loadLeaflet(); } catch (e) { document.getElementById('map-addr').textContent = T.mapFail; return; }
   if (ui.pop !== p) return;
-  const near = d[field.slice(2)] || d[field === 'g-from' ? 'to' : 'from']; const known = near && D.geo[near];
+  const near = field && (d[field.slice(2)] || d[field === 'g-from' ? 'to' : 'from']); const known = near && D.geo[near];
   const map = p.map = window.L.map('map').setView(known ? [known[1], known[0]] : [38.7223, -9.1393], known ? 15 : 12);
   window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
   const lookup = async () => {
@@ -1513,8 +1564,10 @@ function saveTrip() {
 document.addEventListener('click', ev => {
   const b = ev.target.closest('button, .scrim, .pop-scrim'); if (!b) return;
   const ds = b.dataset; const T = L();
-  if (ds.act === 'map-pick') { openMap(ui.pop.kind === 'places' ? ui.pop.pick : ui.pop.kind, ui.pop.anchor); return; }
-  if (ds.act === 'map-ok') { const p = ui.pop, x = p.picked; if (!x) return; const d = ui.sheet.draft; D.geo[x.addr] = x.geo; d[p.field.slice(2)] = x.addr; autoKm(d); persist(); closePop(false); tripPicked(p.field); return; }
+  if (ds.sug !== undefined) { const p = ui.pop, x = p.remote?.[+ds.sug]; if (!x) return; D.geo[x.addr] = x.geo; persist(); const i = document.getElementById('pf-addr'); i.value = x.addr; p.q = ''; p.remote = null; p.loading = false; renderPfSug(); if (!TOUCH) document.getElementById('pf-label')?.focus(); return; }
+  if (ds.act === 'map-pick') { const p = ui.pop; if (p.kind === 'places') { p.text = document.getElementById('pf-addr')?.value || ''; openMap(p.pick || null, p.anchor, p); } else openMap(p.kind, p.anchor); return; }
+  if (ds.act === 'close-pop' && ui.pop?.kind === 'map' && ui.pop.prev) { backToForm(ui.pop, ui.pop.prev.text); return; }
+  if (ds.act === 'map-ok') { const p = ui.pop, x = p.picked; if (!x) return; D.geo[x.addr] = x.geo; if (p.prev) { persist(); backToForm(p, x.addr); return; } const d = ui.sheet.draft; d[p.field.slice(2)] = x.addr; autoKm(d); persist(); closePop(false); tripPicked(p.field); return; }
   if (ds.calNav) { ui.pop.ym = addMonths(ui.pop.ym, +ds.calNav); renderCal(); return; }
   if (ds.calDay) { const d = ui.sheet.draft; d.date = ds.calDay; closePop(false); if (ui.sheet.errors) { const now = tripErrors(d, carById(ui.carId)); if (now.date) ui.sheet.errors.date = now.date; else delete ui.sheet.errors.date; } renderSheet('g-date'); return; }
   if ('hint' in ds) { const row = b.closest('.prow'); const on = row.classList.toggle('hint-on'); b.setAttribute('aria-expanded', on); return; }
@@ -1539,7 +1592,7 @@ document.addEventListener('click', ev => {
     case 'add-car': openSheet({ type: 'car-form', draft: draftOf(null), errors: {} }); break;
     case 'edit-car': ui.sheet = { type: 'car-form', draft: draftOf(carById(ui.sheet.id)), errors: {} }; renderSheet(); break;
     case 'save-car': saveCar(); break;
-    case 'add-trip': openSheet({ type: 'trip', draft: { date: ui.month === CURRENT ? TODAY : ui.month + '-01', from: '', to: '', purpose: '', km: '', rt: true, home: false, stay: '' } }); break;
+    case 'add-trip': probeGeo(); openSheet({ type: 'trip', draft: { date: ui.month === CURRENT ? TODAY : ui.month + '-01', from: usualStart(), to: '', purpose: '', km: '', rt: true, home: false, stay: '' } }); break;
     case 'save-trip': saveTrip(); break;
     case 'ask-remove': ui.sheet.confirm = true; renderSheet(); break;
     case 'cancel-remove': ui.sheet.confirm = false; renderSheet(); break;
@@ -1553,7 +1606,7 @@ document.addEventListener('input', ev => {
   const el = ev.target;
   // Masks: the field takes only what its format allows and shapes it while typing
   const mask = maskFor(el); if (mask) { const c = mask(el.value); if (c !== el.value) el.value = c; }
-  if (el.id === 'pf-addr') { const n = document.getElementById('pf-addr-n'); if (n && n.textContent === L().needCity) n.hidden = hasTown(addrNorm(el.value)); return; }
+  if (el.id === 'pf-addr') { const n = document.getElementById('pf-addr-n'); if (n) n.hidden = true; ui.pop.q = el.value; geoSearch(); renderPfSug(); return; }
   if (el.id === 'pop-q') { ui.pop.q = el.value; ui.pop.act = -1; if (ui.pop.kind === 'g-from' || ui.pop.kind === 'g-to') geoSearch(); renderPopList(); document.getElementById('pop-opts').scrollTop = 0; return; }
   if (!ui.sheet) return;
   const d = ui.sheet.draft;
