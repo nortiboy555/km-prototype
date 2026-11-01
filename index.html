@@ -40,16 +40,8 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 /* phone: section title + language on top, taxpayer under them, menu at the bottom; desktop: menu on top, then taxpayer + language in one row */
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 16px; align-items: start; }
 .top h1 { grid-row: 1; grid-column: 1; }
-.entbar { min-width: 0; grid-row: 2; grid-column: 1 / -1; }
-.entbar:empty { display: none; }
 /* desktop: the menu comes first, the taxpayer under it */
-@media (min-width: 641px) { .top h1 { display: none; } .entbar { grid-row: 1; grid-column: 1; } .app { display: flex; flex-direction: column; } .app > .tabs { order: -1; } }
-.ent-switch { border: 0; background: transparent; padding: 4px 0; min-height: 44px; display: grid; grid-template-columns: auto 18px; column-gap: 8px; align-items: start; text-align: left; max-width: 100%; }
-.ent-switch .v { font-size: 17px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ent-switch { grid-template-columns: max-content 18px; }
-.ent-switch .n { grid-column: 1 / -1; font-size: 14px; color: var(--muted); line-height: 1.3; overflow-wrap: anywhere; }
-.ent-switch .ico { grid-row: 1; grid-column: 2; width: 18px; height: 18px; margin-top: 2px; color: var(--muted); }
-.ent-switch:hover .v { text-decoration: underline; text-decoration-color: var(--hairline-2); text-underline-offset: 4px; }
+@media (min-width: 641px) { .top { display: none; } .app { display: flex; flex-direction: column; } .app > .tabs { order: -1; } }
 /* the add action is the last row of the list it adds to */
 .add-btn { width: 100%; }
 .route-map { height: 170px; border-radius: 12px; overflow: hidden; margin: 10px 0 4px; background: var(--fill); isolation: isolate; }
@@ -126,6 +118,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .fseg .fv .t { min-width: 0; overflow-wrap: anywhere; }
 .fseg .fv .ico { width: 16px; height: 16px; color: var(--muted); margin-top: 2px; }
 .fseg .fs { font-size: 12px; color: var(--muted); }
+@media (max-width: 359px) { .fseg { padding: 10px; } .fseg .fv { font-size: 14px; gap: 4px; } }
 .lhead { display: flex; justify-content: flex-end; align-items: flex-start; gap: 12px; padding-top: 4px; }
 .lhead .cnt { color: var(--muted); padding-top: 12px; }
 
@@ -397,7 +390,7 @@ button.item:hover { background: var(--fill); }
 </style>
 
 <div class="app">
-  <div class="top"><h1 id="stitle"></h1><div id="ent" class="entbar"></div></div>
+  <div class="top"><h1 id="stitle"></h1></div>
   <nav class="tabs" id="tabs"></nav>
   <main id="view" style="display:flex;flex-direction:column;gap:12px"></main>
   <div class="foot" id="foot"></div>
@@ -886,6 +879,8 @@ const sel = (id, value, opts, attrs = '') => {
 const entCars = e => !e ? [] : D.cars.filter(c => (c.own === 'BIZ' && c.entityId === e.id) || (c.own === 'PRIV' && c.payerId === e.id));
 // A NIF / NIPC appears only together with a car: without cars there is no taxpayer to switch to
 const activeEnts = () => D.entities.filter(e => entCars(e).length);
+const carEntId = c => c.own === 'BIZ' ? c.entityId : c.payerId;
+const entSeg = e => ['entity', L().fEntity, nifShow(e.nif), `${String(e.nif)[0] === '5' ? 'NIPC' : 'NIF'} · ${e.name}`, activeEnts().length === 1];
 const curEnt = () => { const a = activeEnts(); if (!a.some(e => e.id === ui.entityId)) ui.entityId = a[0]?.id; return a.find(e => e.id === ui.entityId) || null; };
 function renderChrome() {
   const T = L();
@@ -893,10 +888,6 @@ function renderChrome() {
   document.getElementById('stitle').textContent = { cars: T.tCars, trips: T.tTrips, vat: T.tVat, maps: T.tMaps }[ui.tab];
   const tabs = [['trips', T.tTrips, T.tTrips], ['vat', T.tVat, T.tVat], ['maps', T.tMaps, T.tMapsShort], ['cars', T.tCars, T.tCars]];
   document.getElementById('tabs').innerHTML = `<div role="tablist" style="display:contents">${tabs.map(([id, name, short]) => `<button role="tab" class="tab-${id}" data-tab="${id}" aria-selected="${ui.tab === id}" aria-label="${esc(name)}"><span class="tile" aria-hidden="true">${TAB_ICON[id]}</span><span>${short}</span></button>`).join('')}</div><button class="tab-lang lang-tab" data-pop="lang" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(T.langLabel)}: ${LANG_NAMES[lang]}"><span class="tile" aria-hidden="true">${lang.toUpperCase()}</span><span>${esc(T.langLabel)}</span></button>`;
-  const e = curEnt();
-  document.getElementById('ent').innerHTML = !e ? '' : activeEnts().length === 1
-    ? `<div class="ent-switch"><span class="v">${taxId(e.nif)}</span><span></span><span class="n">${esc(e.name)}</span></div>`
-    : `<button class="ent-switch" data-pop="entity" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(T.fEntity)}: ${esc(taxId(e.nif))}, ${esc(e.name)}"><span class="v">${taxId(e.nif)}</span>${ico('chev')}<span class="n">${esc(e.name)}</span></button>`;
   document.getElementById('foot').innerHTML = `<span>${T.proto}</span>`;
 }
 
@@ -915,17 +906,13 @@ function carItem(c) {
 const noCars = () => `<button class="btn add-btn" data-act="add-car">${ico('plus')}${L().addCar}</button>`;
 function viewCars() {
   const T = L();
-  const head = '';
-  const e = curEnt(); if (!e) return noCars();
-  const cs = D.cars.filter(c => c.own === 'BIZ' && c.entityId === e.id);
-  const ps = D.cars.filter(c => c.own === 'PRIV' && c.payerId === e.id);
-  if (!cs.length && !ps.length) return `<div class="empty">${T.noCarsEnt}</div><button class="btn add-btn" data-act="add-car">${ico('plus')}${T.addCar}</button>`;
-  const groups = [];
-  {
-    if (cs.length) groups.push(`<div class="list">${cs.map(carItem).join('')}</div>`);
-    if (ps.length) groups.push(`<div class="group"><div class="ghead"><span class="who">${T.employees}</span></div><div class="list">${ps.map(carItem).join('')}</div></div>`);
-  }
-  return head + groups.join('') + `<button class="btn add-btn" data-act="add-car">${ico('plus')}${T.addCar}</button>`;
+  const ents = activeEnts(); if (!ents.length) return noCars();
+  const groups = ents.map(e => {
+    const cs = D.cars.filter(c => c.own === 'BIZ' && c.entityId === e.id);
+    const ps = D.cars.filter(c => c.own === 'PRIV' && c.payerId === e.id);
+    return `<div class="group"><div class="ghead"><span class="who">${taxId(e.nif)}</span><span class="meta">${esc(e.name)}</span></div>${cs.length ? `<div class="list">${cs.map(carItem).join('')}</div>` : ''}${ps.length ? `<div class="ghead sub"><span class="who">${T.employees}</span></div><div class="list">${ps.map(carItem).join('')}</div>` : ''}</div>`;
+  });
+  return groups.join('') + `<button class="btn add-btn" data-act="add-car">${ico('plus')}${T.addCar}</button>`;
 }
 
 // ---------------- section: trips ----------------
@@ -944,7 +931,8 @@ function viewTrips() {
   if (!mine.some(c => c.id === ui.carId)) ui.carId = mine[0].id;
   const car = carById(ui.carId); const f = effect(car); const months = carMonths(car);
   if (!months.includes(ui.month)) ui.month = months.includes(CURRENT) ? CURRENT : months[months.length - 1];
-  const ctx = fbar([['car', T.fCar, car.plate, car.own === 'PRIV' ? ownerName(car) : '', mine.length === 1], ...(f === 'VAT' || f === 'MAP' ? [['month', T.fMonth, monthName(ui.month), '', months.length === 1]] : [])]);
+  const ents = activeEnts(); const carSub = [car.own === 'PRIV' ? ownerName(car) : '', ents.length > 1 ? e.name : ''].filter(Boolean).join(' · ');
+  const ctx = fbar([['car', T.fCar, car.plate, carSub, ents.flatMap(entCars).length === 1], ...(f === 'VAT' || f === 'MAP' ? [['month', T.fMonth, monthName(ui.month), '', months.length === 1]] : [])]);
   let card;
   if (f === 'MAP') card = '';
   else if (f !== 'VAT') card = `<p class="note">${T.noKmNeed}</p>`;
@@ -974,14 +962,14 @@ function viewVat() {
   const e = curEnt();
   if (!e) return noCars();
   const head = '';
-  if (e.regime === 'E') return `<div class="empty">${T.exempt}</div>`;
+  if (e.regime === 'E') return fbar([entSeg(e)]) + `<div class="empty">${T.exempt}</div>`;
   const ps = periodsFor(e);
   if (!ps.find(p => p.id === ui.period)) ui.period = (ps.filter(p => p.months.every(m => monthsBetween(m, CURRENT) > 0)).pop() || ps[ps.length - 1]).id;
   const i = ps.findIndex(p => p.id === ui.period); const p = ps[i];
   const r = vatFor(e, p); const key = e.id + '|' + p.id; const inc = !!D.included[key];
   // what was put into the return; true is an entry saved before the figure was kept
   const incVat = typeof D.included[key] === 'object' ? D.included[key].vat : r.vat; const stale = inc && incVat !== r.vat;
-  const ctx = fbar([['period', T.fPeriod, p.label, T.due(p.due), ps.length === 1]]);
+  const ctx = fbar([entSeg(e), ['period', T.fPeriod, p.label, T.due(p.due), ps.length === 1]]);
   if (!r.blocks.length) {
     const others = r.cars.filter(c => effect(c) !== 'VAT');
     return head + ctx + `<div class="empty">${T.noVatCars}${others.length ? `<span>${T.noVatOthers} ${others.map(c => `${esc(c.plate)} (${shortReason(c)})`).join(', ')}</span>` : ''}</div>`;
@@ -1015,9 +1003,9 @@ function viewMaps() {
   const pay = curEnt();
   const head = '';
   if (!pay) return noCars();
-  if (!D.cars.some(c => c.own === 'PRIV' && c.payerId === pay.id)) return head + `<div class="empty">${T.noEmpCars}</div>`;
+  if (!D.cars.some(c => c.own === 'PRIV' && c.payerId === pay.id)) return fbar([entSeg(pay)]) + `<div class="empty">${T.noEmpCars}</div>`;
   const months = mapMonths(pay); if (!months.includes(ui.mapMonth)) ui.mapMonth = months.slice().reverse().find(m => D.cars.some(c => c.own === 'PRIV' && c.payerId === pay.id && mapStats(c, m).paid.length)) || months[months.length - 1];
-  const ctx = fbar([['mapMonth', T.fMonth, monthName(ui.mapMonth), '', months.length === 1]]);
+  const ctx = fbar([entSeg(pay), ['mapMonth', T.fMonth, monthName(ui.mapMonth), '', months.length === 1]]);
   const cards = D.cars.filter(c => c.own === 'PRIV' && c.payerId === pay.id).map(c => {
     const s = mapStats(c, ui.mapMonth); const p = per(c.personId);
     return `<div class="card"><div class="cap"><div class="ghead" style="padding-top:0"><span class="who">${taxId(p?.nif)}</span><span class="meta">${esc(p?.name)}</span></div>${plate(c.plate)}</div>
@@ -1041,7 +1029,7 @@ function pickerItems(kind, q) {
   if (kind === 'month') { const car = carById(ui.carId); return { items: carMonths(car).slice().reverse().map(m => ({ id: m, t: monthName(m), s: monthState(car, m), on: m === ui.month })) }; }
   if (kind === 'period') { const e = ent(ui.entityId); return { items: periodsFor(e).slice().reverse().map(p => { const r = vatFor(e, p); return { id: p.id, t: p.label, s: `${T.due(p.due)} · ${r.bad.length ? T.kmOff : D.included[e.id + '|' + p.id] ? T.included : r.complete ? T.ready : r.running ? (e.regime === 'M' ? T.runningM : T.running) : r.blocks.length ? T.missing : T.noVatCars}`, on: p.id === ui.period }; }) }; }
   if (kind === 'mapMonth') { const cs = D.cars.filter(c => c.own === 'PRIV' && c.payerId === ui.entityId); return { items: mapMonths(ent(ui.entityId)).slice().reverse().map(m => ({ id: m, t: monthName(m), s: eur(r2(cs.reduce((a, c) => a + mapStats(c, m).total, 0))), on: m === ui.mapMonth })) }; }
-  if (kind === 'car') return { items: D.cars.filter(c => !qq || c.plate.toLowerCase().includes(qq)).map(c => ({ id: c.id, t: c.plate, s: c.own === 'PRIV' ? (ownerName(c) || '') : '', on: c.id === ui.carId, mine: entCars(curEnt()).includes(c) })).filter(x => x.mine) };
+  if (kind === 'car') { const ents = activeEnts(); return { items: ents.flatMap(e => entCars(e).map(c => ({ c, e }))).filter(({ c, e }) => !qq || `${c.plate} ${e.name} ${e.nif} ${ownerName(c) || ''}`.toLowerCase().includes(qq)).map(({ c, e }) => ({ id: c.id, t: c.plate, s: [c.own === 'PRIV' ? ownerName(c) : '', ents.length > 1 ? `${taxId(e.nif)} · ${e.name}` : ''].filter(Boolean).join(' · '), on: c.id === ui.carId })) }; }
   if (kind === 'entity') base = activeEnts().map(e => ({ id: e.id, t: taxId(e.nif), s: e.name, nif: e.nif, name: e.name, on: e.id === ui.entityId }));
   if (kind === 'payer') base = D.entities.filter(e => D.cars.some(c => c.own === 'PRIV' && c.payerId === e.id)).map(e => ({ id: e.id, t: e.name, s: `NIPC ${nifShow(e.nif)}`, nif: e.nif, name: e.name, on: e.id === ui.payerId }));
   const d = ui.sheet?.draft;
@@ -1264,7 +1252,7 @@ function pickOpt(i) {
     if (b) { b.value = x.id; b.querySelector('.t').textContent = x.t; b.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById(id)?.focus(); }
     return;
   }
-  if (kind === 'car') { ui.carId = x.id; render(); return; }
+  if (kind === 'car') { ui.carId = x.id; ui.entityId = carEntId(carById(x.id)); render(); return; }
   if (kind === 'lang') { lang = x.id; try { localStorage.setItem('km-lang', lang); } catch (e) {} render(); return; }
   if (kind === 'month') { ui.month = x.id; render(); return; }
   if (kind === 'period') { ui.period = x.id; render(); return; }
@@ -1482,7 +1470,7 @@ function saveCar() {
   const first = D.trips.filter(x => x.carId === car.id).map(x => ymOf(x.date)).sort()[0];
   if (first && monthsBetween(first, car.start) > 0) car.start = first;
   const i = D.cars.findIndex(c => c.id === car.id); if (i >= 0) D.cars[i] = car; else D.cars.push(car);
-  ui.entityId = car.own === 'BIZ' ? car.entityId : car.payerId;
+  ui.entityId = carEntId(car);
   persist(); ui.sheet = { type: 'car', id: car.id }; render(); toast(T.savedCar);
 }
 // Updates the note under one form row in place, so typing keeps focus
@@ -1655,7 +1643,7 @@ document.addEventListener('click', ev => {
   if (ds.openCar) { openSheet({ type: 'car', id: ds.openCar }); return; }
   if (ds.editTrip) { const t = D.trips.find(x => x.id === ds.editTrip); ui.carId = t.carId; openSheet({ type: 'trip', draft: { id: t.id, date: t.date, from: t.from, to: t.to, purpose: purposeOf(t), pk: t.pk, km: String(t.km), rt: t.rt, home: !!t.home, stay: t.stay ? stayShow(t.stay) : '' } }); return; }
   if (ds.fix) { const [c, m] = ds.fix.split('|'); ui.tab = 'trips'; ui.carId = c; ui.month = m; render(); document.getElementById('odo-s')?.focus(); return; }
-  if (ds.tripsOf !== undefined) { const [c, m] = ds.tripsOf.split('|'); ui.tab = 'trips'; ui.carId = c; if (m) ui.month = m; ui.sheet = null; renderSheet(); render(); window.scrollTo(0, 0); return; }
+  if (ds.tripsOf !== undefined) { const [c, m] = ds.tripsOf.split('|'); ui.tab = 'trips'; ui.carId = c; ui.entityId = carEntId(carById(c)); if (m) ui.month = m; ui.sheet = null; renderSheet(); render(); window.scrollTo(0, 0); return; }
   switch (ds.act) {
     case 'close-sheet': closeSheet(); break;
     case 'add-car': openSheet({ type: 'car-form', draft: draftOf(null), errors: {} }); break;
