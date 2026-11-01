@@ -1538,53 +1538,32 @@ function setRowNote(id, txt) {
   if (!full) { row.classList.add('wrap'); row.insertAdjacentHTML('beforeend', '<div class="full"><span class="sub"></span></div>'); full = row.querySelector('.full'); }
   full.querySelector('.sub').textContent = txt;
 }
-// Real services for the prototype, no key: Photon finds addresses, OSRM measures the route by road (OpenStreetMap data both).
+// Real services for the prototype: Mapbox finds addresses, measures the route by road and draws the map. In the product these calls go through the backend.
 // The product calls OpenRouteService or Geoapify through our server, with a cache per pair of addresses.
-const PHOTON = 'https://photon.komoot.io', OSRM = 'https://router.project-osrm.org';
+const MAPBOX = 'https://api.mapbox.com', MAPBOX_TOKEN = 'pk.eyJ1IjoiZml6Y29sdGQiLCJhIjoiY212eWJrYms2MHAydDJ4c2doam52ZG1kZSJ9.Qx9tuVOcgB4NtE2ZlLCc7A';
+const MAP_TILES = `${MAPBOX}/styles/v1/mapbox/streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`;
+const MAP_TILE_OPTS = { maxZoom: 19, tileSize: 512, zoomOffset: -1, attribution: '© Mapbox © OpenStreetMap' };
+const geoUrl = (path, params) => `${MAPBOX}/search/geocode/v6/${path}?${new URLSearchParams({ country: 'pt', language: 'pt', access_token: MAPBOX_TOKEN, ...params })}`;
+const routeUrl = (x, y, params) => `${MAPBOX}/directions/v5/mapbox/driving/${x[0]},${x[1]};${y[0]},${y[1]}?${new URLSearchParams({ access_token: MAPBOX_TOKEN, ...params })}`;
 // null: not known yet; true: the browser refused the request, so no suggestions, no map, no route here
 let geoOff = null;
-const probeGeo = () => { if (geoOff !== null) return; geoOff = false; fetch(photonUrl('api', { q: 'Lisboa', limit: 1 })).catch(() => { geoOff = true; if (ui.pop?.kind === 'g-from' || ui.pop?.kind === 'g-to') renderPopList(); }); };
+const probeGeo = () => { if (geoOff !== null) return; geoOff = false; fetch(geoUrl('forward', { q: 'Lisboa', limit: 1 })).catch(() => { geoOff = true; if (ui.pop?.kind === 'g-from' || ui.pop?.kind === 'g-to') renderPopList(); }); };
 // a service that hangs must not leave "calculating" on screen for ever
 const fetchOnce = url => fetch(url, { signal: AbortSignal.timeout?.(8000) });
 const fetchJson = async url => { let r = await fetchOnce(url); if (!r.ok) { await new Promise(ok => setTimeout(ok, 900)); r = await fetchOnce(url); } if (!r.ok) throw new Error(r.status); return r.json(); };
-// The router moves a point to its nearest road without saying so: from Madeira that road is on the mainland and the km are invented.
+// A router may move a point to its nearest road without saying so: from Madeira that road would be on the mainland and the km invented.
 const onRoad = j => (j.waypoints || []).every(w => w.distance < 2000);
-const photonUrl = (path, params) => `${PHOTON}/${path}?${new URLSearchParams({ lang: 'default', ...params })}`;
 // A found place as an address: street and number, town
 function featureAddr(f) {
-  const p = f.properties || {}; if (p.countrycode && p.countrycode !== 'PT') return null;
-  const town = p.city || p.town || p.locality || p.district || p.county || p.state || ''; const name = p.street || p.name || '';
-  // some records carry the postcode in the house number
-  const st = name + (p.street && p.housenumber && !/^\d{4}-\d{3}$/.test(p.housenumber) ? ' ' + p.housenumber : '');
-  if (!st) return null;
-  if (!town || town === st) return p.county && p.county !== st ? { addr: `${st}, ${p.county}`, t: st, s: p.county, geo: f.geometry.coordinates } : null;
-  const poi = p.street && p.name && p.name !== p.street && !/^\d/.test(p.name);
-  return { addr: `${st}, ${town}`, t: st, s: poi ? `${p.name} · ${town}` : p.county && p.county !== town ? `${town} · ${p.county}` : town, geo: f.geometry.coordinates };
-}
-// The service ranks by text alone: abbreviations miss, a shop beats a street, and the town typed in the query counts for little
-const ADDR_ABBR = { av: 'avenida', 'av.': 'avenida', r: 'rua', 'r.': 'rua', lg: 'largo', 'lg.': 'largo', pc: 'praca', pca: 'praca', 'pç': 'praca', 'pç.': 'praca', tv: 'travessa', 'tv.': 'travessa', est: 'estrada', 'est.': 'estrada', al: 'alameda', 'al.': 'alameda', cc: 'calcada' };
-const STREET_WORDS = ['rua', 'avenida', 'largo', 'praca', 'travessa', 'estrada', 'alameda', 'calcada', 'beco', 'rotunda'];
-const normAddr = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-const addrWords = s => normAddr(s).split(/[\s,]+/).filter(w => w && !['de', 'da', 'do', 'das', 'dos', 'e'].includes(w));
-const expandAddr = q => q.trim().split(/\s+/).map(w => ADDR_ABBR[w.toLowerCase()] || w).join(' ');
-function addrScore(f, words, num) {
-  const p = f.properties || {}; const has = (list, w) => list.some(x => x.startsWith(w));
-  const street = addrWords(p.street || p.name), name = addrWords(p.name), town = addrWords(p.city || p.town || p.locality || p.district), area = addrWords(`${p.county || ''} ${p.state || ''}`);
-  let score = 0;
-  for (const w of words) score += has(street, w) ? 10 : has(town, w) ? 8 : has(name, w) ? 5 : has(area, w) ? 2 : -6;
-  // someone typing a street wants that street, not a shop elsewhere with one of its words in the name
-  if (STREET_WORDS.includes(words[0]) && !words.every(w => has(street, w) || has(town, w) || has(area, w))) score -= 1000;
-  if (num && String(p.housenumber || '').split(/\D/)[0] === num) score += 6;
-  if (p.osm_key !== 'highway' && p.osm_key !== 'place' && !p.housenumber) score -= 3;
-  return score;
+  const p = f.properties || {}; const c = p.context || {}; const name = p.name; if (!name) return null;
+  const town = c.place?.name || c.locality?.name || c.district?.name || c.region?.name || ''; const area = c.region?.name || '';
+  if (!town || town === name) return { addr: area && area !== name ? `${name}, ${area}` : name, t: name, s: area !== name ? area : '', geo: f.geometry.coordinates };
+  return { addr: `${name}, ${town}`, t: name, s: area && area !== town ? `${town} · ${area}` : town, geo: f.geometry.coordinates };
 }
 const searchAddrs = async (q, near) => {
-  const text = expandAddr(q); const words = addrWords(text).filter(w => !/^\d+$/.test(w)); const num = addrWords(text).find(w => /^\d+$/.test(w));
-  const j = await fetchJson(photonUrl('api', { q: text, limit: 20, bbox: '-31.5,32,-6,42.2', ...(near ? { lon: near[0], lat: near[1] } : {}) }));
+  const j = await fetchJson(geoUrl('forward', { q, limit: 6, autocomplete: 'true', types: 'address,street,postcode,place,locality,neighborhood', ...(near ? { proximity: near.join(',') } : {}) }));
   const seen = new Set();
-  return (j.features || []).filter(f => !['bus_stop', 'platform', 'station', 'stop_position'].includes(f.properties?.osm_value) && !['public_transport', 'railway'].includes(f.properties?.osm_key))
-    .map((f, i) => ({ f, i, s: addrScore(f, words, num) })).sort((a, b) => b.s - a.s || a.i - b.i)
-    .filter((x, _, all) => x.s > -500 || all[0].s <= -500).map(x => featureAddr(x.f)).filter(x => x && !seen.has(x.addr) && seen.add(x.addr)).slice(0, 6);
+  return (j.features || []).map(featureAddr).filter(x => x && !seen.has(x.addr) && seen.add(x.addr));
 };
 // Suggestions while typing; a slow answer to an older text never replaces a newer one
 function geoSearch() {
@@ -1600,14 +1579,14 @@ function geoSearch() {
 }
 async function ensureGeo(addr) {
   if (D.geo[addr]) return D.geo[addr];
-  const j = await fetchJson(photonUrl('api', { q: addr, limit: 1, bbox: '-31.5,32,-6,42.2' })); const c = j.features?.[0]?.geometry?.coordinates;
+  const j = await fetchJson(geoUrl('forward', { q: addr, limit: 1 })); const c = j.features?.[0]?.geometry?.coordinates;
   if (c) { D.geo[addr] = c; persist(); } return c || null;
 }
 const routeKey = (a, b) => [a, b].sort().join('|');
 async function routeKm(a, b) {
   const key = routeKey(a, b); if (D.routes[key]) return D.routes[key];
   const [x, y] = await Promise.all([ensureGeo(a), ensureGeo(b)]); if (!x || !y) return null;
-  const j = await fetchJson(`${OSRM}/route/v1/driving/${x[0]},${x[1]};${y[0]},${y[1]}?overview=false`); const m = j.routes?.[0]?.distance; if (m == null || !onRoad(j)) return null;
+  const j = await fetchJson(routeUrl(x, y, { overview: 'false' })); const m = j.routes?.[0]?.distance; if (m == null || !onRoad(j)) return null;
   D.routes[key] = Math.max(1, Math.round(m / 1000)); persist(); return D.routes[key];
 }
 // A new trip starts where trips usually start
@@ -1622,14 +1601,14 @@ async function mountRoute() {
     const key = routeKey(d.from, d.to); let line = routeLines.get(key);
     if (!line) {
       const [x, y] = await Promise.all([ensureGeo(d.from), ensureGeo(d.to)]); if (!x || !y) throw new Error('no point');
-      const j = await fetchJson(`${OSRM}/route/v1/driving/${x[0]},${x[1]};${y[0]},${y[1]}?overview=simplified&geometries=geojson`);
-      if (!onRoad(j)) throw new Error('no road');
+      const j = await fetchJson(routeUrl(x, y, { overview: 'simplified', geometries: 'geojson' }));
+      if (!j.routes?.length || !onRoad(j)) throw new Error('no road');
       line = j.routes[0].geometry.coordinates.map(c => [c[1], c[0]]); routeLines.set(key, line);
     }
     const box = document.getElementById('route-map'); if (req !== routeReq || !box) return;
     routeMap?.remove();
     routeMap = window.L.map(box, { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: false, boxZoom: false, keyboard: false });
-    window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(routeMap);
+    window.L.tileLayer(MAP_TILES, MAP_TILE_OPTS).addTo(routeMap);
     const road = window.L.polyline(line, { color: '#2a6df4', weight: 4 }).addTo(routeMap);
     [line[0], line[line.length - 1]].forEach(c => window.L.circleMarker(c, { radius: 6, color: '#111', weight: 2, fillColor: '#ffc852', fillOpacity: 1 }).addTo(routeMap));
     routeMap.fitBounds(road.getBounds(), { padding: [18, 18] });
@@ -1666,11 +1645,11 @@ async function openMap(field, anchor, prev) {
   if (ui.pop !== p) return;
   const near = field && (d[field.slice(2)] || d[field === 'g-from' ? 'to' : 'from']); const known = near && D.geo[near];
   const map = p.map = window.L.map('map').setView(known ? [known[1], known[0]] : [38.7223, -9.1393], known ? 15 : 12);
-  window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+  window.L.tileLayer(MAP_TILES, MAP_TILE_OPTS).addTo(map);
   const lookup = async () => {
     const req = p.req = (p.req || 0) + 1; const say = document.getElementById('map-addr'), ok = document.getElementById('map-ok'); const c = map.getCenter();
     p.picked = null; ok.disabled = true; say.textContent = L().mapLoad; let x = null;
-    try { const j = await fetchJson(photonUrl('reverse', { lon: c.lng, lat: c.lat, limit: 1 })); const f = j.features?.[0]; x = f && featureAddr(f); if (x) x.geo = [c.lng, c.lat]; } catch (e) {}
+    try { const j = await fetchJson(geoUrl('reverse', { longitude: c.lng, latitude: c.lat, limit: 1, types: 'address,street,place,locality' })); const f = j.features?.[0]; x = f && featureAddr(f); if (x) x.geo = [c.lng, c.lat]; } catch (e) {}
     if (ui.pop !== p || p.req !== req) return;
     p.picked = x; ok.disabled = !x; say.textContent = x ? x.addr : L().mapNone;
   };
