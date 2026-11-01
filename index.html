@@ -192,6 +192,8 @@ button.item:hover { background: var(--fill); }
 .sum-g label, .sum-g .cap { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sum-g .cap.r, .sum-v { text-align: right; }
 .sum-v { font-size: 22px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.prow.need > label, .prow.need label, .prow.need .ph, .prow.need > .full, .prow.need .u { color: var(--warn); }
+.prow.need .pin::placeholder { color: var(--warn); }
 .sum-tot { font-size: 16px; line-height: 44px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .km-bar { height: 6px; display: flex; gap: 2px; margin-top: 4px; }
 .km-bar i { display: block; height: 100%; min-width: 3px; border-radius: 3px; }
@@ -1492,7 +1494,10 @@ function render() {
   if (ui.sheet) renderSheet();
 }
 const draftKey = d => JSON.stringify(d, (k, v) => (k === 'kmAuto' || k === 'kmTyped' ? undefined : v));
-function syncDirty() { const s = ui.sheet; const el = document.querySelector('.sheet'); if (!s || !el) return; if (s.orig) el.classList.toggle('clean', draftKey(s.draft) === s.orig); el.classList.toggle('asking', !!s.ask); }
+function syncDirty() { const s = ui.sheet; const el = document.querySelector('.sheet'); if (!s || !el) return; if (s.orig) el.classList.toggle('clean', draftKey(s.draft) === s.orig); el.classList.toggle('asking', !!s.ask);
+  // once both ends are known, whatever still blocks saving is marked before the user tries to save
+  if (s.type === 'trip') { const d = s.draft; const ready = d.from && d.to; const need = (id, on) => document.getElementById(id)?.closest('.prow')?.classList.toggle('need', !!(ready && on)); need('g-km', !int(d.km) && d.kmAuto !== 'wait'); need('g-purpose', !d.purpose); need('g-stay', !d.stay); }
+}
 // Closing a form with changes asks first; closing again while it asks goes back to editing. Cancel is an answer in itself and never asks.
 function askClose() { const s = ui.sheet; if (s?.ask) { s.ask = false; syncDirty(); return; } if (s?.base && draftKey(s.draft) !== s.base) { s.ask = true; syncDirty(); return; } closeSheet(); }
 function openSheet(s) { lastFocus = document.activeElement; if (s.draft) s.base = draftKey(s.draft); if (s.draft?.id) s.orig = s.base; ui.sheet = s; renderSheet(); }
@@ -1628,7 +1633,7 @@ function autoKm(d) {
     if (ui.sheet?.draft !== d || req !== kmReq || d.kmTyped) return;
     d.km = n ? String(n) : ''; d.kmAuto = n ? 'map' : false;
     const i = document.getElementById('g-km'); if (i) i.value = d.km;
-    setRowNote('g-km', n ? L().kmMap : geoOff ? L().kmOff2 : L().kmNoMap);
+    setRowNote('g-km', n ? L().kmMap : geoOff ? L().kmOff2 : L().kmNoMap); syncDirty();
   });
 }
 // ---------------- pick on the map ----------------
