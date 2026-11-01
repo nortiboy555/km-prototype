@@ -40,7 +40,6 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 /* phone: section title + language on top, taxpayer under them, menu at the bottom; desktop: menu on top, then taxpayer + language in one row */
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 16px; align-items: start; }
 .top h1 { grid-row: 1; grid-column: 1; }
-#topact { grid-row: 1; grid-column: 2; }
 .entbar { min-width: 0; grid-row: 2; grid-column: 1 / -1; }
 .entbar:empty { display: none; }
 /* desktop: the menu comes first, the taxpayer under it */
@@ -61,24 +60,34 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .lang button { border: 0; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: .04em; min-width: 44px; min-height: 44px; border-radius: 10px; }
 .lang button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-decoration-color: var(--brand); text-decoration-thickness: 2px; text-underline-offset: 6px; }
 
-/* tabs */
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--hairline); }
-.tabs button { border: 0; background: transparent; color: var(--muted); font-weight: 500; padding: 10px 12px 12px; min-height: 44px; display: inline-flex; align-items: flex-start; gap: 8px; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
-.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
-.tabs .short { display: none; }
+/* menu: a big colored tile with a small caption under it, the language sits in the same line */
+.tabs { display: flex; align-items: flex-start; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--hairline); }
+.tabs button { border: 0; background: transparent; color: var(--muted); padding: 2px; width: 92px; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; border-radius: 14px; }
+.tabs .lang-tab { margin-left: auto; }
+.tile { width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 15px; background: linear-gradient(160deg, var(--c1), var(--c2)); color: #fff; font-size: 17px; font-weight: 700; letter-spacing: .02em; box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 5px color-mix(in srgb, var(--c2) 35%, transparent); transition: box-shadow 180ms ease, transform 150ms ease; }
+.tile svg { width: 31px; height: 31px; display: block; }
+.tabs button:active .tile { transform: scale(.94); }
+.tabs button[aria-selected="true"], .tabs button[aria-expanded="true"] { color: var(--ink); font-weight: 650; }
+.tabs button[aria-selected="true"] .tile, .tabs button[aria-expanded="true"] .tile { box-shadow: 0 0 0 2px var(--tab-bg), 0 0 0 4px var(--c2); }
+.tabs { --tab-bg: var(--canvas); }
+.tab-trips { --c1: #ffc14d; --c2: #f28c0f; }
+.tab-vat { --c1: #2fcf7a; --c2: #0b9a52; }
+.tab-maps { --c1: #9a7dff; --c2: #6a42f0; }
+.tab-cars { --c1: #4da3ff; --c2: #1f66ea; }
+.tab-lang { --c1: #ff7f9c; --c2: #e63b6a; }
 @media (max-width: 640px) {
-  .app { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
-  .add-main { position: sticky; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); z-index: 5; }
-  .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; background: var(--nav); border-top: 1px solid var(--nav-edge); box-shadow: 0 -4px 16px rgba(0,0,0,.12); border-bottom: 0; padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-  .tabs button { flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; min-height: 60px; font-size: 12px; border-bottom: 0; margin: 0; box-shadow: inset 0 2px 0 transparent; }
-  .tabs button[aria-selected="true"] { box-shadow: inset 0 3px 0 var(--brand); color: var(--ink); font-weight: 600; }
-  .tabs .ico { width: 22px; height: 22px; }
-  .tabs .full { display: none; }
-  .tabs .short { display: inline; }
+  .app { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+  .add-main { position: sticky; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); z-index: 5; }
+  .tabs { --tab-bg: var(--nav); position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 60px; gap: 0; background: var(--nav); border-top: 1px solid var(--nav-edge); border-bottom: 0; padding: 8px env(safe-area-inset-right, 0px) calc(6px + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px); }
+  .tabs button { width: auto; min-width: 0; padding: 0; gap: 4px; font-size: 11px; line-height: 14px; }
+  .tabs .lang-tab { margin-left: 0; }
 }
-/* the longest tab name ("Компенсации") still fits one line on a 320px phone */
+/* the longest caption ("Компенсации") still fits one line on a 320px phone */
 @media (max-width: 360px) {
-  .tabs button { font-size: 11px; padding: 10px 1px; letter-spacing: -0.1px; }
+  .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)) 48px; }
+  .tabs button { font-size: 10px; letter-spacing: -0.15px; }
+  .tile { width: 42px; height: 42px; border-radius: 14px; }
+  .tile svg { width: 27px; height: 27px; }
 }
 
 /* section head: title + one action */
@@ -148,9 +157,9 @@ button.item:hover { background: var(--fill); }
 .sign { padding: 14px 0 6px; font-size: 13px; color: var(--muted); }
 .sign i { display: block; height: 44px; border-bottom: 1px solid var(--ink); margin-bottom: 6px; }
 /* lists keep each address on one line; the trip itself and the mileage log show the full address */
-.trip-item .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.trip-item .rt2 i { font-style: normal; color: var(--muted); margin-right: 5px; }
-#sheet-root .trip-item .t { white-space: normal; }
+.trip-item .t { overflow-wrap: anywhere; }
+.trip-item .rt2 { display: flex; gap: 5px; }
+.trip-item .rt2 i { font-style: normal; color: var(--muted); flex: none; }
 .trip-item .r .c { white-space: nowrap; }
 @media (max-width: 600px) { .car-item { grid-template-columns: minmax(0, 1fr) 16px; } .car-item .chev { grid-column: 2; grid-row: 1; } .car-item .r { grid-column: 1; grid-row: 2; text-align: left; flex-direction: row; gap: 6px; align-items: baseline; } }
 .inlist .item { padding: 12px 0; }
@@ -181,13 +190,14 @@ button.item:hover { background: var(--fill); }
 .prow > .full { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 13px; color: var(--muted); text-align: right; }
 /* messages read from the left, under the label; only calculations stay under the value */
 .prow > .full .err { align-self: flex-start; text-align: left; }
-.odo-grid { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 10px; padding: 10px 0 8px; align-items: baseline; }
+.odo-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 0 12px; padding: 10px 0 8px; align-items: baseline; }
 .odo-grid label, .odo-grid .cap { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .odo-grid b { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 44px; white-space: nowrap; }
 .odo-grid b.off { color: var(--warn); }
 .odo-pair { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
 .odo-pair .arr { color: var(--muted); flex: none; }
 .odo-in { flex: 1 1 0; width: 100%; min-width: 0; min-height: 44px; border: 0; border-bottom: 1.5px solid var(--hairline-2); border-radius: 0; background: transparent; color: var(--ink); padding: 0; font: inherit; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (max-width: 359px) { .odo-grid { grid-template-columns: 1fr 1fr; } .odo-grid label, .odo-pair { grid-column: 1 / -1; } .odo-grid .cap { grid-row: 3; } .odo-grid b { grid-row: 4; line-height: 28px; } }
 .odo-in:focus { outline: none; border-bottom-color: var(--brand); }
 .odo-in::placeholder { color: var(--ph); }
 .odo-msg { margin: 0; padding: 0 0 12px; font-size: 13px; color: var(--warn); }
@@ -350,13 +360,10 @@ button.item:hover { background: var(--fill); }
 @media (max-width: 600px) { .pop-scrim { background: var(--scrim); } .pop { left: 0 !important; right: 0; top: auto !important; bottom: 0; width: 100vw; max-height: 75vh; border-radius: 16px 16px 0 0; border-bottom: 0; padding-bottom: env(safe-area-inset-bottom, 0px); } }
 
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--canvas); padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 40; width: max-content; max-width: calc(100vw - 32px); }
-@media (max-width: 640px) { .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 640px) { .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); } }
 .top h1 { font-size: 22px; line-height: 1.2; font-weight: 650; letter-spacing: -.01em; padding-top: 9px; }
 /* wide screens show the section in the top tabs already; the title is for phones, where tabs sit at the bottom */
 .foot { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 12px; padding-top: 12px; }
-.lang-btn { border: 0; background: transparent; min-height: 44px; min-width: 44px; padding: 0 4px 0 10px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; letter-spacing: .04em; color: var(--ink); }
-.lang-btn:hover, .lang-btn[aria-expanded="true"] { background: var(--fill); }
-.lang-btn .ico { width: 16px; height: 16px; color: var(--muted); }
 @keyframes pop-up { from { transform: translateY(100%); } to { transform: none; } }
 @media (max-width: 600px) {
   .pop { animation: pop-up .22s cubic-bezier(.25, .1, .25, 1); }
@@ -384,8 +391,8 @@ button.item:hover { background: var(--fill); }
 </style>
 
 <div class="app">
-  <div class="top"><h1 id="stitle"></h1><div id="ent" class="entbar"></div><div id="topact"></div></div>
-  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <div class="top"><h1 id="stitle"></h1><div id="ent" class="entbar"></div></div>
+  <nav class="tabs" id="tabs"></nav>
   <main id="view" style="display:flex;flex-direction:column;gap:12px"></main>
   <div class="foot" id="foot"></div>
 </div>
@@ -406,6 +413,12 @@ const ICON = {
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.75" r=".6" fill="currentColor"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M 8.207 14.621 L 0 6.414 L 1.414 5 L 8.207 11.793 L 20 0 L 21.414 1.414 L 8.207 14.621 Z" transform="translate(1.293 3.778)"/></svg>',
+};
+const TAB_ICON = {
+  trips: '<svg viewBox="0 0 28 28" fill="currentColor"><path d="M7.5 22.5h9.75a3.63 3.63 0 0 0 0-7.25h-6.5a3.63 3.63 0 0 1 0-7.25h1.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".65"/><circle cx="6.5" cy="22.5" r="3"/><path fill-rule="evenodd" d="M19.5 2.5a6 6 0 0 0-6 6c0 4.1 6 8.6 6 8.6s6-4.5 6-8.6a6 6 0 0 0-6-6Zm0 3.7a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/></svg>',
+  vat: '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11.5" fill="currentColor" opacity=".25"/><path d="M19 9a6.6 6.6 0 1 0 0 10M7 12.5h8.8M7 15.5h8.8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  maps: '<svg viewBox="0 0 28 28" fill="currentColor"><path opacity=".65" d="M6.2 9.5A3.2 3.2 0 0 1 3 6.8 3.2 3.2 0 0 1 6.2 4h13.3A2.5 2.5 0 0 1 22 6.5V8H6.5a1 1 0 0 0-.3 1.5Z"/><path d="M6.5 8h15a3.5 3.5 0 0 1 3.5 3.5V13h-6a3 3 0 1 0 0 6h6v1.5a3.5 3.5 0 0 1-3.5 3.5h-15A3.5 3.5 0 0 1 3 20.5v-9A3.5 3.5 0 0 1 6.5 8Z"/><circle cx="19.5" cy="16" r="1.6"/></svg>',
+  cars: '<svg viewBox="0 0 28 28" fill="currentColor"><path fill-rule="evenodd" d="M6.2 12 8 7.6a3 3 0 0 1 2.8-1.85h6.4A3 3 0 0 1 20 7.6l1.8 4.4a3 3 0 0 1 2.2 2.8V21a1.5 1.5 0 0 1-1.5 1.5h-2A1.5 1.5 0 0 1 19 21v-1H9v1a1.5 1.5 0 0 1-1.5 1.5h-2A1.5 1.5 0 0 1 4 21v-6.2A3 3 0 0 1 6.2 12Zm4-3.7L9 11.5h10l-1.2-3.2a1 1 0 0 0-.95-.65h-5.7a1 1 0 0 0-.95.65ZM8.25 14a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5Zm11.5 0a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5Z"/></svg>'
 };
 const ico = (n, cls = '') => `<span class="ico ${cls}" aria-hidden="true">${ICON[n]}</span>`;
 
@@ -462,7 +475,7 @@ const S = {
     errPlate: 'Formato AA-00-AA, 00-AA-00, 00-00-AA ou AA-00-00', errDup: 'Esta matrícula já existe', errReq: 'Obrigatório', errNum: 'Valor, p. ex. 12.027,15', fixErrors: 'Verifique os campos marcados', errName: 'Indique o nome',
     odoGap: (k, m) => `Fim de ${m}: ${k}`, odoLess: 'Menor do que no início do mês', odoS: (d) => `Conta-km ${d}`, odoE: (d) => `Conta-km ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, kmMonth: 'Total', kmBiz: 'Viagens', overBy: (d) => `Mais ${d} do que o conta-km. Verifique os dados`, rate: 'Valor por km', 
+    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, kmMonth: 'Total, km', kmBiz: 'Viagens, km', overBy: (d) => `Mais ${d} do que o conta-km. Verifique os dados`, rate: 'Valor por km', 
     noTrips: 'Sem deslocações neste mês.', 
     newTrip: 'Nova deslocação', editTrip: 'Deslocação', date: 'Data', from: 'De', to: 'Para', purpose: 'Motivo', kmOne: 'Km num sentido', stay: 'Tempo no local', stayU: 'h', errStay: 'Escreva h:mm, por exemplo 1:30', stayIn: d => `${d} no local`, stayHint: 'Quanto tempo ficou no local. A AT pede-o no mapa de km',
     rt: 'Ida e volta', home: 'De casa para o trabalho', notPaid: 'não compensado', 
@@ -476,7 +489,7 @@ const S = {
     include: 'Incluir na declaração', undo: 'Retirar da declaração', noVatCars: 'Neste período não há IVA dos km pessoais.',
     noVatOthers: 'Sem IVA:', exempt: 'Entidade isenta (art. 53.º): sem IVA a liquidar.',
     shortCap: 'acima do limite', shortNotDed: 'IVA não deduzido', shortExempt: 'isento',
-    pdf: 'Mapa de km', pdfDone: 'PDF pronto (simulação): falta a assinatura do colaborador', mapStale: 'Alterado depois do PDF: descarregue-o e assine de novo', kmMap: 'por estrada', kmWait: 'A calcular por estrada…', kmNoMap: 'Distância não encontrada, indique os km', searching: 'A procurar…', geoBusy: 'O serviço de moradas não respondeu, tente de novo', geoOff: 'Sem sugestões aqui: escreva a morada', kmOff2: 'Indique os km: cálculo indisponível aqui', mapPick: 'Indicar no mapa', mapChoose: 'Escolher', mapLoad: 'A procurar a morada…', mapNone: 'Morada não encontrada, mova o mapa', mapFail: 'Mapa indisponível, escreva a morada', mapDoc: 'Mapa de km', download: 'Descarregar PDF', mapLegal: 'Compensação por deslocações em viatura própria ao serviço da empresa. Até 0,40 €/km sem IRS (Portaria 1553‑D/2008).',
+    pdf: 'Mapa de km', pdfDone: 'PDF descarregado: falta a assinatura do colaborador', pdfFail: 'Não foi possível criar o PDF, tente de novo', mapStale: 'Alterado depois do PDF: descarregue-o e assine de novo', kmMap: 'por estrada', kmWait: 'A calcular por estrada…', kmNoMap: 'Distância não encontrada, indique os km', searching: 'A procurar…', geoBusy: 'O serviço de moradas não respondeu, tente de novo', geoOff: 'Sem sugestões aqui: escreva a morada', kmOff2: 'Indique os km: cálculo indisponível aqui', mapPick: 'Indicar no mapa', mapChoose: 'Escolher', mapLoad: 'A procurar a morada…', mapNone: 'Morada não encontrada, mova o mapa', mapFail: 'Mapa indisponível, escreva a morada', mapDoc: 'Mapa de km', download: 'Descarregar PDF', mapLegal: 'Compensação por deslocações em viatura própria ao serviço da empresa. Até 0,40 €/km sem IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} ${n === 1 ? 'deslocação' : 'deslocações'} de casa fora do mapa`, rateBad: 'Valor em euros por km, p. ex. 0,40', excess: 'Acima de 0,40 €/km', excessSub: 'sujeito a IRS e Segurança Social', total: 'A pagar sem IRS',
     savedCar: 'Viatura guardada', removedCar: 'Viatura apagada', savedTrip: 'Deslocação guardada', removedTrip: 'Deslocação apagada',
     
@@ -514,7 +527,7 @@ const S = {
     errPlate: 'Format AA-00-AA, 00-AA-00, 00-00-AA or AA-00-00', errDup: 'This plate already exists', errReq: 'Required', errNum: 'Amount, e.g. 12.027,15', fixErrors: 'Check the marked fields', errName: 'Enter the name',
     odoGap: (k, m) => `End of ${m}: ${k}`, odoLess: 'Less than at the start of the month', odoS: (d) => `Odometer ${d}`, odoE: (d) => `Odometer ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Odometer 1–${d} ${m}`, kmMonth: 'Total', kmBiz: 'Trips', overBy: (d) => `${d} above the odometer. Check the data`, rate: 'Rate per km', 
+    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, kmMonth: 'Total, km', kmBiz: 'Trips, km', overBy: (d) => `${d} above the odometer. Check the data`, rate: 'Rate per km', 
     noTrips: 'No trips this month.', 
     newTrip: 'New trip', editTrip: 'Trip', date: 'Date', from: 'From', to: 'To', purpose: 'Purpose', kmOne: 'Km one way', stay: 'Time on site', stayU: 'h', errStay: 'Use h:mm, e.g. 1:30', stayIn: d => `${d} on site`, stayHint: 'How long you stayed there. AT asks for it on the mileage log',
     rt: 'Round trip', home: 'Home to work', notPaid: 'not reimbursed', 
@@ -528,7 +541,7 @@ const S = {
     include: 'Add to the return', undo: 'Remove from the return', noVatCars: 'No VAT on personal km in this period.',
     noVatOthers: 'No VAT:', exempt: 'Exempt entity (art. 53): no VAT to charge.',
     shortCap: 'above the limit', shortNotDed: 'VAT not deducted', shortExempt: 'exempt',
-    pdf: 'Mileage log', pdfDone: 'PDF ready (simulation): needs the employee’s signature', mapStale: 'Changed after the PDF: download it and sign again', kmMap: 'by road', kmWait: 'Calculating by road…', kmNoMap: 'Distance not found, enter the km', searching: 'Searching…', geoBusy: 'The address service did not answer, try again', geoOff: 'No suggestions here: type the address', kmOff2: 'Enter the km: calculation unavailable here', mapPick: 'Pick on the map', mapChoose: 'Choose', mapLoad: 'Finding the address…', mapNone: 'Address not found, move the map', mapFail: 'Map unavailable, type the address', mapDoc: 'Mileage log', download: 'Download PDF', mapLegal: 'Allowance for business trips in the employee’s own car. Up to 0,40 €/km free of IRS (Portaria 1553‑D/2008).',
+    pdf: 'Mileage log', pdfDone: 'PDF downloaded: needs the employee’s signature', pdfFail: 'Could not create the PDF, try again', mapStale: 'Changed after the PDF: download it and sign again', kmMap: 'by road', kmWait: 'Calculating by road…', kmNoMap: 'Distance not found, enter the km', searching: 'Searching…', geoBusy: 'The address service did not answer, try again', geoOff: 'No suggestions here: type the address', kmOff2: 'Enter the km: calculation unavailable here', mapPick: 'Pick on the map', mapChoose: 'Choose', mapLoad: 'Finding the address…', mapNone: 'Address not found, move the map', mapFail: 'Map unavailable, type the address', mapDoc: 'Mileage log', download: 'Download PDF', mapLegal: 'Allowance for business trips in the employee’s own car. Up to 0,40 €/km free of IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} home-to-work ${n === 1 ? 'trip' : 'trips'} left out`, rateBad: 'Rate in euros per km, e.g. 0,40', excess: 'Above 0,40 €/km', excessSub: 'subject to IRS and Social Security', total: 'To pay, free of IRS',
     savedCar: 'Car saved', removedCar: 'Car deleted', savedTrip: 'Trip saved', removedTrip: 'Trip deleted',
     
@@ -566,7 +579,7 @@ const S = {
     errPlate: 'Формат AA-00-AA, 00-AA-00, 00-00-AA или AA-00-00', errDup: 'Такой номер уже есть', errReq: 'Обязательно', errNum: 'Сумма, например 12.027,15', fixErrors: 'Проверьте отмеченные поля', errName: 'Укажите имя',
     odoGap: (k, m) => `Конец ${m}: ${k}`, odoLess: 'Меньше, чем в начале месяца', odoS: (d) => `Одометр ${d}`, odoE: (d) => `Одометр ${d}`, km: 'км',
     
-    odoRange: (d, m) => `Одометр 1–${d} ${m}`, kmMonth: 'Пробег', kmBiz: 'Поездки', overBy: (d) => `На ${d} больше пробега. Проверьте данные`, rate: 'Ставка за км', 
+    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, kmMonth: 'Пробег, км', kmBiz: 'Поездки, км', overBy: (d) => `На ${d} больше пробега. Проверьте данные`, rate: 'Ставка за км', 
     noTrips: 'В этом месяце поездок нет.', 
     newTrip: 'Новая поездка', editTrip: 'Поездка', date: 'Дата', from: 'Откуда', to: 'Куда', purpose: 'Цель', kmOne: 'Км в одну сторону', stay: 'Время на месте', stayU: 'ч', errStay: 'Формат ч:мм, например 1:30', stayIn: d => `${d} на месте`, stayHint: 'Сколько пробыли на месте. AT требует это в ведомости',
     rt: 'Туда и обратно', home: 'Из дома на работу', notPaid: 'не компенсируется', 
@@ -580,7 +593,7 @@ const S = {
     include: 'Включить в декларацию', undo: 'Убрать из декларации', noVatCars: 'В этом периоде IVA с личных км нет.',
     noVatOthers: 'Без IVA:', exempt: 'Освобождён (art. 53.º): IVA не начисляется.',
     shortCap: 'выше лимита', shortNotDed: 'IVA не вычитался', shortExempt: 'освобождён',
-    pdf: 'Ведомость км', pdfDone: 'PDF готов (симуляция): нужна подпись сотрудника', mapStale: 'Изменилось после PDF: скачайте и подпишите заново', kmMap: 'по дорогам', kmWait: 'Считаем по дорогам…', kmNoMap: 'Расстояние не найдено, укажите км', searching: 'Ищем…', geoBusy: 'Сервис адресов не ответил, попробуйте ещё раз', geoOff: 'Подсказок здесь нет: введите адрес', kmOff2: 'Укажите км: расчёт здесь недоступен', mapPick: 'Указать на карте', mapChoose: 'Выбрать', mapLoad: 'Определяем адрес…', mapNone: 'Адрес не найден, сдвиньте карту', mapFail: 'Карта недоступна, введите адрес', mapDoc: 'Ведомость км', download: 'Скачать PDF', mapLegal: 'Компенсация за рабочие поездки на машине сотрудника. До 0,40 €/км без IRS (Portaria 1553‑D/2008).',
+    pdf: 'Ведомость км', pdfDone: 'PDF скачан: нужна подпись сотрудника', pdfFail: 'Не удалось создать PDF, попробуйте ещё раз', mapStale: 'Изменилось после PDF: скачайте и подпишите заново', kmMap: 'по дорогам', kmWait: 'Считаем по дорогам…', kmNoMap: 'Расстояние не найдено, укажите км', searching: 'Ищем…', geoBusy: 'Сервис адресов не ответил, попробуйте ещё раз', geoOff: 'Подсказок здесь нет: введите адрес', kmOff2: 'Укажите км: расчёт здесь недоступен', mapPick: 'Указать на карте', mapChoose: 'Выбрать', mapLoad: 'Определяем адрес…', mapNone: 'Адрес не найден, сдвиньте карту', mapFail: 'Карта недоступна, введите адрес', mapDoc: 'Ведомость км', download: 'Скачать PDF', mapLegal: 'Компенсация за рабочие поездки на машине сотрудника. До 0,40 €/км без IRS (Portaria 1553‑D/2008).',
     homeOut: (n) => `${n} ${ruPl(n, 'поездка', 'поездки', 'поездок')} из дома не ${ruPl(n, 'входит', 'входят', 'входят')}`, rateBad: 'Ставка в евро за км, например 0,40', excess: 'Сверх 0,40 €/км', excessSub: 'облагается IRS и Segurança Social', total: 'К выплате без IRS',
     savedCar: 'Машина сохранена', removedCar: 'Машина удалена', savedTrip: 'Поездка сохранена', removedTrip: 'Поездка удалена',
     
@@ -743,9 +756,9 @@ const entTrips = () => { const ids = new Set(entCars(curEnt()).map(c => c.id)); 
 let D = SAMPLE();
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.cars) D = s; } catch (e) {}
 D.cars.forEach(c => delete c.model); D.mapPdf = D.mapPdf || {}; D.geo = D.geo || {}; D.routes = D.routes || {};
-const mapSig = (c, s) => JSON.stringify([c.plate, c.ownerName || '', s.raw, s.paid.map(t => [t.date, t.from, t.to, purposeOf(t), t.km, !!t.rt, t.stay || 0])]);
+const mapSig = (c, s) => JSON.stringify([c.plate, c.ownerName || '', s.raw, s.paid.map(t => [t.date, t.from, t.to, t.pk || t.purpose || '', t.km, !!t.rt, t.stay || 0])]);
 const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} };
-const ui = { tab: 'trips', carId: 'c1', month: CURRENT, entityId: 'e1', period: 'Q-2026-3', payerId: 'e2', mapMonth: CURRENT, sheet: null, pop: null };
+const ui = { tab: 'trips', carId: 'c1', month: CURRENT, entityId: 'e1', period: 'Q-2026-3', payerId: 'e2', mapMonth: null, sheet: null, pop: null };
 
 // ---------------- domain ----------------
 const ent = id => D.entities.find(e => e.id === id);
@@ -872,10 +885,9 @@ function renderChrome() {
   const T = L();
   document.documentElement.lang = lang === 'pt' ? 'pt-PT' : lang;
   document.getElementById('stitle').textContent = { cars: T.tCars, trips: T.tTrips, vat: T.tVat, maps: T.tMaps }[ui.tab];
-  const tabs = [['trips', 'cal', T.tTrips, T.tTrips], ['vat', 'euro', T.tVat, T.tVat], ['maps', 'doc', T.tMaps, T.tMapsShort], ['cars', 'car', T.tCars, T.tCars]];
-  document.getElementById('tabs').innerHTML = tabs.map(([id, ic, name, short]) => `<button role="tab" data-tab="${id}" aria-selected="${ui.tab === id}" aria-label="${esc(name)}">${ico(ic)}<span class="full">${name}</span><span class="short">${short}</span></button>`).join('');
+  const tabs = [['trips', T.tTrips, T.tTrips], ['vat', T.tVat, T.tVat], ['maps', T.tMaps, T.tMapsShort], ['cars', T.tCars, T.tCars]];
+  document.getElementById('tabs').innerHTML = `<div role="tablist" style="display:contents">${tabs.map(([id, name, short]) => `<button role="tab" class="tab-${id}" data-tab="${id}" aria-selected="${ui.tab === id}" aria-label="${esc(name)}"><span class="tile" aria-hidden="true">${TAB_ICON[id]}</span><span>${short}</span></button>`).join('')}</div><button class="tab-lang lang-tab" data-pop="lang" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(T.langLabel)}: ${LANG_NAMES[lang]}"><span class="tile" aria-hidden="true">${lang.toUpperCase()}</span><span>${esc(T.langLabel)}</span></button>`;
   const e = curEnt();
-  document.getElementById('topact').innerHTML = `<button class="lang-btn" data-pop="lang" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(T.langLabel)}: ${LANG_NAMES[lang]}">${lang.toUpperCase()}${ico('chev')}</button>`;
   document.getElementById('ent').innerHTML = !e ? '' : activeEnts().length === 1
     ? `<div class="ent-switch"><span class="v">${taxId(e.nif)}</span><span></span><span class="n">${esc(e.name)}</span></div>`
     : `<button class="ent-switch" data-pop="entity" aria-haspopup="listbox" aria-expanded="false" aria-label="${esc(T.fEntity)}: ${esc(taxId(e.nif))}, ${esc(e.name)}"><span class="v">${taxId(e.nif)}</span>${ico('chev')}<span class="n">${esc(e.name)}</span></button>`;
@@ -940,7 +952,7 @@ function viewTrips() {
     const lastDay = lastDayOf(ui.month);
     card = `<div class="card"><div class="odo-grid">
       <label for="odo-s">${T.odoRange(lastDay, MON[lang][ymParts(ui.month)[1] - 1])}</label><span class="cap">${T.kmMonth}</span><span class="cap">${T.kmBiz}</span>
-      <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span><b>${s.ok ? km(s.total) : '—'}</b><b class="${s.over ? 'off' : ''}">${km(s.biz)}</b>
+      <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span><b>${s.ok ? fmt(s.total, 0) : '—'}</b><b class="${s.over ? 'off' : ''}">${fmt(s.biz, 0)}</b>
     </div>${msg.map(x => `<p class="odo-msg">${esc(x)}</p>`).join('')}</div>`;
   }
   const ts = tripsOf(car.id, ui.month);
@@ -968,7 +980,7 @@ function viewVat() {
     const others = r.cars.filter(c => effect(c) !== 'VAT');
     return head + ctx + `<div class="empty">${T.noVatCars}${others.length ? `<span>${T.noVatOthers} ${others.map(c => `${esc(c.plate)} (${shortReason(c)})`).join(', ')}</span>` : ''}</div>`;
   }
-  const status = r.bad.length ? `<span class="chip miss">${T.kmOff}</span>` : stale ? `<span class="chip miss">${T.changed}</span>` : inc ? `<span class="chip ok">${ico('check')}${T.included}</span>` : r.complete ? `<span class="chip ok">${T.ready}</span>` : r.running ? `<span class="chip run">${e.regime === 'M' ? T.runningM : T.running}</span>` : `<span class="chip miss">${T.missing}</span>`;
+  const status = r.bad.length ? `<span class="chip miss">${T.kmOff}</span>` : stale ? `<span class="chip miss">${T.changed}</span>` : inc ? `<span class="chip ok">${ico('check')}${T.included}</span>` : r.complete ? '' : r.running ? `<span class="chip run">${e.regime === 'M' ? T.runningM : T.running}</span>` : `<span class="chip miss">${T.missing}</span>`;
   // until the period ends the figures cover only the months already closed: say which
   const closedMs = p.months.filter(m => r.blocks.some(b => monthStats(b.car, m).ok && monthCost(b.car, m) !== null));
   const sofar = r.running && p.months.length > 1 && closedMs.length ? `<p class="note" style="padding-top:0">${T.sofar(closedMs.map(m => { const n = MONTHS[lang][ymParts(m)[1] - 1]; return lang === 'en' ? n : n.toLowerCase(); }).join(', '))}</p>` : '';
@@ -978,7 +990,7 @@ function viewVat() {
     const fixBtn = (m, label) => `<button class="btn text" style="min-height:28px;padding:0 4px" data-fix="${b.car.id}|${m}">${label}</button>`;
     const fix = miss.map(x => `<span class="sub fixline"><span>${cap1(T.noOdoFor(monthOf(x.m)))}</span>${fixBtn(x.m, T.fill)}</span>`).join('')
       + r.bad.filter(x => x.car.id === b.car.id).map(x => `<span class="err fixline"><span>${cap1(T.kmOffIn(monthOf(x.m)))}</span>${fixBtn(x.m, T.check)}</span>`).join('');
-    return (i ? `<div class="carhead">${plate(b.car.plate)}</div>` : `<div class="cap">${plate(b.car.plate)}${status}</div>${sofar}`)
+    return (i ? `<div class="carhead">${plate(b.car.plate)}</div>` : `<div class="cap">${plate(b.car.plate)}</div>${sofar}`)
       + prow(T.persKm, b.total ? T.persKmV(fmt(b.personal, 0), km(b.total)) : '—', { sub: fix, left: true })
       + prow(T['cost' + (b.car.acq || 'P')], eur(b.closed ? b.cost : b.costAll))
       + (r.bad.some(x => x.car.id === b.car.id) ? prow(T.persUse, '—') : prow(T.persUse, b.closed ? eur(b.base) : '—', { sub: b.total ? `${pct(b.share)} × ${eur(b.cost)}` : '' }));
@@ -987,7 +999,7 @@ function viewVat() {
     ${perCar}${r.blocks.length > 1 ? prow(T.persUseAll, r.bad.length || !r.blocks.some(b => b.closed) ? '—' : eur(r.base), { cls: 'strong' }) : ''}
     ${prow(T.vatRate(Math.round(r.rate * 100) + '%'), !r.bad.length && r.blocks.some(b => b.closed) ? eur(r.vat) : '—', { cls: 'big' })}
     ${stale ? prow(T.incWas, eur(incVat)) : ''}
-    <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap">${stale ? `<button class="btn" data-act="include">${T.update}</button>` : ''}${inc ? `<button class="btn ghost" data-act="unlink">${T.undo}</button>` : r.running ? `<p class="note" style="padding:0">${T.incFrom(fullDate(addMonths(p.months[p.months.length - 1], 1) + '-01'))}</p>` : r.complete ? `<button class="btn" data-act="include">${T.include}</button>` : ''}</div></div>`;
+    <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${status}${stale ? `<button class="btn" data-act="include">${T.update}</button>` : ''}${inc ? `<button class="btn ghost" data-act="unlink">${T.undo}</button>` : r.running ? `<p class="note" style="padding:0">${T.incFrom(fullDate(addMonths(p.months[p.months.length - 1], 1) + '-01'))}</p>` : r.complete ? `<button class="btn" data-act="include">${T.include}</button>` : ''}</div></div>`;
   return head + ctx + card;
 }
 
@@ -998,17 +1010,17 @@ function viewMaps() {
   const head = '';
   if (!pay) return noCars();
   if (!D.cars.some(c => c.own === 'PRIV' && c.payerId === pay.id)) return head + `<div class="empty">${T.noEmpCars}</div>`;
-  const months = mapMonths(pay); if (!months.includes(ui.mapMonth)) ui.mapMonth = months[months.length - 1];
+  const months = mapMonths(pay); if (!months.includes(ui.mapMonth)) ui.mapMonth = months.slice().reverse().find(m => D.cars.some(c => c.own === 'PRIV' && c.payerId === pay.id && mapStats(c, m).paid.length)) || months[months.length - 1];
   const ctx = fbar([['mapMonth', T.fMonth, monthName(ui.mapMonth), '', months.length === 1]]);
   const cards = D.cars.filter(c => c.own === 'PRIV' && c.payerId === pay.id).map(c => {
     const s = mapStats(c, ui.mapMonth); const p = per(c.personId);
     return `<div class="card"><div class="cap"><div class="ghead" style="padding-top:0"><span class="who">${taxId(p?.nif)}</span><span class="meta">${esc(p?.name)}</span></div>${plate(c.plate)}</div>
       ${prow(T.rate, unitIn('rate-' + c.id, fmt(s.raw), '€', `data-rate="${c.id}" inputmode="decimal"`), { for: 'rate-' + c.id })}
-      ${s.paid.length ? `<div class="inlist">${s.paid.map(t => tripItem(t)).join('')}</div>` : `<p class="note">${T.noTrips}</p>`}
-      ${prow(T.total, eur(s.total), { cls: 'strong', sub: km(s.kms) + (s.home ? ' · ' + T.homeOut(s.home) : '') })}
+      ${s.paid.length ? `<div class="inlist">${s.paid.map(t => tripItem(t)).join('')}</div>` : `<p class="note">${T.noTrips}${s.home ? ' ' + cap1(T.homeOut(s.home)) : ''}</p>`}
+      ${s.paid.length ? prow(T.total, eur(s.total), { cls: 'strong', sub: km(s.kms) + (s.home ? ' · ' + T.homeOut(s.home) : '') }) : ''}
       ${s.raw > 0.4 && s.kms ? prow(T.excess, eur(r2(s.kms * (s.raw - 0.4))), { sub: T.excessSub }) : ''}
       ${s.total && pay.kind === 'COMPANY' ? prow(T.ta, eur(r2(s.total * 0.05)), { sub: T.taCond }) : ''}
-      <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">${(() => { const pdf = D.mapPdf[c.id + '|' + ui.mapMonth]; return pdf && pdf !== mapSig(c, s) ? `<p class="note warn" style="padding:0;width:100%">${T.mapStale}</p>` : ''; })()}${s.paid.some(t => !t.stay) ? `<p class="note" style="padding:0;color:var(--warn)">${T.noStayMap}</p>` : `<button class="btn" data-map="${c.id}" ${s.paid.length ? '' : 'disabled'}>${ico('doc')}${T.pdf}</button>`}</div></div>`;
+      <div style="padding:8px 0 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">${(() => { const pdf = D.mapPdf[c.id + '|' + ui.mapMonth]; return pdf && pdf !== mapSig(c, s) ? `<p class="note warn" style="padding:0;width:100%">${T.mapStale}</p>` : ''; })()}${!s.paid.length ? `<button class="btn ghost" data-trips-of="${c.id}|${ui.mapMonth}">${T.seeTrips}</button>` : s.paid.some(t => !t.stay) ? `<p class="note" style="padding:0;color:var(--warn)">${T.noStayMap}</p>` : `<button class="btn" data-map="${c.id}">${ico('doc')}${T.pdf}</button>`}</div></div>`;
   }).join('');
   return head + ctx + cards;
 }
@@ -1343,6 +1355,49 @@ function sheetMap(c) {
   return shell(T.mapDoc, `<span class="muted" style="font-size:14px">${esc(monthName(ui.mapMonth))}</span>`, rows,
     `<span class="grow"></span><button class="btn ghost" data-act="close-sheet">${T.close}</button><button class="btn" data-act="pdf">${ico('doc')}${T.download}</button>`);
 }
+// The mapa is a Portuguese document for the AT, so the file is in Portuguese whatever the screen language
+let pdfReady = null;
+const loadPdf = () => pdfReady || (pdfReady = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.integrity = 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=='; s.crossOrigin = 'anonymous'; s.onload = () => ok(window.jspdf.jsPDF); s.onerror = () => { pdfReady = null; no(new Error('jspdf')); }; document.head.append(s); }));
+async function saveMapPdf(c, m) {
+  const JsPDF = await loadPdf();
+  const P = S.pt; const s = mapStats(c, m); const p = per(c.personId), y = ent(c.payerId);
+  const tx = x => String(x ?? '').replace(/[  ]/g, ' ').replace(/[‐-―]/g, '-');
+  const doc = new JsPDF({ unit: 'mm', format: 'a4' });
+  const X = 15, W = 180, BOTTOM = 280; let yy = 18;
+  const [yr, mo] = ymParts(m);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text(tx(P.mapDoc), X, yy);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(`${MONTHS.pt[mo - 1]} ${yr}`, X + W, yy, { align: 'right' }); yy += 9;
+  doc.setFontSize(10);
+  [[P.payer, `${taxId(y?.nif)} · ${y?.name || ''}`], [P.employee, `${taxId(p?.nif)} · ${p?.name || ''}`], [P.car, c.plate], [P.carOwner, c.ownerName || p?.name || '']].forEach(([a, b]) => {
+    doc.setTextColor(110); doc.text(tx(a), X, yy); doc.setTextColor(0); doc.text(tx(b), X + 42, yy); yy += 5.5;
+  });
+  yy += 3;
+  const cols = [['Data', 23], ['Origem', 43], ['Destino', 43], ['Objetivo', 37], ['Tempo no local', 18], ['Km', 16]];
+  const head = () => {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+    let x = X; cols.forEach(([n, w], i) => { doc.text(doc.splitTextToSize(n, w - 2), i >= 4 ? x + w : x, yy, i >= 4 ? { align: 'right' } : undefined); x += w; });
+    yy += 8; doc.setDrawColor(0); doc.line(X, yy - 3.5, X + W, yy - 3.5); doc.setFont('helvetica', 'normal');
+  };
+  head();
+  s.paid.forEach(t => {
+    const [yd, md, dd] = t.date.split('-');
+    const cells = [`${dd}/${md}/${yd}`, t.from, t.to + (t.rt ? ' (ida e volta)' : ''), (t.pk && P.purposes[t.pk]) || t.purpose || '', t.stay ? `${stayShow(t.stay)} h` : '', fmt(tripKm(t), 0)].map((v, i) => doc.splitTextToSize(tx(v), cols[i][1] - 3));
+    const h = Math.max(...cells.map(l => l.length)) * 4.2 + 2;
+    if (yy + h > BOTTOM - 45) { doc.addPage(); yy = 18; head(); }
+    let x = X; cells.forEach((l, i) => { doc.text(l, i >= 4 ? x + cols[i][1] : x, yy, i >= 4 ? { align: 'right' } : undefined); x += cols[i][1]; });
+    yy += h; doc.setDrawColor(210); doc.line(X, yy - 3.2, X + W, yy - 3.2);
+  });
+  yy += 3; doc.setFontSize(10);
+  const line = (a, b, bold) => { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.text(tx(a), X + 90, yy); doc.text(tx(b), X + W, yy, { align: 'right' }); yy += 5.5; };
+  line('Total de km', `${fmt(s.kms, 0)} km`); line(P.rate, `${fmt(s.raw)} €`); line(P.total, eur(s.total), true);
+  if (s.raw > 0.4 && s.kms) line(P.excess, eur(r2(s.kms * (s.raw - 0.4))));
+  yy += 14; doc.setFont('helvetica', 'normal'); doc.setDrawColor(0); doc.line(X, yy, X + 90, yy); doc.text('Data: ____ / ____ / ________', X + W, yy, { align: 'right' }); yy += 4.5;
+  doc.setFontSize(9); doc.text(tx(`${P.signLabel} · ${p?.name || ''}`), X, yy); yy += 7;
+  doc.setTextColor(110); doc.setFontSize(8); doc.text(doc.splitTextToSize(tx(P.mapLegal), W), X, yy);
+  const pages = doc.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) { doc.setPage(i); doc.setTextColor(110); doc.setFontSize(8); doc.text(`${i} / ${pages}`, X + W, 290, { align: 'right' }); }
+  doc.save(`mapa-km-${c.plate}-${m}.pdf`);
+}
 function sheetTrip() {
   const T = L(); const d = ui.sheet.draft; const car = carById(ui.carId); const f = effect(car);
   let rows = '';
@@ -1607,7 +1662,7 @@ document.addEventListener('click', ev => {
     case 'do-remove': { const id = ui.sheet.id; D.cars = D.cars.filter(c => c.id !== id); D.trips = D.trips.filter(t => t.carId !== id); delete D.odo[id]; persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedCar); break; }
     case 'do-remove-trip': { D.trips = D.trips.filter(t => t.id !== ui.sheet.draft.id); persist(); ui.sheet = null; renderSheet(); render(); toast(T.removedTrip); break; }
     case 'include': case 'unlink': { const key = ui.entityId + '|' + ui.period; if (ds.act === 'include') { const r = vatFor(ent(ui.entityId), periodsFor(ent(ui.entityId)).find(x => x.id === ui.period)); D.included[key] = { base: r.base, vat: r.vat }; } else delete D.included[key]; persist(); render(); break; }
-    case 'pdf': { const s = mapStats(carById(ui.sheet.id), ui.mapMonth); D.mapPdf[ui.sheet.id + '|' + ui.mapMonth] = mapSig(carById(ui.sheet.id), s); persist(); render(); toast(T.pdfDone); break; }
+    case 'pdf': { const c = carById(ui.sheet.id); const m = ui.mapMonth; saveMapPdf(c, m).then(() => { D.mapPdf[c.id + '|' + m] = mapSig(c, mapStats(c, m)); persist(); render(); toast(T.pdfDone); }).catch(() => toast(T.pdfFail)); break; }
   }
 });
 document.addEventListener('input', ev => {
