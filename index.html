@@ -56,17 +56,19 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .tabs { display: flex; align-items: flex-start; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--hairline); }
 .tabs button { border: 0; background: transparent; color: var(--muted); padding: 2px; width: 92px; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; border-radius: 14px; }
 .tabs .lang-tab { margin-left: auto; }
-.tile { width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 15px; background: linear-gradient(160deg, var(--c1), var(--c2)); color: #fff; font-size: 17px; font-weight: 700; letter-spacing: .02em; box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 5px color-mix(in srgb, var(--c2) 35%, transparent); transition: box-shadow 180ms ease, transform 150ms ease; }
-.tile svg { width: 31px; height: 31px; display: block; }
+.tile { width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 16px; background: var(--fill); background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); font-size: 16px; font-weight: 700; letter-spacing: .01em; transition: background-color 160ms ease, color 160ms ease, transform 120ms ease; }
+.tile svg { width: 30px; height: 30px; display: block; fill: currentColor; }
+.tabs button:hover .tile { background: color-mix(in srgb, var(--c) 26%, transparent); }
 .tabs button:active .tile { transform: scale(.94); }
 .tabs button[aria-selected="true"], .tabs button[aria-expanded="true"] { color: var(--ink); font-weight: 650; }
-.tabs button[aria-selected="true"] .tile, .tabs button[aria-expanded="true"] .tile { box-shadow: 0 0 0 2px var(--tab-bg), 0 0 0 4px var(--c2); }
-.tabs { --tab-bg: var(--canvas); }
-.tab-trips { --c1: #ffc14d; --c2: #f28c0f; }
-.tab-vat { --c1: #2fcf7a; --c2: #0b9a52; }
-.tab-maps { --c1: #9a7dff; --c2: #6a42f0; }
-.tab-cars { --c1: #4da3ff; --c2: #1f66ea; }
-.tab-lang { --c1: #ff7f9c; --c2: #e63b6a; }
+.tabs button[aria-selected="true"] .tile, .tabs button[aria-expanded="true"] .tile { background: var(--c); color: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tile { background: color-mix(in srgb, var(--c) 26%, transparent); color: color-mix(in srgb, var(--c) 62%, #fff); } }
+:root[data-theme="dark"] .tile { background: color-mix(in srgb, var(--c) 26%, transparent); color: color-mix(in srgb, var(--c) 62%, #fff); }
+.tab-trips { --c: #f97316; }
+.tab-vat { --c: #059669; }
+.tab-maps { --c: #7c3aed; }
+.tab-cars { --c: #2563eb; }
+.tab-lang { --c: #e11d48; }
 @media (max-width: 640px) {
   .app { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
   .tabs { --tab-bg: var(--nav); position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 60px; gap: 0; background: var(--nav); border-top: 1px solid var(--nav-edge); border-bottom: 0; padding: 8px env(safe-area-inset-right, 0px) calc(6px + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px); }
@@ -414,11 +416,12 @@ const ICON = {
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M 8.207 14.621 L 0 6.414 L 1.414 5 L 8.207 11.793 L 20 0 L 21.414 1.414 L 8.207 14.621 Z" transform="translate(1.293 3.778)"/></svg>',
 };
+// Phosphor Icons, duotone (MIT)
 const TAB_ICON = {
-  trips: '<svg viewBox="0 0 28 28" fill="currentColor"><path d="M7.5 22.5h9.75a3.63 3.63 0 0 0 0-7.25h-6.5a3.63 3.63 0 0 1 0-7.25h1.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".65"/><circle cx="6.5" cy="22.5" r="3"/><path fill-rule="evenodd" d="M19.5 2.5a6 6 0 0 0-6 6c0 4.1 6 8.6 6 8.6s6-4.5 6-8.6a6 6 0 0 0-6-6Zm0 3.7a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/></svg>',
-  vat: '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11.5" fill="currentColor" opacity=".25"/><path d="M19 9a6.6 6.6 0 1 0 0 10M7 12.5h8.8M7 15.5h8.8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
-  maps: '<svg viewBox="0 0 28 28" fill="currentColor"><path opacity=".65" d="M6.2 9.5A3.2 3.2 0 0 1 3 6.8 3.2 3.2 0 0 1 6.2 4h13.3A2.5 2.5 0 0 1 22 6.5V8H6.5a1 1 0 0 0-.3 1.5Z"/><path d="M6.5 8h15a3.5 3.5 0 0 1 3.5 3.5V13h-6a3 3 0 1 0 0 6h6v1.5a3.5 3.5 0 0 1-3.5 3.5h-15A3.5 3.5 0 0 1 3 20.5v-9A3.5 3.5 0 0 1 6.5 8Z"/><circle cx="19.5" cy="16" r="1.6"/></svg>',
-  cars: '<svg viewBox="0 0 28 28" fill="currentColor"><path fill-rule="evenodd" d="M6.2 12 8 7.6a3 3 0 0 1 2.8-1.85h6.4A3 3 0 0 1 20 7.6l1.8 4.4a3 3 0 0 1 2.2 2.8V21a1.5 1.5 0 0 1-1.5 1.5h-2A1.5 1.5 0 0 1 19 21v-1H9v1a1.5 1.5 0 0 1-1.5 1.5h-2A1.5 1.5 0 0 1 4 21v-6.2A3 3 0 0 1 6.2 12Zm4-3.7L9 11.5h10l-1.2-3.2a1 1 0 0 0-.95-.65h-5.7a1 1 0 0 0-.95.65ZM8.25 14a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5Zm11.5 0a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5Z"/></svg>'
+  trips: '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,200a24,24,0,1,1-24-24A24,24,0,0,1,224,200Z" opacity="0.2"/><path d="M200,168a32.06,32.06,0,0,0-31,24H72a32,32,0,0,1,0-64h96a40,40,0,0,0,0-80H72a8,8,0,0,0,0,16h96a24,24,0,0,1,0,48H72a48,48,0,0,0,0,96h97a32,32,0,1,0,31-40Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,200,216Z"/></svg>',
+  vat: '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,56V208l-32-16-32,16-32-16L96,208,64,192,32,208V56a8,8,0,0,1,8-8H216A8,8,0,0,1,224,56Z" opacity="0.2"/><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"/></svg>',
+  maps: '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M16,152H48v56H16a8,8,0,0,1-8-8V160A8,8,0,0,1,16,152ZM204,56a28,28,0,0,0-12,2.71h0A28,28,0,1,0,176,85.29h0A28,28,0,1,0,204,56Z" opacity="0.2"/><path d="M230.33,141.06a24.43,24.43,0,0,0-21.24-4.23l-41.84,9.62A28,28,0,0,0,140,112H89.94a31.82,31.82,0,0,0-22.63,9.37L44.69,144H16A16,16,0,0,0,0,160v40a16,16,0,0,0,16,16H120a7.93,7.93,0,0,0,1.94-.24l64-16a6.94,6.94,0,0,0,1.19-.4L226,182.82l.44-.2a24.6,24.6,0,0,0,3.93-41.56ZM16,160H40v40H16Zm203.43,8.21-38,16.18L119,200H56V155.31l22.63-22.62A15.86,15.86,0,0,1,89.94,128H140a12,12,0,0,1,0,24H112a8,8,0,0,0,0,16h32a8.32,8.32,0,0,0,1.79-.2l67-15.41.31-.08a8.6,8.6,0,0,1,6.3,15.9ZM164,96a36,36,0,0,0,5.9-.48,36,36,0,1,0,28.22-47A36,36,0,1,0,164,96Zm60-12a20,20,0,1,1-20-20A20,20,0,0,1,224,84ZM164,40a20,20,0,0,1,19.25,14.61,36,36,0,0,0-15,24.93A20.42,20.42,0,0,1,164,80a20,20,0,0,1,0-40Z"/></svg>',
+  cars: '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M88,176a24,24,0,1,1-24-24A24,24,0,0,1,88,176Zm104-24a24,24,0,1,0,24,24A24,24,0,0,0,192,152ZM162.34,74.34A8,8,0,0,0,156.69,72H44.28a8,8,0,0,0-6.66,3.56L8,120H208Z" opacity="0.2"/><path d="M240,112H211.31L168,68.69A15.86,15.86,0,0,0,156.69,64H44.28A16,16,0,0,0,31,71.12L1.34,115.56A8.07,8.07,0,0,0,0,120v48a16,16,0,0,0,16,16H33a32,32,0,0,0,62,0h66a32,32,0,0,0,62,0h17a16,16,0,0,0,16-16V128A16,16,0,0,0,240,112ZM44.28,80H156.69l32,32H23ZM64,192a16,16,0,1,1,16-16A16,16,0,0,1,64,192Zm128,0a16,16,0,1,1,16-16A16,16,0,0,1,192,192Zm48-24H223a32,32,0,0,0-62,0H95a32,32,0,0,0-62,0H16V128H240Z"/></svg>'
 };
 const ico = (n, cls = '') => `<span class="ico ${cls}" aria-hidden="true">${ICON[n]}</span>`;
 
