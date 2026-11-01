@@ -274,7 +274,7 @@ button.item:hover { background: var(--fill); }
 /* picker: popover on wide screens, bottom panel on phones */
 .pop-scrim { position: fixed; inset: 0; z-index: 30; }
 .pop { position: fixed; z-index: 31; width: min(380px, calc(100vw - 32px)); max-height: min(420px, 70vh); background: var(--surface); border: 1px solid var(--hairline-2); border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.16); display: flex; flex-direction: column; overflow: hidden; }
-.pop .q { border: 0; border-bottom: 1px solid var(--hairline); background: transparent; padding: 12px 14px; min-height: 48px; font-size: 16px; }
+.pop .q { -webkit-appearance: none; appearance: none; border-radius: 0; border: 0; border-bottom: 1px solid var(--hairline); background: transparent; padding: 12px 14px; min-height: 48px; font-size: 16px; }
 .pop .q:focus { outline: none; border-bottom-color: var(--brand); }
 .pop .opts { overflow-y: auto; padding: 4px 0; }
 .pop .opt { width: 100%; border: 0; background: transparent; text-align: left; padding: 10px 14px; min-height: 48px; display: grid; grid-template-columns: minmax(0, 1fr) 18px; gap: 2px 10px; align-items: start; }
@@ -1153,6 +1153,9 @@ function tripPicked(kind) {
 }
 function closePop(refocus = true) {
   ui.pop?.map?.remove(); clearTimeout(ui.pop?.timer);
+  // iOS keeps painting the selection of a removed field: a blue box stays on screen
+  if (ui.pop && document.getElementById('pop-root').contains(document.activeElement)) document.activeElement.blur();
+  getSelection()?.removeAllRanges();
   let a = ui.pop?.anchor; const changed = ui.pop?.changed; a?.setAttribute('aria-expanded', 'false'); ui.pop = null; document.getElementById('pop-root').innerHTML = '';
   if (changed) { const id = a?.id; render(); a = id && document.getElementById(id); }
   if (refocus && a && document.body.contains(a)) a.focus();
@@ -1394,7 +1397,10 @@ async function saveMapPdf(c, m) {
   doc.setTextColor(110); doc.setFontSize(8); doc.text(doc.splitTextToSize(tx(P.mapLegal), W), X, yy);
   const pages = doc.getNumberOfPages();
   for (let i = 1; i <= pages; i++) { doc.setPage(i); doc.setFont(F, 'normal'); doc.setTextColor(110); doc.setFontSize(8); doc.text(tx(`${p?.name || ''} · ${c.plate} · ${MONTHS.pt[mo - 1]} ${yr}`), X, 290); doc.text(`${i} / ${pages}`, X + W, 290, { align: 'right' }); }
-  doc.save(`mapa-km-${c.plate}-${m}.pdf`);
+  const filename = `mapa-km-${c.plate}-${m}.pdf`;
+  // inside a claude.ai artifact the frame cannot download by itself: the viewer's own save goes first
+  const downloads = window.claude?.use ? await window.claude.use('downloads') : null;
+  if (downloads) await downloads.save({ filename, data: doc.output('arraybuffer') }); else doc.save(filename);
 }
 function sheetTrip() {
   const T = L(); const d = ui.sheet.draft; const car = carById(ui.carId); const f = effect(car);
