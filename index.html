@@ -1490,43 +1490,101 @@ const loadUniFont = () => uniFont || (uniFont = fetch('https://cdn.jsdelivr.net/
 async function saveMapPdf(c, m) {
   const JsPDF = await loadPdf();
   const P = S.pt; const s = mapStats(c, m); const p = per(c.personId), y = ent(c.payerId);
-  const tx = x => String(x ?? '').replace(/[  ]/g, ' ').replace(/[‐-―]/g, '-');
+  const tx = x => String(x ?? '').replace(/[  ]/g, ' ').replace(/[‐-―]/g, '-');
   const doc = new JsPDF({ unit: 'mm', format: 'a4' });
-  const X = 15, W = 180, BOTTOM = 280; let yy = 18;
+  const X = 15, W = 180, R = X + W, BOTTOM = 276; let yy = 17;
+  // The system font of PDF, nothing embedded; text outside Latin (a purpose typed in Cyrillic) needs a font that has it, fetched only then
   let F = 'helvetica', B = 'bold';
-  if (/[^\u0000-\u00ff\u2010-\u2015\u20ac]/.test([y?.name, p?.name, c.ownerName, c.plate, ...s.paid.flatMap(t => [t.from, t.to, t.purpose])].join(' '))) { doc.addFileToVFS('u.ttf', await loadUniFont()); doc.addFont('u.ttf', 'U', 'normal'); F = 'U'; B = 'normal'; }
-  const [yr, mo] = ymParts(m);
-  doc.setFont(F, B); doc.setFontSize(16); doc.text(tx(P.mapDoc), X, yy);
-  doc.setFont(F, 'normal'); doc.setFontSize(11); doc.text(`${MONTHS.pt[mo - 1]} ${yr}`, X + W, yy, { align: 'right' }); yy += 9;
-  doc.setFontSize(10);
-  [[P.payer, `${taxIdFull(y?.nif)} · ${y?.name || ''}`], [P.employee, `${taxIdFull(p?.nif)} · ${p?.name || ''}`], [P.car, c.plate], [P.carOwner, c.ownerName || p?.name || '']].forEach(([a, b]) => {
-    doc.setTextColor(110); doc.text(tx(a), X, yy); doc.setTextColor(0); doc.text(tx(b), X + 42, yy); yy += 5.5;
-  });
-  yy += 3;
-  const cols = [['Data', 23], ['Origem', 43], ['Destino', 43], ['Objetivo', 37], ['Tempo no local', 18], ['Km', 16]];
+  if (/[^\u0000-ÿ‐-―€]/.test([y?.name, p?.name, c.ownerName, c.plate, ...s.paid.flatMap(t => [t.from, t.to, t.purpose])].join(' '))) { doc.addFileToVFS('u.ttf', await loadUniFont()); doc.addFont('u.ttf', 'U', 'normal'); F = 'U'; B = 'normal'; }
+  const INK = [17, 17, 17], MUTED = [111, 105, 98], LINE = [233, 229, 226], FILL = [243, 240, 237], BRAND = [255, 200, 82];
+  const set = (size, bold, color = INK) => { doc.setFont(F, bold ? B : 'normal'); doc.setFontSize(size); doc.setTextColor(...color); };
+  const [yr, mo] = ymParts(m); const period = `${cap1(MONTHS.pt[mo - 1])} ${yr}`;
+
+  // heading: what it is on the left, the month it covers on the right
+  doc.setFillColor(...BRAND); doc.roundedRect(X, yy - 5.2, 2.2, 13.4, 1.1, 1.1, 'F');
+  set(21, true); doc.text('Mapa de quilómetros', X + 6, yy + 1);
+  set(9.5, false, MUTED); doc.text('Compensação por deslocações em viatura própria', X + 6, yy + 7.2);
+  set(8.5, false, MUTED); doc.text('Período', R, yy - 2.6, { align: 'right' });
+  set(13, true); doc.text(period, R, yy + 3.4, { align: 'right' });
+  yy += 15;
+
+  // who and what: four blocks, the name first and the number under it
+  const gap = 4, bw = (W - gap) / 2, bh = 18;
+  const block = (bx, by, label, main, sub, draw) => {
+    doc.setFillColor(...FILL); doc.roundedRect(bx, by, bw, bh, 2.4, 2.4, 'F');
+    set(8, false, MUTED); doc.text(tx(label), bx + 4, by + 5.6);
+    if (draw) { draw(bx + 4, by + 8.2); return; }
+    set(10.5, true); doc.text(doc.splitTextToSize(tx(main), bw - 8)[0], bx + 4, by + 10.8);
+    if (sub) { set(8.5, false, MUTED); doc.text(tx(sub), bx + 4, by + 14.9); }
+  };
+  const plateMark = (px, py) => {
+    set(10.5, true); const tw = doc.getTextWidth(tx(c.plate));
+    doc.setFillColor(255, 255, 255); doc.setDrawColor(201, 195, 188); doc.setLineWidth(.25); doc.roundedRect(px, py, tw + 9.5, 6.6, .9, .9, 'FD');
+    doc.setFillColor(31, 63, 154); doc.roundedRect(px, py, 4.4, 6.6, .9, .9, 'F'); doc.rect(px + 2.4, py, 2, 6.6, 'F');
+    set(5.4, true, [255, 255, 255]); doc.text('PT', px + 2.2, py + 5.6, { align: 'center' });
+    set(10.5, true); doc.text(tx(c.plate), px + 6.2, py + 4.75);
+  };
+  block(X, yy, P.payer, y?.name, taxIdFull(y?.nif));
+  block(X + bw + gap, yy, P.employee, p?.name, taxIdFull(p?.nif));
+  yy += bh + gap;
+  block(X, yy, P.car, '', '', plateMark);
+  block(X + bw + gap, yy, P.carOwner, c.ownerName || p?.name || '');
+  yy += bh + 8;
+
+  // the trips: a route reads as two lines, from and to
+  const cDate = X + 3, cRoute = X + 24, cWhy = X + 104, cStay = X + 161, cKm = R - 3;
   const head = () => {
-    doc.setFont(F, B); doc.setFontSize(9);
-    let x = X; cols.forEach(([n, w], i) => { doc.text(doc.splitTextToSize(n, w - 2), i >= 4 ? x + w : x, yy, i >= 4 ? { align: 'right' } : undefined); x += w; });
-    yy += 10; doc.setDrawColor(0); doc.line(X, yy - 4, X + W, yy - 4); doc.setFont(F, 'normal');
+    doc.setFillColor(...FILL); doc.roundedRect(X, yy, W, 8.4, 2, 2, 'F');
+    set(8.5, true, MUTED);
+    doc.text('Data', cDate, yy + 5.4); doc.text('Percurso', cRoute, yy + 5.4); doc.text('Motivo', cWhy, yy + 5.4);
+    doc.text('No local', cStay, yy + 5.4, { align: 'right' }); doc.text('Km', cKm, yy + 5.4, { align: 'right' });
+    yy += 8.4;
   };
   head();
-  s.paid.forEach(t => {
+  s.paid.forEach((t, i) => {
     const [yd, md, dd] = t.date.split('-');
-    const cells = [`${dd}/${md}/${yd}`, t.from, t.to + (t.rt ? ' (ida e volta)' : ''), (t.pk && P.purposes[t.pk]) || t.purpose || '', t.stay ? `${stayShow(t.stay)} h` : '', fmt(tripKm(t), 0)].map((v, i) => doc.splitTextToSize(tx(v), cols[i][1] - 3));
-    const h = Math.max(...cells.map(l => l.length)) * 4.2 + 2;
-    if (yy + h > BOTTOM) { doc.addPage(); yy = 18; head(); }
-    let x = X; cells.forEach((l, i) => { doc.text(l, i >= 4 ? x + cols[i][1] : x, yy, i >= 4 ? { align: 'right' } : undefined); x += cols[i][1]; });
-    yy += h; doc.setDrawColor(210); doc.line(X, yy - 3.2, X + W, yy - 3.2);
+    set(9.5, true); const from = doc.splitTextToSize(tx(t.from), 76), to = doc.splitTextToSize(tx(t.to), 72);
+    set(9.5, false); const why = doc.splitTextToSize(tx((t.pk && P.purposes[t.pk]) || t.purpose || ''), 40);
+    const h = Math.max((from.length + to.length) * 4.5, why.length * 4.5, 9) + 5;
+    if (yy + h > BOTTOM) { doc.addPage(); yy = 17; head(); }
+    const top = yy + 5.4;
+    set(9.5, false); doc.text(`${dd}/${md}/${yd}`, cDate, top);
+    set(9.5, false); doc.text(from, cRoute, top);
+    const toY = top + from.length * 4.5;
+    // the arrow is drawn: one way or there and back
+    doc.setDrawColor(...MUTED); doc.setLineWidth(.3); const ay = toY - 1.1; doc.line(cRoute, ay, cRoute + 3.2, ay); doc.line(cRoute + 3.2, ay, cRoute + 2.2, ay - .8); doc.line(cRoute + 3.2, ay, cRoute + 2.2, ay + .8);
+    if (t.rt) { doc.line(cRoute, ay, cRoute + 1, ay - .8); doc.line(cRoute, ay, cRoute + 1, ay + .8); }
+    set(9.5, true); doc.text(to, cRoute + 4.6, toY);
+    set(9.5, false); doc.text(why, cWhy, top);
+    if (t.stay) doc.text(`${stayShow(t.stay)} h`, cStay, top, { align: 'right' });
+    set(9.5, true); doc.text(fmt(tripKm(t), 0), cKm, top, { align: 'right' });
+    if (t.rt) { set(7.5, false, MUTED); doc.text('ida e volta', cKm, top + 4.1, { align: 'right' }); }
+    yy += h;
+    if (i < s.paid.length - 1) { doc.setDrawColor(...LINE); doc.setLineWidth(.25); doc.line(X, yy, R, yy); }
   });
-  yy += 3; if (yy + 55 > BOTTOM) { doc.addPage(); yy = 18; } doc.setFontSize(10);
-  const line = (a, b, bold) => { doc.setFont(F, bold ? B : 'normal'); doc.text(tx(a), X + 90, yy); doc.text(tx(b), X + W, yy, { align: 'right' }); yy += 5.5; };
-  line('Total de km', `${fmt(s.kms, 0)} km`); line(P.rate, `${fmt(s.raw)} €`); line(P.total, eur(s.total), true);
+  yy += 4;
+
+  // what to pay is the point of the page
+  const sumH = 12 + 15.5 + (s.raw > 0.4 && s.kms ? 5.5 : 0);
+  if (yy + sumH + 42 > BOTTOM) { doc.addPage(); yy = 17; }
+  const sx = X + 96, sw = W - 96;
+  const line = (a, b) => { set(9.5, false, MUTED); doc.text(tx(a), sx + 4, yy); set(9.5, true); doc.text(tx(b), R - 4, yy, { align: 'right' }); yy += 5.5; };
+  yy += 2;
+  line('Total de km', `${fmt(s.kms, 0)} km`); line(P.rate, `${fmt(s.raw)} €`);
   if (s.raw > 0.4 && s.kms) line(P.excess, eur(r2(s.kms * (s.raw - 0.4))));
-  yy += 14; doc.setFont(F, 'normal'); doc.setDrawColor(0); doc.line(X, yy, X + 90, yy); doc.text('Data: ____ / ____ / ________', X + W, yy, { align: 'right' }); yy += 4.5;
-  doc.setFontSize(9); doc.text(tx(`${P.signLabel} · ${p?.name || ''}`), X, yy); yy += 7;
-  doc.setTextColor(110); doc.setFontSize(8); doc.text(doc.splitTextToSize(tx(P.mapLegal), W), X, yy);
+  yy -= 1.5;
+  doc.setFillColor(...BRAND); doc.roundedRect(sx, yy, sw, 13, 2.4, 2.4, 'F');
+  set(10.5, true); doc.text(tx(P.total), sx + 4, yy + 8.1);
+  set(15, true); doc.text(tx(eur(s.total)), R - 4, yy + 8.6, { align: 'right' });
+  yy += 13;
+
+  // signature right under the amount it confirms
+  const sy = yy + 26;
+  doc.setDrawColor(...INK); doc.setLineWidth(.3); doc.line(X, sy, X + 92, sy); doc.line(R - 52, sy, R, sy);
+  set(8.5, false, MUTED); doc.text(tx(`${P.signLabel} · ${p?.name || ''}`), X, sy + 4.4); doc.text('Data', R - 52, sy + 4.4);
+  doc.setFontSize(7.5); doc.text(doc.splitTextToSize(tx(P.mapLegal), W), X, sy + 11);
   const pages = doc.getNumberOfPages();
-  for (let i = 1; i <= pages; i++) { doc.setPage(i); doc.setFont(F, 'normal'); doc.setTextColor(110); doc.setFontSize(8); doc.text(tx(`${p?.name || ''} · ${c.plate} · ${MONTHS.pt[mo - 1]} ${yr}`), X, 290); doc.text(`${i} / ${pages}`, X + W, 290, { align: 'right' }); }
+  for (let i = 1; i <= pages; i++) { doc.setPage(i); set(7.5, false, MUTED); doc.text(tx(`${p?.name || ''} · ${c.plate} · ${period}`), X, 289); doc.text(`${i} / ${pages}`, R, 289, { align: 'right' }); }
   const filename = `mapa-km-${c.plate}-${m}.pdf`;
   if (!(await deliverFile(filename, doc.output('blob'), 'application/pdf'))) return false;
   return true;
