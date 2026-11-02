@@ -980,7 +980,7 @@ function viewCars() {
 
 // ---------------- section: trips ----------------
 // Two addresses, one under the other, so a town is never cut; km and time on site on the right. The euro amount lives only in the month total.
-const routeLines2 = (a, b, rt) => `<span class="t rt1">${esc(a)}</span><span class="t rt2"><i>${rt ? '↔' : '→'}</i>${esc(b)}</span>`;
+const routeLines2 = (a, b, rt) => `<span class="t rt1">${esc(a)}</span><span class="t rt2"><i>${rt ? '↔\uFE0E' : '→\uFE0E'}</i>${esc(b)}</span>`;
 function tripItem(t) {
   const T = L(); const paid = needsStay(carById(t.carId), t.pk);
   const sub = [purposeOf(t), dayLabel(t.date).replace(/ /g, '\u00a0')].filter(Boolean).join(' · ');
