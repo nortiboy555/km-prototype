@@ -188,7 +188,7 @@ button.item:hover { background: var(--fill); }
 .prow > .full .err { align-self: flex-start; text-align: left; }
 /* month summary: what is entered on the left, the figure that matters on the right, how it comes out below */
 .sum { padding: 10px 16px; gap: 4px; }
-.sum-g { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: baseline; }
+.sum-g { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: center; }
 .sum-g label, .sum-g .cap { font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sum-g .cap.r, .sum-v { text-align: right; }
 .sum-v { font-size: 22px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -197,11 +197,11 @@ button.item:hover { background: var(--fill); }
 .sum-tot { font-size: 12px; line-height: 20px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .sum-tot b { color: var(--ink); font-weight: 700; font-size: 16px; }
 .sum-g .odo-pair { grid-column: 1 / -1; margin-top: 4px; }
-.km-bar { height: 6px; display: flex; gap: 2px; margin-top: 4px; }
+.km-bar { height: 6px; display: flex; gap: 2px; margin-top: 0; }
 .km-bar i { display: block; height: 100%; min-width: 3px; border-radius: 3px; }
 .km-bar .biz { background: var(--ink); }
 .km-bar .pers { flex: 1; background: var(--brand); }
-.km-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; font-size: 12px; line-height: 20px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.km-line { margin-top: 6px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; font-size: 12px; line-height: 20px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .km-line b { color: var(--ink); font-weight: 700; font-size: 16px; }
 .sum-calc { margin: 0; font-size: 12px; line-height: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .sum-g.pay .sum-calc { grid-column: 1 / -1; }
@@ -1023,7 +1023,7 @@ function viewTrips() {
     card = `<div class="card sum"><div class="sum-g">
       <span class="cap odo-h">${ico('gauge')}${T.odoU}</span><span class="sum-tot">${s.ok ? `${T.totU} <b>${fmt(s.total, 0)}</b>` : ''}</span>
       <span class="odo-pair">${odoCell('odo-s', `1 ${mon}`, o[0], 1)}${odoCell('odo-e', `${lastDay} ${mon}`, o[1], lastDay)}</span>
-    </div>${s.over ? '<div class="km-bar" aria-hidden="true"><i class="over"></i></div>' : ''}${split ? `<div class="km-bar" aria-hidden="true">${s.biz ? `<i class="biz" style="width:${(s.biz / s.total * 100).toFixed(2)}%"></i>` : ''}${s.personal ? '<i class="pers"></i>' : ''}</div>` : ''}${line}${alerts}</div>`;
+    </div>${line}${s.over ? '<div class="km-bar" aria-hidden="true"><i class="over"></i></div>' : ''}${split ? `<div class="km-bar" aria-hidden="true">${s.biz ? `<i class="biz" style="width:${(s.biz / s.total * 100).toFixed(2)}%"></i>` : ''}${s.personal ? '<i class="pers"></i>' : ''}</div>` : ''}${alerts}</div>`;
   }
   const ts = tripsOf(car.id, ui.month);
   const list = !ts.length ? (f === 'MAP' ? '' : `<p class="only-biz">${T.onlyBiz}</p>`) : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
