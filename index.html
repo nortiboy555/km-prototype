@@ -196,7 +196,7 @@ button.item:hover { background: var(--fill); }
 .prow.need .pin::placeholder { color: var(--warn); }
 .sum-tot { font-size: 12px; line-height: 20px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .sum-tot b { color: var(--ink); font-weight: 700; font-size: 16px; }
-.sum-g .odo-pair { grid-column: 1 / -1; }
+.sum-g .odo-pair { grid-column: 1 / -1; margin-top: 2px; }
 .km-bar { height: 6px; display: flex; gap: 2px; margin-top: 4px; }
 .km-bar i { display: block; height: 100%; min-width: 3px; border-radius: 3px; }
 .km-bar .biz { background: var(--ink); }
@@ -208,14 +208,16 @@ button.item:hover { background: var(--fill); }
 .sum-g.pay .cap { font-size: 13px; color: var(--ink); font-weight: 600; }
 @media (min-width: 641px) { .sum-g:not(.pay) { grid-template-columns: 300px minmax(0, 1fr); } }
 /* the two readings are one range: a single soft field, the numbers centered around the arrow */
-.odo-pair { display: flex; align-items: center; min-width: 0; min-height: 44px; padding: 0 6px; border-radius: 12px; background: var(--fill); box-shadow: inset 0 0 0 1px transparent; transition: box-shadow 150ms ease; }
-.odo-pair:focus-within { box-shadow: inset 0 0 0 1.5px var(--brand); }
-.odo-pair .arr { color: var(--muted); flex: none; width: 16px; text-align: center; }
-.odo-in { flex: 1 1 0; width: 100%; min-width: 0; height: 44px; border: 0; border-radius: 0; background: transparent; color: var(--ink); padding: 0; font: inherit; font-size: 16px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: center; }
+.odo-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.odo-f { display: flex; flex-direction: column; gap: 2px; min-width: 0; cursor: text; }
+.odo-box { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--hairline-2); background: var(--surface); transition: border-color 150ms ease; }
+.odo-box:focus-within { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+.odo-box .ico { flex: none; width: 18px; height: 18px; color: var(--muted); }
+.odo-box .ico svg { display: block; width: 18px; height: 18px; }
+.odo-in { flex: 1 1 0; width: 100%; min-width: 0; height: 42px; border: 0; background: transparent; color: var(--ink); padding: 0; font: inherit; font-size: 16px; font-weight: 650; font-variant-numeric: tabular-nums; }
 .odo-in:focus { outline: none; }
-.odo-in::placeholder { color: var(--ph); }
-.odo-in:focus { outline: none; border-bottom-color: var(--brand); }
-.odo-in::placeholder { color: var(--ph); }
+.odo-in::placeholder { color: var(--ph); font-weight: 400; font-size: 15px; }
+.only-biz { margin: 0 0 12px; font-size: 13px; line-height: 18px; color: var(--muted); }
 .alert { --a: var(--warn); display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 8px; border-radius: 12px; background: var(--fill); background: color-mix(in srgb, var(--a) 11%, transparent); font-size: 13px; line-height: 18px; color: var(--ink); }
 .alert.info { --a: #c98a00; }
 .alert-i { flex: none; width: 22px; height: 22px; color: var(--a); }
@@ -445,6 +447,7 @@ const ICON = {
   euro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M15 9.5c-.6-.7-1.5-1.1-2.5-1.1-1.9 0-3.5 1.6-3.5 3.6s1.6 3.6 3.5 3.6c1 0 1.9-.4 2.5-1.1M8 11h6M8 13h6"/></svg>',
   doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.75" r=".6" fill="currentColor"/></svg>',
+  gauge: '<svg viewBox="0 0 256 256" fill="currentColor"><path d="M207.06,72.67A111.24,111.24,0,0,0,128,40h-.4C66.07,40.21,16,91,16,153.13V176a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V152A111.25,111.25,0,0,0,207.06,72.67ZM224,176H119.71l54.76-75.3a8,8,0,0,0-12.94-9.42L99.92,176H32V153.13c0-3.08.15-6.12.43-9.13H56a8,8,0,0,0,0-16H35.27c10.32-38.86,44-68.24,84.73-71.66V80a8,8,0,0,0,16,0V56.33A96.14,96.14,0,0,1,221,128H200a8,8,0,0,0,0,16h23.67c.21,2.65.33,5.31.33,8Z"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M 8.207 14.621 L 0 6.414 L 1.414 5 L 8.207 11.793 L 20 0 L 21.414 1.414 L 8.207 14.621 Z" transform="translate(1.293 3.778)"/></svg>',
 };
@@ -488,7 +491,7 @@ const S = {
     stClosed: (k) => `total ${k}`, stOpen: (k) => `${k} · mês em curso`, stRun: 'mês em curso', stOver: 'km não batem certo', stNoOdo: 'sem conta-km', stTrips: (n, e) => `${n} ${n === 1 ? 'deslocação' : 'deslocações'} · ${e}`, stNone: 'sem deslocações', 
  proto: 'Protótipo · dados fictícios',
     tCars: 'Viaturas', tTrips: 'Deslocações', tVat: 'IVA', tMaps: 'Mapas de km',
-    addCar: 'Adicionar viatura', addTrip: 'Adicionar deslocação', close: 'Fechar', saveQ: "Guardar as alterações?", discard: "Não guardar", cancel: 'Cancelar', save: 'Guardar', edit: 'Editar', del: 'Apagar', 
+    addCar: 'Adicionar viatura', addTrip: 'Adicionar deslocação de serviço', close: 'Fechar', saveQ: "Guardar as alterações?", discard: "Não guardar", cancel: 'Cancelar', save: 'Guardar', edit: 'Editar', del: 'Apagar', 
     noCarsAll: 'Adicione uma viatura para registar deslocações e calcular o IVA.', noEmpCars: 'Este sujeito passivo não tem viaturas de colaboradores.', 
     outVat: 'IVA sobre km pessoais', outMap: 'compensação por km', outNone: 'sem IVA a liquidar',
     mEV: 'Elétrico', mPHEV: 'Híbrido plug-in', mGPL: 'GPL', mDIESEL: 'Gasóleo', mPETROL: 'Gasolina',
@@ -514,7 +517,7 @@ const S = {
     errPlate: 'Formato AA-00-AA, 00-AA-00, 00-00-AA ou AA-00-00', errDup: 'Esta matrícula já existe', errReq: 'Obrigatório', errNum: 'Valor, p. ex. 12.027,15', fixErrors: 'Verifique os campos marcados', errName: 'Indique o nome',
     odoGap: (k, m) => `No fim de ${m}: ${k}`, odoLess: 'Fim do mês abaixo do início', odoS: (d) => `Conta-km ${d}`, odoE: (d) => `Conta-km ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Conta-km 1–${d} ${m}`, persKmU: 'Pessoais, km', bizU: 'Serviço, km', totU: 'Total, km', overIn: (m, d) => `${m}: serviço com mais ${d} do que o total`, overBy: (d) => `Serviço com mais ${d} do que o total`, rate: 'Valor por km', 
+    odoU: 'Conta-km', odoFrom: (m) => `No início, 1 ${m}`, odoTo: (d, m) => `No fim, ${d} ${m}`, odoType: 'Introduzir', onlyBiz: 'Os km pessoais calculam-se sozinhos: total menos serviço', persKmU: 'Pessoais, km', bizU: 'Serviço, km', totU: 'Total, km', overIn: (m, d) => `${m}: serviço com mais ${d} do que o total`, overBy: (d) => `Serviço com mais ${d} do que o total`, rate: 'Valor por km', 
     noTrips: 'Sem deslocações neste mês.', 
     newTrip: 'Nova deslocação', editTrip: 'Deslocação', date: 'Data', from: 'De', to: 'Para', purpose: 'Motivo', kmOne: 'Km num sentido', stay: 'Tempo no local', stayU: 'h', errStay: 'Escreva h:mm, por exemplo 1:30', stayIn: d => `${d} no local`, stayHint: 'Quanto tempo ficou no local. A AT pede-o no mapa de km',
     rt: 'Ida e volta', home: 'De casa para o trabalho', notPaid: 'não compensado', 
@@ -540,7 +543,7 @@ const S = {
     stClosed: (k) => `total ${k}`, stOpen: (k) => `${k} · month in progress`, stRun: 'month in progress', stOver: 'km do not add up', stNoOdo: 'no odometer', stTrips: (n, e) => `${n} ${n === 1 ? 'trip' : 'trips'} · ${e}`, stNone: 'no trips', 
  proto: 'Prototype · sample data',
     tCars: 'Cars', tTrips: 'Trips', tVat: 'VAT', tMaps: 'Mileage logs',
-    addCar: 'Add car', addTrip: 'Add trip', close: 'Close', saveQ: "Save the changes?", discard: "Don't save", cancel: 'Cancel', save: 'Save', edit: 'Edit', del: 'Delete', 
+    addCar: 'Add car', addTrip: 'Add business trip', close: 'Close', saveQ: "Save the changes?", discard: "Don't save", cancel: 'Cancel', save: 'Save', edit: 'Edit', del: 'Delete', 
     noCarsAll: 'Add a car to log trips and work out the VAT.', noEmpCars: 'This taxpayer has no employee cars.', 
     outVat: 'VAT on private km', outMap: 'mileage allowance', outNone: 'no VAT due',
     mEV: 'Electric', mPHEV: 'Plug-in hybrid', mGPL: 'LPG', mDIESEL: 'Diesel', mPETROL: 'Petrol',
@@ -566,7 +569,7 @@ const S = {
     errPlate: 'Format AA-00-AA, 00-AA-00, 00-00-AA or AA-00-00', errDup: 'This plate already exists', errReq: 'Required', errNum: 'Amount, e.g. 12.027,15', fixErrors: 'Check the marked fields', errName: 'Enter the name',
     odoGap: (k, m) => `At the end of ${m}: ${k}`, odoLess: 'End of month is below the start', odoS: (d) => `Odometer ${d}`, odoE: (d) => `Odometer ${d}`, km: 'km',
     
-    odoRange: (d, m) => `Odometer, km 1–${d} ${m}`, persKmU: 'Personal, km', bizU: 'Business, km', totU: 'Total, km', overIn: (m, d) => `${m}: business is ${d} above the total`, overBy: (d) => `Business is ${d} above the total`, rate: 'Rate per km', 
+    odoU: 'Odometer, km', odoFrom: (m) => `Start, 1 ${m}`, odoTo: (d, m) => `End, ${d} ${m}`, odoType: 'Enter', onlyBiz: 'Personal km work themselves out: total minus business', persKmU: 'Personal, km', bizU: 'Business, km', totU: 'Total, km', overIn: (m, d) => `${m}: business is ${d} above the total`, overBy: (d) => `Business is ${d} above the total`, rate: 'Rate per km', 
     noTrips: 'No trips this month.', 
     newTrip: 'New trip', editTrip: 'Trip', date: 'Date', from: 'From', to: 'To', purpose: 'Purpose', kmOne: 'Km one way', stay: 'Time on site', stayU: 'h', errStay: 'Use h:mm, e.g. 1:30', stayIn: d => `${d} on site`, stayHint: 'How long you stayed there. AT asks for it on the mileage log',
     rt: 'Round trip', home: 'Home to work', notPaid: 'not reimbursed', 
@@ -592,7 +595,7 @@ const S = {
     stClosed: (k) => `пробег ${k}`, stOpen: (k) => `${k} · месяц идёт`, stRun: 'месяц идёт', stOver: 'км не сходятся', stNoOdo: 'нет одометра', stTrips: (n, e) => `${n} ${ruPl(n, 'поездка', 'поездки', 'поездок')} · ${e}`, stNone: 'поездок нет', 
  proto: 'Прототип · условные данные',
     tCars: 'Машины', tTrips: 'Поездки', tVat: 'IVA', tMaps: 'Компенсация за км',
-    addCar: 'Добавить машину', addTrip: 'Добавить поездку', close: 'Закрыть', saveQ: "Сохранить изменения?", discard: "Не сохранять", cancel: 'Отмена', save: 'Сохранить', edit: 'Изменить', del: 'Удалить', 
+    addCar: 'Добавить машину', addTrip: 'Добавить бизнес-поездку', close: 'Закрыть', saveQ: "Сохранить изменения?", discard: "Не сохранять", cancel: 'Отмена', save: 'Сохранить', edit: 'Изменить', del: 'Удалить', 
     noCarsAll: 'Добавьте машину, чтобы записывать поездки и считать IVA.', noEmpCars: 'У этого плательщика нет машин сотрудников.', 
     outVat: 'IVA с личных км', outMap: 'компенсация за км', outNone: 'IVA не начисляется',
     mEV: 'Электро', mPHEV: 'Плагин-гибрид', mGPL: 'Газ', mDIESEL: 'Дизель', mPETROL: 'Бензин',
@@ -618,7 +621,7 @@ const S = {
     errPlate: 'Формат AA-00-AA, 00-AA-00, 00-00-AA или AA-00-00', errDup: 'Такой номер уже есть', errReq: 'Обязательно', errNum: 'Сумма, например 12.027,15', fixErrors: 'Проверьте отмеченные поля', errName: 'Укажите имя',
     odoGap: (k, m) => `В конце ${m} было ${k}`, odoLess: 'Конец месяца меньше начала', odoS: (d) => `Одометр ${d}`, odoE: (d) => `Одометр ${d}`, km: 'км',
     
-    odoRange: (d, m) => `Одометр, км 1–${d} ${m}`, persKmU: 'Личные, км', bizU: 'Бизнес, км', totU: 'Пробег, км', overIn: (m, d) => `${m}: бизнес на ${d} больше пробега`, overBy: (d) => `Бизнес на ${d} больше пробега`, rate: 'Ставка за км', 
+    odoU: 'Одометр, км', odoFrom: (m) => `В начале, 1 ${m}`, odoTo: (d, m) => `В конце, ${d} ${m}`, odoType: 'Введите', onlyBiz: 'Личные км считаются сами: пробег минус бизнес', persKmU: 'Личные, км', bizU: 'Бизнес, км', totU: 'Пробег, км', overIn: (m, d) => `${m}: бизнес на ${d} больше пробега`, overBy: (d) => `Бизнес на ${d} больше пробега`, rate: 'Ставка за км', 
     noTrips: 'В этом месяце поездок нет.', 
     newTrip: 'Новая поездка', editTrip: 'Поездка', date: 'Дата', from: 'Откуда', to: 'Куда', purpose: 'Цель', kmOne: 'Км в одну сторону', stay: 'Время на месте', stayU: 'ч', errStay: 'Формат ч:мм, например 1:30', stayIn: d => `${d} на месте`, stayHint: 'Сколько пробыли на месте. AT требует это в ведомости',
     rt: 'Туда и обратно', home: 'Из дома на работу', notPaid: 'не компенсируется', 
@@ -1005,18 +1008,20 @@ function viewTrips() {
     // Four figures in one line: the two odometer readings to type and what they give for the month
     const less = o[0] != null && o[1] != null && o[1] < o[0];
     const alerts = [less ? alertBox(T.odoLess) : '', s.over ? alertBox(T.overBy(km(s.biz - s.total))) : '', gap ? alertBox(gap, '', 'info') : ''].join('');
-    const odoIn = (id, v, day) => `<input class="odo-in" id="${id}" value="${v != null ? fmt(v, 0) : ''}" inputmode="numeric" placeholder="—" aria-label="${esc(T[id === 'odo-s' ? 'odoS' : 'odoE'](dayOfMonth(ui.month, day)))}">`;
+    const odoIn = (id, v, day) => `<input class="odo-in" id="${id}" value="${v != null ? fmt(v, 0) : ''}" inputmode="numeric" placeholder="${T.odoType}" aria-label="${esc(T[id === 'odo-s' ? 'odoS' : 'odoE'](dayOfMonth(ui.month, day)))}">`;
+    const mon = MON[lang][ymParts(ui.month)[1] - 1];
+    const odoCell = (id, cap, v, day) => `<label class="odo-f"><span class="cap">${cap}</span><span class="odo-box">${ico('gauge')}${odoIn(id, v, day)}</span></label>`;
     const lastDay = lastDayOf(ui.month);
     // the odometer gives the total, the bar splits it: logged business km and the rest, personal, which carries the VAT
     const split = s.ok && !s.over && s.total > 0;
     const line = split || s.biz ? `<div class="km-line"><span class="${s.over ? 'off' : ''}">${T.bizU} <b>${fmt(s.biz, 0)}</b></span>${split ? `<span>${T.persKmU} <b>${fmt(s.personal, 0)}</b></span>` : ''}</div>` : '';
     card = `<div class="card sum"><div class="sum-g">
-      <label for="odo-s">${T.odoRange(lastDay, MON[lang][ymParts(ui.month)[1] - 1])}</label><span class="sum-tot">${s.ok ? `${T.totU} <b>${fmt(s.total, 0)}</b>` : ''}</span>
-      <span class="odo-pair">${odoIn('odo-s', o[0], 1)}<span class="arr" aria-hidden="true">→</span>${odoIn('odo-e', o[1], lastDay)}</span>
+      <span class="cap">${T.odoU}</span><span class="sum-tot">${s.ok ? `${T.totU} <b>${fmt(s.total, 0)}</b>` : ''}</span>
+      <span class="odo-pair">${odoCell('odo-s', T.odoFrom(mon), o[0], 1)}${odoCell('odo-e', T.odoTo(lastDay, mon), o[1], lastDay)}</span>
     </div>${s.over ? '<div class="km-bar" aria-hidden="true"><i class="over"></i></div>' : ''}${split ? `<div class="km-bar" aria-hidden="true">${s.biz ? `<i class="biz" style="width:${(s.biz / s.total * 100).toFixed(2)}%"></i>` : ''}${s.personal ? '<i class="pers"></i>' : ''}</div>` : ''}${line}${alerts}</div>`;
   }
   const ts = tripsOf(car.id, ui.month);
-  const list = !ts.length ? '' : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
+  const list = !ts.length ? (f === 'MAP' ? '' : `<p class="only-biz">${T.onlyBiz}</p>`) : `<div class="list">${ts.map(t => tripItem(t)).join('')}</div>`;
   // Adding a trip comes after the month's trips, as a real button under the list
   return `${ctx}${card}${list}<button class="btn add-btn add-main" data-act="add-trip">${ico('plus')}${T.addTrip}</button><div class="trip-links"><button class="btn text" id="trips-places" data-act="places">${T.myPlaces}</button><button class="btn text" id="trips-goals" data-act="goals">${T.myGoals}</button></div>`;
 }
