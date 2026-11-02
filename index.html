@@ -1545,7 +1545,7 @@ async function saveMapPdf(c, m) {
     set(9.5, false); const from = doc.splitTextToSize(tx(t.from), 76), to = doc.splitTextToSize(tx(t.to), 72);
     const why = doc.splitTextToSize(tx((t.pk && P.purposes[t.pk]) || t.purpose || ''), 40);
     // the round trip belongs to the route: after the destination, or under it when it does not fit
-    const lastW = doc.getTextWidth(to[to.length - 1]); set(8, false); const rtW = doc.getTextWidth(' · ida e volta'); const rtBelow = t.rt && lastW + rtW > 72;
+    const lastW = doc.getTextWidth(to[to.length - 1]); set(8, false); const rtW = doc.getTextWidth('·  ida e volta') + 1.2; const rtBelow = t.rt && lastW + rtW > 72;
     const h = Math.max((from.length + to.length + (rtBelow ? 1 : 0)) * 4.5, why.length * 4.5, 9) + 5;
     if (yy + h > BOTTOM) { doc.addPage(); yy = 17; head(); }
     const top = yy + 5.4;
@@ -1559,7 +1559,7 @@ async function saveMapPdf(c, m) {
     doc.text(why, cWhy, top);
     if (t.stay) doc.text(`${stayShow(t.stay)} h`, cStay, top, { align: 'right' });
     doc.text(fmt(tripKm(t), 0), cKm, top, { align: 'right' });
-    if (t.rt) { set(8, false, MUTED); const lastY = toY + (to.length - 1) * 4.5; if (rtBelow) doc.text('ida e volta', cRoute + 4.6, lastY + 4.5); else doc.text(' · ida e volta', cRoute + 4.6 + lastW, lastY); }
+    if (t.rt) { set(8, false, MUTED); const lastY = toY + (to.length - 1) * 4.5; if (rtBelow) doc.text('ida e volta', cRoute + 4.6, lastY + 4.5); else doc.text('·  ida e volta', cRoute + 4.6 + lastW + 1.2, lastY); }
     yy += h;
     if (i < s.paid.length - 1) { doc.setDrawColor(...LINE); doc.setLineWidth(.25); doc.line(X, yy, R, yy); }
   });
@@ -1569,14 +1569,15 @@ async function saveMapPdf(c, m) {
   const sumH = 12 + 15.5 + (s.raw > 0.4 && s.kms ? 5.5 : 0);
   if (yy + sumH + 42 > BOTTOM) { doc.addPage(); yy = 17; }
   const sx = cWhy - 3, sw = R - sx;
-  const line = (a, b) => { set(9.5, false, MUTED); doc.text(tx(a), cWhy, yy); set(9.5, false); doc.text(tx(b), cKm, yy, { align: 'right' }); yy += 5.5; };
+  const money = (v, size, bold, ty) => { const w = .556 * size * .3528; set(size, bold); doc.text('€', cKm - w, ty); doc.text(fmt(v), cKm - w - .278 * size * .3528, ty, { align: 'right' }); };
+  const line = (a, b) => { set(9.5, false, MUTED); doc.text(tx(a), cWhy, yy); if (typeof b === 'number') money(b, 9.5, false, yy); else { set(9.5, false); doc.text(tx(b), cKm, yy, { align: 'right' }); } yy += 5.5; };
   yy += 2;
-  line('Total de km', `${fmt(s.kms, 0)} km`); line(P.rate, `${fmt(s.raw)} €`);
-  if (s.raw > 0.4 && s.kms) line(P.excess, eur(r2(s.kms * (s.raw - 0.4))));
+  line('Total de km', `${fmt(s.kms, 0)} km`); line(P.rate, s.raw);
+  if (s.raw > 0.4 && s.kms) line(P.excess, r2(s.kms * (s.raw - 0.4)));
   yy -= 1.5;
   doc.setFillColor(...BRAND); doc.roundedRect(sx, yy, sw, 13, 2.4, 2.4, 'F');
   set(10.5, false); doc.text(tx(P.total), cWhy, yy + 8.1);
-  set(15, true); doc.text(tx(eur(s.total)), cKm, yy + 8.6, { align: 'right' });
+  money(s.total, 15, true, yy + 8.6);
   yy += 13;
 
   // signature right under the amount it confirms
